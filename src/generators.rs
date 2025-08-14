@@ -26,9 +26,14 @@ impl ConfigGenerator {
         self.generate_basic_with_template(force, "default").await
     }
 
-    pub async fn generate_basic_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_basic_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         self.generate_editor_config(force).await?;
-        self.generate_prettier_config_with_template(force, template).await?;
+        self.generate_prettier_config_with_template(force, template)
+            .await?;
         self.generate_justfile(force).await?;
         Ok(())
     }
@@ -44,15 +49,21 @@ impl ConfigGenerator {
         self.generate_ruby_with_template(force, "default").await
     }
 
-    pub async fn generate_ruby_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_ruby_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         // Generate basic configs first (includes justfile)
         self.generate_basic_with_template(force, template).await?;
 
         // Generate Ruby-specific configs
         self.generate_ruby_version(force).await?;
         self.generate_node_version(force).await?;
-        self.generate_rubocop_config_with_template(force, template).await?;
-        self.generate_package_json_with_template(force, template).await?;
+        self.generate_rubocop_config_with_template(force, template)
+            .await?;
+        self.generate_package_json_with_template(force, template)
+            .await?;
 
         // Overwrite the basic justfile with Ruby-specific one
         self.generate_ruby_justfile(force, template).await?;
@@ -73,7 +84,11 @@ impl ConfigGenerator {
     }
 
     // Python project generation
-    pub async fn generate_python_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_python_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(force, template).await?;
 
@@ -94,15 +109,25 @@ impl ConfigGenerator {
         println!("  🎨 Would generate .prettierrc (template: {})", template);
         println!("  🔧 Would generate justfile");
         println!("  🐍 Would generate .python-version (3.12)");
-        println!("  📦 Would generate pyproject.toml (template: {})", template);
+        println!(
+            "  📦 Would generate pyproject.toml (template: {})",
+            template
+        );
         println!("  🔍 Would generate .flake8");
         println!("  📋 Would generate requirements-dev.txt");
-        println!("  🔧 Would generate Python justfile (template: {})", template);
+        println!(
+            "  🔧 Would generate Python justfile (template: {})",
+            template
+        );
         Ok(())
     }
 
     // Node.js project generation
-    pub async fn generate_node_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_node_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(force, template).await?;
 
@@ -124,12 +149,19 @@ impl ConfigGenerator {
         println!("  🟢 Would generate .nvmrc (20)");
         println!("  🔍 Would generate .eslintrc.js (template: {})", template);
         println!("  📦 Would generate package.json (template: {})", template);
-        println!("  🔧 Would generate Node.js justfile (template: {})", template);
+        println!(
+            "  🔧 Would generate Node.js justfile (template: {})",
+            template
+        );
         Ok(())
     }
 
     // Go project generation
-    pub async fn generate_go_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_go_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(force, template).await?;
 
@@ -156,7 +188,11 @@ impl ConfigGenerator {
     }
 
     // Rust project generation
-    pub async fn generate_rust_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    pub async fn generate_rust_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(force, template).await?;
 
@@ -182,7 +218,7 @@ impl ConfigGenerator {
         Ok(())
     }
 
-        pub async fn detect_project_type(&self) -> Result<ProjectType, ZackstrapError> {
+    pub async fn detect_project_type(&self) -> Result<ProjectType, ZackstrapError> {
         // Check for Ruby project indicators
         let gemfile = self.target_dir.join("Gemfile");
         let rakefile = self.target_dir.join("Rakefile");
@@ -192,22 +228,34 @@ impl ConfigGenerator {
         }
 
         // Check for Python project indicators
-        if self.has_files_with_pattern("*.py") || self.has_files_with_pattern("requirements*.txt") || self.has_files_with_pattern("pyproject.toml") {
+        if self.has_files_with_pattern("*.py")
+            || self.has_files_with_pattern("requirements*.txt")
+            || self.has_files_with_pattern("pyproject.toml")
+        {
             return Ok(ProjectType::Python);
         }
 
         // Check for Node.js project indicators
-        if self.has_files_with_pattern("package.json") || self.has_files_with_pattern("*.js") || self.has_files_with_pattern("*.ts") {
+        if self.has_files_with_pattern("package.json")
+            || self.has_files_with_pattern("*.js")
+            || self.has_files_with_pattern("*.ts")
+        {
             return Ok(ProjectType::Node);
         }
 
         // Check for Go project indicators
-        if self.has_files_with_pattern("*.go") || self.has_files_with_pattern("go.mod") || self.has_files_with_pattern("go.sum") {
+        if self.has_files_with_pattern("*.go")
+            || self.has_files_with_pattern("go.mod")
+            || self.has_files_with_pattern("go.sum")
+        {
             return Ok(ProjectType::Go);
         }
 
         // Check for Rust project indicators
-        if self.has_files_with_pattern("*.rs") || self.has_files_with_pattern("Cargo.toml") || self.has_files_with_pattern("Cargo.lock") {
+        if self.has_files_with_pattern("*.rs")
+            || self.has_files_with_pattern("Cargo.toml")
+            || self.has_files_with_pattern("Cargo.lock")
+        {
             return Ok(ProjectType::Rust);
         }
 
@@ -219,7 +267,7 @@ impl ConfigGenerator {
         if let Ok(entries) = std::fs::read_dir(&self.target_dir) {
             for entry in entries.flatten() {
                 if let Some(file_name) = entry.file_name().to_str() {
-                    if glob::Pattern::new(pattern).map_or(false, |p| p.matches(file_name)) {
+                    if glob::Pattern::new(pattern).is_ok_and(|p| p.matches(file_name)) {
                         return true;
                     }
                 }
@@ -278,7 +326,12 @@ impl ConfigGenerator {
                 self.generate_rust_with_template(force, "default").await?;
                 println!("✅ Rust configuration complete!");
             }
-            "basic" | _ => {
+            "basic" => {
+                println!("📁 Setting up basic project configuration...");
+                self.generate_basic(force).await?;
+                println!("✅ Basic configuration complete!");
+            }
+            _ => {
                 println!("📁 Setting up basic project configuration...");
                 self.generate_basic(force).await?;
                 println!("✅ Basic configuration complete!");
@@ -305,9 +358,11 @@ impl ConfigGenerator {
         Ok(())
     }
 
-
-
-    async fn generate_prettier_config_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_prettier_config_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".prettierrc");
 
         if file_path.exists() && !force {
@@ -332,8 +387,8 @@ impl ConfigGenerator {
             _ => PrettierConfig::default(),
         };
 
-        let content = serde_json::to_string_pretty(&config)
-            .map_err(ZackstrapError::SerializationError)?;
+        let content =
+            serde_json::to_string_pretty(&config).map_err(ZackstrapError::SerializationError)?;
 
         fs::write(&file_path, content)
             .map_err(|e| ZackstrapError::WriteFileError(file_path.clone(), e))?;
@@ -370,9 +425,11 @@ impl ConfigGenerator {
         Ok(())
     }
 
-
-
-    async fn generate_rubocop_config_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_rubocop_config_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".rubocop.yml");
 
         if file_path.exists() && !force {
@@ -393,9 +450,11 @@ impl ConfigGenerator {
         Ok(())
     }
 
-
-
-    async fn generate_package_json_with_template(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_package_json_with_template(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("package.json");
 
         if file_path.exists() && !force {
@@ -410,7 +469,10 @@ impl ConfigGenerator {
                 dev_dependencies: {
                     let mut deps = std::collections::HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps.insert("eslint".to_string(), "^8.0.0".to_string());
                     deps
                 },
@@ -422,7 +484,10 @@ impl ConfigGenerator {
                 dev_dependencies: {
                     let mut deps = std::collections::HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps
                 },
             },
@@ -433,7 +498,10 @@ impl ConfigGenerator {
                 dev_dependencies: {
                     let mut deps = std::collections::HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps.insert("rspec".to_string(), "^3.12".to_string());
                     deps
                 },
@@ -441,8 +509,8 @@ impl ConfigGenerator {
             _ => PackageJson::default(),
         };
 
-        let content = serde_json::to_string_pretty(&config)
-            .map_err(ZackstrapError::SerializationError)?;
+        let content =
+            serde_json::to_string_pretty(&config).map_err(ZackstrapError::SerializationError)?;
 
         fs::write(&file_path, content)
             .map_err(|e| ZackstrapError::WriteFileError(file_path.clone(), e))?;
@@ -451,12 +519,12 @@ impl ConfigGenerator {
         Ok(())
     }
 
-            fn editor_config_to_string(&self, _config: &EditorConfig) -> String {
+    fn editor_config_to_string(&self, _config: &EditorConfig) -> String {
         let mut content = String::new();
 
         // Root declaration should be at the top
         content.push_str("root = true\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Default settings for all files
         content.push_str("# Default settings for all files\n");
@@ -467,61 +535,61 @@ impl ConfigGenerator {
         content.push_str("indent_size = 2\n");
         content.push_str("insert_final_newline = true\n");
         content.push_str("trim_trailing_whitespace = true\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Windows batch files need CRLF
         content.push_str("# Windows batch files need CRLF\n");
         content.push_str("[*.bat]\n");
         content.push_str("end_of_line = crlf\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Python files - typically use 4 spaces
         content.push_str("# Python files - typically use 4 spaces\n");
         content.push_str("[*.{py,pyw,ipynb}]\n");
         content.push_str("indent_size = 4\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // PHP files - typically use 4 spaces
         content.push_str("# PHP files - typically use 4 spaces\n");
         content.push_str("[*.{php,phtml,phps}]\n");
         content.push_str("indent_size = 4\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Rust files - typically use 4 spaces
         content.push_str("# Rust files - typically use 4 spaces\n");
         content.push_str("[*.{rs,toml}]\n");
         content.push_str("indent_size = 4\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Elixir files
         content.push_str("# Elixir files\n");
         content.push_str("[*.{ex,exs,eex,heex,leex}]\n");
         content.push_str("indent_size = 2\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Ruby and related files (already 2 spaces from default)
         content.push_str("# Ruby and related files (already 2 spaces from default)\n");
         content.push_str("[*.{rb,erb,ru,rake,gemspec}]\n");
         content.push_str("indent_size = 2\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Web and configuration files (already 2 spaces from default)
         content.push_str("# Web and configuration files (already 2 spaces from default)\n");
         content.push_str("[*.{yml,yaml,haml,jbuilder,jsx,html,sls,tf}]\n");
         content.push_str("indent_size = 2\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Makefiles require tabs
         content.push_str("# Makefiles require tabs\n");
         content.push_str("[{*[Mm]akefile*,*.mak,*.mk,depend}]\n");
         content.push_str("indent_style = tab\n");
-        content.push_str("\n");
+        content.push('\n');
 
         // Specific directories
         content.push_str("# Specific directories\n");
         content.push_str("[enc/*]\n");
         content.push_str("indent_size = 2\n");
-        content.push_str("\n");
+        content.push('\n');
         content.push_str("[reg*.[ch]]\n");
         content.push_str("indent_size = 2\n");
 
@@ -590,7 +658,8 @@ Metrics/MethodLength:
 
 Metrics/AbcSize:
   Max: 30
-"#.to_string()
+"#
+        .to_string()
     }
 
     fn get_rubocop_sinatra_content(&self) -> String {
@@ -629,7 +698,8 @@ Metrics/MethodLength:
 
 Metrics/AbcSize:
   Max: 35
-"#.to_string()
+"#
+        .to_string()
     }
 
     fn get_rubocop_gem_content(&self) -> String {
@@ -680,7 +750,8 @@ RSpec/ExampleLength:
 
 RSpec/MultipleExpectations:
   Max: 3
-"#.to_string()
+"#
+        .to_string()
     }
 
     fn get_rubocop_content(&self) -> String {
@@ -829,7 +900,8 @@ RSpec/SubjectDeclaration:
 
 RSpec/VerifiedDoubles:
   Enabled: true
-"#.to_string()
+"#
+        .to_string()
     }
 
     async fn generate_justfile(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -951,10 +1023,15 @@ info:
     @echo "Just version: $(just --version)"
     @echo "Cargo version: $(cargo --version)"
     @echo "Rust version: $(rustc --version)"
-"#.to_string()
+"#
+        .to_string()
     }
 
-    async fn generate_ruby_justfile(&self, _force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_ruby_justfile(
+        &self,
+        _force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
         // For Ruby projects, always overwrite the justfile since it's meant to replace the basic one
@@ -967,7 +1044,7 @@ info:
         Ok(())
     }
 
-    fn get_ruby_justfile_content(&self, template: &str) -> String {
+    pub fn get_ruby_justfile_content(&self, template: &str) -> String {
         let mut content = String::new();
 
         content.push_str("# Ruby Project Justfile\n");
@@ -1056,7 +1133,11 @@ info:
         Ok(())
     }
 
-    async fn generate_pyproject_toml(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_pyproject_toml(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("pyproject.toml");
 
         if file_path.exists() && !force {
@@ -1104,13 +1185,14 @@ info:
         Ok(())
     }
 
-    async fn generate_python_justfile(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_python_justfile(
+        &self,
+        _force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        if file_path.exists() && !force {
-            return Err(ZackstrapError::FileExists(file_path));
-        }
-
+        // For Python projects, always overwrite the justfile since it's meant to replace the basic one
         let content = self.get_python_justfile_content(template);
 
         fs::write(&file_path, content)
@@ -1137,7 +1219,11 @@ info:
         Ok(())
     }
 
-    async fn generate_eslint_config(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_eslint_config(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".eslintrc.js");
 
         if file_path.exists() && !force {
@@ -1153,7 +1239,11 @@ info:
         Ok(())
     }
 
-    async fn generate_node_package_json(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_node_package_json(
+        &self,
+        force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("package.json");
 
         if file_path.exists() && !force {
@@ -1169,12 +1259,14 @@ info:
         Ok(())
     }
 
-    async fn generate_node_justfile(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_node_justfile(
+        &self,
+        _force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        if file_path.exists() && !force {
-            return Err(ZackstrapError::FileExists(file_path));
-        }
+        // For Node.js projects, always overwrite the justfile since it's meant to replace the basic one
 
         let content = self.get_node_justfile_content(template);
 
@@ -1221,7 +1313,8 @@ info:
     async fn generate_go_gitignore(&self, force: bool) -> Result<(), ZackstrapError> {
         let gitignore_path = self.target_dir.join(".gitignore");
 
-        let go_gitignore_content = "\n# Go\n*.exe\n*.exe~\n*.dll\n*.so\n*.dylib\n*.test\n*.out\ngo.work\n";
+        let go_gitignore_content =
+            "\n# Go\n*.exe\n*.exe~\n*.dll\n*.so\n*.dylib\n*.test\n*.out\ngo.work\n";
 
         if gitignore_path.exists() {
             if !force {
@@ -1243,12 +1336,14 @@ info:
         Ok(())
     }
 
-    async fn generate_go_justfile(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_go_justfile(
+        &self,
+        _force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        if file_path.exists() && !force {
-            return Err(ZackstrapError::FileExists(file_path));
-        }
+        // For Go projects, always overwrite the justfile since it's meant to replace the basic one
 
         let content = self.get_go_justfile_content(template);
 
@@ -1315,12 +1410,14 @@ info:
         Ok(())
     }
 
-    async fn generate_rust_justfile(&self, force: bool, template: &str) -> Result<(), ZackstrapError> {
+    async fn generate_rust_justfile(
+        &self,
+        _force: bool,
+        template: &str,
+    ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        if file_path.exists() && !force {
-            return Err(ZackstrapError::FileExists(file_path));
-        }
+        // For Rust projects, always overwrite the justfile since it's meant to replace the basic one
 
         let content = self.get_rust_justfile_content(template);
 
@@ -1332,7 +1429,7 @@ info:
     }
 
     // Content generation methods for new languages
-    fn get_pyproject_toml_content(&self, template: &str) -> String {
+    pub fn get_pyproject_toml_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("[tool.black]\n");
         content.push_str("line-length = 88\n");
@@ -1362,7 +1459,7 @@ info:
         content
     }
 
-    fn get_eslint_config_content(&self, template: &str) -> String {
+    pub fn get_eslint_config_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("module.exports = {\n");
         content.push_str("  env: {\n");
@@ -1400,7 +1497,7 @@ info:
         content
     }
 
-    fn get_node_package_json_content(&self, template: &str) -> String {
+    pub fn get_node_package_json_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("{\n");
         content.push_str("  \"name\": \"myproject\",\n");
@@ -1421,7 +1518,8 @@ info:
                 content.push_str(",\n    \"express\": \"^4.18.2\"\n");
             }
             "react" => {
-                content.push_str(",\n    \"react\": \"^18.2.0\",\n    \"react-dom\": \"^18.2.0\"\n");
+                content
+                    .push_str(",\n    \"react\": \"^18.2.0\",\n    \"react-dom\": \"^18.2.0\"\n");
             }
             _ => {}
         }
@@ -1430,7 +1528,7 @@ info:
         content
     }
 
-    fn get_python_justfile_content(&self, template: &str) -> String {
+    pub fn get_python_justfile_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("# Python Project Justfile\n");
         content.push_str("# Just is a command runner - https://github.com/casey/just\n\n");
@@ -1467,7 +1565,7 @@ info:
         content
     }
 
-    fn get_node_justfile_content(&self, template: &str) -> String {
+    pub fn get_node_justfile_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("# Node.js Project Justfile\n");
         content.push_str("# Just is a command runner - https://github.com/casey/just\n\n");
@@ -1503,7 +1601,7 @@ info:
         content
     }
 
-    fn get_go_justfile_content(&self, template: &str) -> String {
+    pub fn get_go_justfile_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("# Go Project Justfile\n");
         content.push_str("# Just is a command runner - https://github.com/casey/just\n\n");
@@ -1538,10 +1636,10 @@ info:
         content
     }
 
-    fn get_rust_justfile_content(&self, template: &str) -> String {
+    pub fn get_rust_justfile_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("# Rust Project Justfile\n");
-        content.push_str("# Just is a command runner - https://github.com/casezstrap\n\n");
+        content.push_str("# Just is a command runner - https://github.com/casey/just\n\n");
         content.push_str("# Rust development\n");
         content.push_str("rust-version:\n    rustc --version\n\n");
         content.push_str("cargo-build:\n    cargo build\n\n");

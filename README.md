@@ -1,5 +1,10 @@
 # Zackstrap
 
+[![CI/CD Pipeline](https://github.com/yourusername/zackstrap/workflows/CI%2FCD%20Pipeline/badge.svg)](https://github.com/yourusername/zackstrap/actions)
+[![Test Coverage](https://codecov.io/gh/yourusername/zackstrap/branch/main/graph/badge.svg)](https://codecov.io/gh/yourusername/zackstrap)
+[![Crates.io](https://img.shields.io/crates/v/zackstrap.svg)](https://crates.io/crates/zackstrap)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 A powerful Rust CLI tool to bootstrap project configuration files. Quickly generate common project configuration files like `.editorconfig`, `.prettierrc`, and Ruby-specific configurations.
 
 ## Features
@@ -51,7 +56,7 @@ zackstrap ruby
 
 This will create:
 
-```bash
+```md
 - .editorconfig
 - .prettierrc
 - .ruby-version (set to 3.3.0)

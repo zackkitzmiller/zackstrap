@@ -43,34 +43,43 @@ impl Default for EditorConfig {
         let mut sections = HashMap::new();
 
         // Default section
-        sections.insert("*".to_string(), EditorConfigSection {
-            indent_style: "space".to_string(),
-            indent_size: "2".to_string(),
-            end_of_line: Some("lf".to_string()),
-            charset: Some("utf-8".to_string()),
-            trim_trailing_whitespace: Some(true),
-            insert_final_newline: Some(true),
-        });
+        sections.insert(
+            "*".to_string(),
+            EditorConfigSection {
+                indent_style: "space".to_string(),
+                indent_size: "2".to_string(),
+                end_of_line: Some("lf".to_string()),
+                charset: Some("utf-8".to_string()),
+                trim_trailing_whitespace: Some(true),
+                insert_final_newline: Some(true),
+            },
+        );
 
         // Ruby files
-        sections.insert("*.rb".to_string(), EditorConfigSection {
-            indent_style: "space".to_string(),
-            indent_size: "2".to_string(),
-            end_of_line: Some("lf".to_string()),
-            charset: Some("utf-8".to_string()),
-            trim_trailing_whitespace: Some(true),
-            insert_final_newline: Some(true),
-        });
+        sections.insert(
+            "*.rb".to_string(),
+            EditorConfigSection {
+                indent_style: "space".to_string(),
+                indent_size: "2".to_string(),
+                end_of_line: Some("lf".to_string()),
+                charset: Some("utf-8".to_string()),
+                trim_trailing_whitespace: Some(true),
+                insert_final_newline: Some(true),
+            },
+        );
 
         // JavaScript/TypeScript files
-        sections.insert("*.{js,jsx,ts,tsx}".to_string(), EditorConfigSection {
-            indent_style: "space".to_string(),
-            indent_size: "2".to_string(),
-            end_of_line: Some("lf".to_string()),
-            charset: Some("utf-8".to_string()),
-            trim_trailing_whitespace: Some(true),
-            insert_final_newline: Some(true),
-        });
+        sections.insert(
+            "*.{js,jsx,ts,tsx}".to_string(),
+            EditorConfigSection {
+                indent_style: "space".to_string(),
+                indent_size: "2".to_string(),
+                end_of_line: Some("lf".to_string()),
+                charset: Some("utf-8".to_string()),
+                trim_trailing_whitespace: Some(true),
+                insert_final_newline: Some(true),
+            },
+        );
 
         Self {
             root: true,
@@ -99,7 +108,10 @@ impl Default for PackageJson {
     fn default() -> Self {
         let mut dev_dependencies = HashMap::new();
         dev_dependencies.insert("prettier".to_string(), "^3.0.0".to_string());
-        dev_dependencies.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+        dev_dependencies.insert(
+            "prettier-plugin-ruby".to_string(),
+            "github:prettier/plugin-ruby".to_string(),
+        );
 
         Self {
             name: "project".to_string(),

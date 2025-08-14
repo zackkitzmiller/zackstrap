@@ -85,3 +85,6 @@ node_modules/
 .ruby-version
 .rubocop.yml
 .vscode
+.eslintrc.js
+.nvmrc
+tarpaulin-report.html
