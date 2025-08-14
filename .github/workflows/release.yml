@@ -10,7 +10,7 @@ on:
       release_type:
         description: 'Release type'
         required: true
-        default: 'patch'
+        default: 'major'
         type: choice
         options:
           - major
@@ -31,6 +31,7 @@ jobs:
       with:
         fetch-depth: 0
         token: ${{ secrets.GITHUB_TOKEN }}
+        persist-credentials: true
 
     - name: Install Rust toolchain
       uses: actions-rust-lang/setup-rust-toolchain@v1
@@ -42,8 +43,8 @@ jobs:
 
     - name: Configure Git
       run: |
-        git config --local user.email "action@github.com"
-        git config --local user.name "GitHub Action"
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
 
     - name: Bump version
       id: bump
