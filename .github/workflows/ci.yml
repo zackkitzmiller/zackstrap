@@ -44,7 +44,7 @@ jobs:
           ${{ runner.os }}-cargo-
 
     - name: Install cargo-tarpaulin
-      run: cargo install cargo-tarpaulin --version 0.32.8
+      run: cargo install cargo-tarpaulin@0.32.8
 
     - name: Check formatting
       run: cargo fmt --all -- --check
@@ -84,7 +84,7 @@ jobs:
         override: true
 
     - name: Install cargo-tarpaulin
-      run: cargo install cargo-tarpaulin --version 0.32.8
+      run: cargo install cargo-tarpaulin@0.32.8
 
     - name: Generate coverage report
       run: cargo tarpaulin --out Html --output-dir coverage
