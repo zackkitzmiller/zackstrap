@@ -13,9 +13,9 @@ on:
         default: 'patch'
         type: choice
         options:
-          - patch
-          - minor
           - major
+          - minor
+          - patch
 
 permissions:
   contents: write
@@ -98,6 +98,8 @@ jobs:
         git tag -a "v${{ steps.bump.outputs.version }}" -m "Release v${{ steps.bump.outputs.version }}"
         git push origin main
         git push origin "v${{ steps.bump.outputs.version }}"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Create GitHub Release
       uses: actions/create-release@v1
