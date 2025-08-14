@@ -1,9 +1,16 @@
 {
-  "name": "project",
-  "version": "0.1.0",
-  "description": "A Ruby project",
-  "dev_dependencies": {
-    "prettier": "^3.0.0",
-    "prettier-plugin-ruby": "github:prettier/plugin-ruby"
+  "name": "myproject",
+  "version": "1.0.0",
+  "description": "A Node.js project",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js",
+    "lint": "eslint .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5"
+
   }
 }

@@ -83,9 +83,9 @@ enum Commands {
 async fn main() -> Result<(), ZackstrapError> {
     let cli = Cli::parse();
 
-    let target_dir = cli.target.unwrap_or_else(|| {
-        std::env::current_dir().unwrap_or_else(|_| PathBuf::from("."))
-    });
+    let target_dir = cli
+        .target
+        .unwrap_or_else(|| std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")));
 
     if !target_dir.exists() {
         return Err(ZackstrapError::DirectoryNotFound(target_dir));
@@ -99,27 +99,65 @@ async fn main() -> Result<(), ZackstrapError> {
         Commands::Basic { template } => {
             let template_name = template.as_deref().unwrap_or("default");
             if cli.dry_run {
-                println!("{}", format!("🚀 [DRY RUN] Would generate basic project configuration (template: {})...", template_name).blue());
+                println!(
+                    "{}",
+                    format!(
+                        "🚀 [DRY RUN] Would generate basic project configuration (template: {})...",
+                        template_name
+                    )
+                    .blue()
+                );
                 let generator = ConfigGenerator::new(target_dir);
                 generator.dry_run_basic_with_template(template_name).await?;
             } else {
-                println!("{}", format!("🚀 Generating basic project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "🚀 Generating basic project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_basic_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Basic configuration files generated successfully!".green());
+                generator
+                    .generate_basic_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Basic configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Ruby { template } => {
             let template_name = template.as_deref().unwrap_or("default");
             if cli.dry_run {
-                println!("{}", format!("💎 [DRY RUN] Would generate Ruby project configuration (template: {})...", template_name).blue());
+                println!(
+                    "{}",
+                    format!(
+                        "💎 [DRY RUN] Would generate Ruby project configuration (template: {})...",
+                        template_name
+                    )
+                    .blue()
+                );
                 let generator = ConfigGenerator::new(target_dir);
                 generator.dry_run_ruby_with_template(template_name).await?;
             } else {
-                println!("{}", format!("💎 Generating Ruby project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "💎 Generating Ruby project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_ruby_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Ruby configuration files generated successfully!".green());
+                generator
+                    .generate_ruby_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Ruby configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Python { template } => {
@@ -127,12 +165,26 @@ async fn main() -> Result<(), ZackstrapError> {
             if cli.dry_run {
                 println!("{}", format!("🐍 [DRY RUN] Would generate Python project configuration (template: {})...", template_name).blue());
                 let generator = ConfigGenerator::new(target_dir);
-                generator.dry_run_python_with_template(template_name).await?;
+                generator
+                    .dry_run_python_with_template(template_name)
+                    .await?;
             } else {
-                println!("{}", format!("🐍 Generating Python project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "🐍 Generating Python project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_python_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Python configuration files generated successfully!".green());
+                generator
+                    .generate_python_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Python configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Node { template } => {
@@ -142,36 +194,86 @@ async fn main() -> Result<(), ZackstrapError> {
                 let generator = ConfigGenerator::new(target_dir);
                 generator.dry_run_node_with_template(template_name).await?;
             } else {
-                println!("{}", format!("🟢 Generating Node.js project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "🟢 Generating Node.js project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_node_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Node.js configuration files generated successfully!".green());
+                generator
+                    .generate_node_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Node.js configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Go { template } => {
             let template_name = template.as_deref().unwrap_or("default");
             if cli.dry_run {
-                println!("{}", format!("🦀 [DRY RUN] Would generate Go project configuration (template: {})...", template_name).blue());
+                println!(
+                    "{}",
+                    format!(
+                        "🦀 [DRY RUN] Would generate Go project configuration (template: {})...",
+                        template_name
+                    )
+                    .blue()
+                );
                 let generator = ConfigGenerator::new(target_dir);
                 generator.dry_run_go_with_template(template_name).await?;
             } else {
-                println!("{}", format!("🦀 Generating Go project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "🦀 Generating Go project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_go_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Go configuration files generated successfully!".green());
+                generator
+                    .generate_go_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Go configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Rust { template } => {
             let template_name = template.as_deref().unwrap_or("default");
             if cli.dry_run {
-                println!("{}", format!("🦀 [DRY RUN] Would generate Rust project configuration (template: {})...", template_name).blue());
+                println!(
+                    "{}",
+                    format!(
+                        "🦀 [DRY RUN] Would generate Rust project configuration (template: {})...",
+                        template_name
+                    )
+                    .blue()
+                );
                 let generator = ConfigGenerator::new(target_dir);
                 generator.dry_run_rust_with_template(template_name).await?;
             } else {
-                println!("{}", format!("🦀 Generating Rust project configuration (template: {})...", template_name).green());
+                println!(
+                    "{}",
+                    format!(
+                        "🦀 Generating Rust project configuration (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
                 let generator = ConfigGenerator::new(target_dir);
-                generator.generate_rust_with_template(cli.force, template_name).await?;
-                println!("{}", "✅ Rust configuration files generated successfully!".green());
+                generator
+                    .generate_rust_with_template(cli.force, template_name)
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Rust configuration files generated successfully!".green()
+                );
             }
         }
         Commands::Auto => {
@@ -181,27 +283,45 @@ async fn main() -> Result<(), ZackstrapError> {
                 let project_type = generator.detect_project_type().await?;
                 match project_type {
                     ProjectType::Ruby => {
-                        println!("{}", "💎 [DRY RUN] Would generate Ruby project configuration...".blue());
+                        println!(
+                            "{}",
+                            "💎 [DRY RUN] Would generate Ruby project configuration...".blue()
+                        );
                         generator.dry_run_ruby_with_template("default").await?;
                     }
                     ProjectType::Python => {
-                        println!("{}", "🐍 [DRY RUN] Would generate Python project configuration...".blue());
+                        println!(
+                            "{}",
+                            "🐍 [DRY RUN] Would generate Python project configuration...".blue()
+                        );
                         generator.dry_run_python_with_template("default").await?;
                     }
                     ProjectType::Node => {
-                        println!("{}", "🟢 [DRY RUN] Would generate Node.js project configuration...".blue());
+                        println!(
+                            "{}",
+                            "🟢 [DRY RUN] Would generate Node.js project configuration...".blue()
+                        );
                         generator.dry_run_node_with_template("default").await?;
                     }
                     ProjectType::Go => {
-                        println!("{}", "🦀 [DRY RUN] Would generate Go project configuration...".blue());
+                        println!(
+                            "{}",
+                            "🦀 [DRY RUN] Would generate Go project configuration...".blue()
+                        );
                         generator.dry_run_go_with_template("default").await?;
                     }
                     ProjectType::Rust => {
-                        println!("{}", "🦀 [DRY RUN] Would generate Rust project configuration...".blue());
+                        println!(
+                            "{}",
+                            "🦀 [DRY RUN] Would generate Rust project configuration...".blue()
+                        );
                         generator.dry_run_rust_with_template("default").await?;
                     }
                     ProjectType::Basic => {
-                        println!("{}", "📁 [DRY RUN] Would generate basic project configuration...".blue());
+                        println!(
+                            "{}",
+                            "📁 [DRY RUN] Would generate basic project configuration...".blue()
+                        );
                         generator.dry_run_basic_with_template("default").await?;
                     }
                 }
@@ -211,41 +331,88 @@ async fn main() -> Result<(), ZackstrapError> {
                 let project_type = generator.detect_project_type().await?;
                 match project_type {
                     ProjectType::Ruby => {
-                        println!("{}", "💎 Detected Ruby project, generating configuration...".green());
+                        println!(
+                            "{}",
+                            "💎 Detected Ruby project, generating configuration...".green()
+                        );
                         generator.generate_ruby(cli.force).await?;
-                        println!("{}", "✅ Ruby configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "✅ Ruby configuration files generated successfully!".green()
+                        );
                     }
                     ProjectType::Python => {
-                        println!("{}", "🐍 Detected Python project, generating configuration...".green());
-                        generator.generate_python_with_template(cli.force, "default").await?;
-                        println!("{}", "✅ Python configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "🐍 Detected Python project, generating configuration...".green()
+                        );
+                        generator
+                            .generate_python_with_template(cli.force, "default")
+                            .await?;
+                        println!(
+                            "{}",
+                            "✅ Python configuration files generated successfully!".green()
+                        );
                     }
                     ProjectType::Node => {
-                        println!("{}", "🟢 Detected Node.js project, generating configuration...".green());
-                        generator.generate_node_with_template(cli.force, "default").await?;
-                        println!("{}", "✅ Node.js configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "🟢 Detected Node.js project, generating configuration...".green()
+                        );
+                        generator
+                            .generate_node_with_template(cli.force, "default")
+                            .await?;
+                        println!(
+                            "{}",
+                            "✅ Node.js configuration files generated successfully!".green()
+                        );
                     }
                     ProjectType::Go => {
-                        println!("{}", "🦀 Detected Go project, generating configuration...".green());
-                        generator.generate_go_with_template(cli.force, "default").await?;
-                        println!("{}", "✅ Go configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "🦀 Detected Go project, generating configuration...".green()
+                        );
+                        generator
+                            .generate_go_with_template(cli.force, "default")
+                            .await?;
+                        println!(
+                            "{}",
+                            "✅ Go configuration files generated successfully!".green()
+                        );
                     }
                     ProjectType::Rust => {
-                        println!("{}", "🦀 Detected Rust project, generating configuration...".green());
-                        generator.generate_rust_with_template(cli.force, "default").await?;
-                        println!("{}", "✅ Rust configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "🦀 Detected Rust project, generating configuration...".green()
+                        );
+                        generator
+                            .generate_rust_with_template(cli.force, "default")
+                            .await?;
+                        println!(
+                            "{}",
+                            "✅ Rust configuration files generated successfully!".green()
+                        );
                     }
                     ProjectType::Basic => {
-                        println!("{}", "📁 Detected basic project, generating configuration...".green());
+                        println!(
+                            "{}",
+                            "📁 Detected basic project, generating configuration...".green()
+                        );
                         generator.generate_basic(cli.force).await?;
-                        println!("{}", "✅ Basic configuration files generated successfully!".green());
+                        println!(
+                            "{}",
+                            "✅ Basic configuration files generated successfully!".green()
+                        );
                     }
                 }
             }
         }
         Commands::Interactive => {
             if cli.dry_run {
-                println!("{}", "🎯 [DRY RUN] Interactive configuration setup...".blue());
+                println!(
+                    "{}",
+                    "🎯 [DRY RUN] Interactive configuration setup...".blue()
+                );
                 println!("  Note: Dry run mode is not fully supported in interactive mode");
                 let generator = ConfigGenerator::new(target_dir);
                 generator.interactive_setup().await?;
