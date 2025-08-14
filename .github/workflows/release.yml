@@ -35,6 +35,9 @@ jobs:
         toolchain: stable
         override: true
 
+    - name: Install cargo-edit
+      run: cargo install cargo-edit
+
     - name: Configure Git
       run: |
         git config --local user.email "action@github.com"
