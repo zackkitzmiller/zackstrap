@@ -30,10 +30,12 @@ jobs:
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Install Rust toolchain
-      uses: actions-rs/toolchain@v1
+      uses: actions-rust-lang/setup-rust-toolchain@v1
       with:
         toolchain: stable
-        override: true
+
+    - name: Install cargo-edit
+      run: cargo install cargo-edit
 
     - name: Configure Git
       run: |
