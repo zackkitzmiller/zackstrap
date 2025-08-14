@@ -15,9 +15,6 @@ pub enum ZackstrapError {
     #[error("Failed to write file {0}: {1}")]
     WriteFileError(PathBuf, #[source] std::io::Error),
 
-    #[error("Failed to create file {0}: {1}")]
-    CreateFileError(PathBuf, #[source] std::io::Error),
-
     #[error("File already exists and force flag not set: {0}")]
     FileExists(PathBuf),
 
