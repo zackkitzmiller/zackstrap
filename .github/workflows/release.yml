@@ -100,12 +100,12 @@ jobs:
         git push origin main
         git push origin "v${{ steps.bump.outputs.version }}"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
 
     - name: Create GitHub Release
       uses: actions/create-release@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
       with:
         tag_name: "v${{ steps.bump.outputs.version }}"
         release_name: "Release v${{ steps.bump.outputs.version }}"
