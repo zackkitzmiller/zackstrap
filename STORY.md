@@ -24,6 +24,10 @@ I've built a professional-grade Rust CLI application called **Zackstrap** that f
 - **Force Overwrite**: Safe file handling with `--force` flag
 - **Target Directory**: Specify custom target directories
 - **Comprehensive Testing**: Full integration test suite
+- **Auto-Detection**: Automatically detects Ruby projects and generates appropriate configs
+- **Interactive Mode**: Guided setup with user prompts
+- **Template System**: Multiple configuration templates for different coding styles
+- **Dry Run Mode**: Preview what would be created without actually creating files
 
 ## 📁 **Generated Files**
 
@@ -31,6 +35,7 @@ I've built a professional-grade Rust CLI application called **Zackstrap** that f
 
 - `.editorconfig` - Multi-language editor configuration
 - `.prettierrc` - Prettier formatting rules
+- `justfile` - Project automation and development tasks
 
 ### **For Ruby Projects (includes basic +):**
 
@@ -38,6 +43,7 @@ I've built a professional-grade Rust CLI application called **Zackstrap** that f
 - `.node-version` - Node.js 24
 - `.rubocop.yml` - Comprehensive Ruby linting
 - `package.json` - With `prettier-plugin-ruby`
+- `justfile` - Ruby-specific automation tasks
 
 ### 🛠️ **Installation & Usage**
 
@@ -53,17 +59,16 @@ source ~/.cargo/env
 Or, a Debian/Ubuntu system
 
 ```bash
-$ sudo apt install rustup
+sudo apt install rustup
 ```
 
 Mac via Brew
 
 ```bash
-$ brew install rustup
+brew install rustup
 ```
 
 You're on your own with Window's, but the Rust docs are [real good](https://rust-lang.github.io/rustup/installation/other.html).
-
 
 #### 2. Build & Run
 
@@ -101,10 +106,15 @@ zackstrap ruby
 zackstrap --help                    # Show help
 zackstrap basic                     # Generate basic configs
 zackstrap basic --force            # Force overwrite
+zackstrap basic --template google  # Use Google style template
 zackstrap ruby                     # Generate Ruby configs
 zackstrap ruby --force             # Force overwrite
+zackstrap ruby --template rails    # Use Rails template
+zackstrap auto                     # Auto-detect project type
+zackstrap interactive              # Guided setup
 zackstrap list                     # List available configs
 zackstrap --target /path/to/dir    # Specify target directory
+zackstrap --dry-run                # Preview without creating files (use BEFORE subcommand)
 ```
 
 ### 🔧 **Key Design Decisions**

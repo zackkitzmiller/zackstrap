@@ -78,3 +78,10 @@ node_modules/
 
 # TernJS port file
 .tern-port
+
+.node_modules
+.node-version
+.prettierrc
+.ruby-version
+.rubocop.yml
+.vscode

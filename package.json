@@ -1,0 +1,9 @@
+{
+  "name": "project",
+  "version": "0.1.0",
+  "description": "A Ruby project",
+  "dev_dependencies": {
+    "prettier": "^3.0.0",
+    "prettier-plugin-ruby": "github:prettier/plugin-ruby"
+  }
+}
