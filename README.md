@@ -1,7 +1,7 @@
 # Zackstrap
 
 [![CI/CD Pipeline](https://github.com/zackkitzmiller/zackstrap/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/zackkitzmiller/zackstrap/actions/workflows/ci.yml)
-[![Test Coverage](https://codecov.io/gh/zackkitzmiller/zackstrap/branch/main/graph/badge.svg)](https://codecov.io/gh/zackkitzmiller/zackstrap)
+[![Test Coverage](https://codecov.io/gh/zackkitzmiller/zackstrap/graph/badge.svg?token=LL69KNNRL0)](https://codecov.io/gh/zackkitzmiller/zackstrap)
 [![Crates.io](https://img.shields.io/crates/v/zackstrap.svg)](https://crates.io/crates/zackstrap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
