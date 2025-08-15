@@ -34,10 +34,8 @@ jobs:
         with:
           toolchain: stable
 
-      - name: Install cargo-edit and cargo-get
-        run: |
-          cargo install cargo-edit
-          cargo install cargo-get
+      - name: Install cargo-edit
+        run: cargo install cargo-edit
 
       - name: Configure Git
         run: |
@@ -49,8 +47,8 @@ jobs:
         run: |
           echo "Release type: '${{ github.event.inputs.release_type }}'"
 
-          # Auto-bump based on release type
-          current_version=$(cargo get version)
+          # Read current version from Cargo.toml using grep and sed
+          current_version=$(grep '^version = ' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
           echo "Current version from Cargo.toml: $current_version"
 
           if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
