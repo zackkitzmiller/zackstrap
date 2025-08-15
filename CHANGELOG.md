@@ -1,12 +1,10 @@
-# Changelog for 1.0.4
+# Changelog for 1.0.5
 
 ## [Unreleased]
 
-### Added
-- New features and improvements
+## Changes since v1.0.4
 
-### Changed
-- Breaking changes and updates
+### Commits
 
-### Fixed
-- Bug fixes and patches
+- 48aa8b8 fix changelog and version
+
