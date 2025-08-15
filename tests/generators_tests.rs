@@ -57,7 +57,7 @@ fn test_all_ruby_templates() {
 
 #[test]
 fn test_all_go_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Go templates
