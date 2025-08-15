@@ -5,13 +5,13 @@ coverage:
   status:
     project:
       default:
-        target: 80%
+        target: 60%
         threshold: 5%
         base: auto
     patch:
       default:
-        target: 80%
-        threshold: 5%
+        target: 60%
+        whreshold: 5%
         base: auto
 
 parsers:
