@@ -3,14 +3,10 @@ name: Release and Publish
 on:
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Version to release (e.g., 1.0.0)'
-        required: true
-        type: string
       release_type:
-        description: 'Release type'
+        description: 'Release type (will auto-bump version)'
         required: true
-        default: 'major'
+        default: 'patch'
         type: choice
         options:
           - major
@@ -49,20 +45,23 @@ jobs:
     - name: Bump version
       id: bump
       run: |
-        if [ "${{ github.event.inputs.version }}" != "" ]; then
-          echo "version=${{ github.event.inputs.version }}" >> $GITHUB_OUTPUT
+        echo "Release type: '${{ github.event.inputs.release_type }}'"
+
+        # Auto-bump based on release type
+        current_version=$(cargo get version)
+        echo "Current version from Cargo.toml: $current_version"
+
+        if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
+          new_version=$(echo $current_version | awk -F. '{print $1+1 ".0.0"}')
+        elif [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
+          new_version=$(echo $current_version | awk -F. '{print $1 "." $2+1 ".0"}')
         else
-          # Auto-bump based on release type
-          current_version=$(cargo get version)
-          if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
-            new_version=$(echo $current_version | awk -F. '{print $1+1 ".0.0"}')
-          elif [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
-            new_version=$(echo $current_version | awk -F. '{print $1 "." $2+1 ".0"}')
-          else
-            new_version=$(echo $current_version | awk -F. '{print $1 "." $2 "." $3+1}')
-          fi
-          echo "version=$new_version" >> $GITHUB_OUTPUT
+          new_version=$(echo $current_version | awk -F. '{print $1 "." $2 "." $3+1}')
         fi
+
+        echo "Auto-bumped version: $new_version"
+        echo "version=$new_version" >> $GITHUB_OUTPUT
+        echo "Final version output: $new_version"
 
     - name: Update Cargo.toml version
       run: |
@@ -171,6 +170,6 @@ jobs:
         toolchain: stable
 
     - name: Publish to crates.io
-      run: cargo publish --token ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      run: cargo publish
       env:
         CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
