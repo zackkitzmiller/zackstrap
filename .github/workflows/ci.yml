@@ -62,11 +62,6 @@ jobs:
       - name: Generate coverage report
         run: cargo tarpaulin --out Xml --output-dir coverage
 
-      - name: Attest build provenance
-        uses: actions/attest-build-provenance@v2
-        with:
-          subject-path: "coverage/coverage.xml" # TODO: add the path to the coverage report
-
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
