@@ -135,3 +135,5 @@ zackstrap --dry-run                # Preview without creating files (use BEFORE 
 5. **Customize**: The `.rubocop.yml` content can be updated when you paste your preferred configuration
 
 The application is production-ready and follows all Rust best practices. It will generate exactly the configuration files you specified, with the Ruby project getting all the extras like `package.json` with `github:prettier/plugin-ruby`, `.ruby-version` set to 3.3.x, and `.node-version` set to 24.
+
+min
