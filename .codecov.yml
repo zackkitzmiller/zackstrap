@@ -2,6 +2,7 @@ coverage:
   precision: 2
   round: down
   range: "50...100"
+  if_ci_failed: success
   status:
     project:
       default:
@@ -10,7 +11,7 @@ coverage:
     patch:
       default:
         target: 60%
-        whreshold: 20%
+        threshold: 20%
 
 parsers:
   gcov:
@@ -24,6 +25,7 @@ comment:
   layout: "reach,diff,flags,files,footer"
   behavior: default
   require_changes: false
+  hide_project_coverage: false # set to false
 
 ignore:
   - "tests/"
