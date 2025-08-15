@@ -3,7 +3,13 @@ use zackstrap::ConfigGenerator;
 
 #[test]
 fn test_all_python_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+use std::env;
+use std::path::PathBuf;
+use zackstrap::ConfigGenerator;
+
+#[test]
+fn test_all_python_templates() {
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Python templates
