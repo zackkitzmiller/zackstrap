@@ -15,7 +15,7 @@ This guide will help you set up the development environment for Zackstrap and un
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/yourusername/zackstrap.git
+   git clone https://github.com/zackkitzmiller/zackstrap.git
    cd zackstrap
    ```
 
