@@ -3,7 +3,13 @@ use zackstrap::ConfigGenerator;
 
 #[test]
 fn test_all_python_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+use std::env;
+use std::path::PathBuf;
+use zackstrap::ConfigGenerator;
+
+#[test]
+fn test_all_python_templates() {
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Python templates
@@ -19,7 +25,7 @@ fn test_all_python_templates() {
 
 #[test]
 fn test_all_node_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Node.js templates
@@ -38,7 +44,7 @@ fn test_all_node_templates() {
 
 #[test]
 fn test_all_ruby_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Ruby templates
@@ -51,7 +57,7 @@ fn test_all_ruby_templates() {
 
 #[test]
 fn test_all_go_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Go templates
@@ -64,7 +70,7 @@ fn test_all_go_templates() {
 
 #[test]
 fn test_all_rust_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test all Rust templates
@@ -77,7 +83,7 @@ fn test_all_rust_templates() {
 
 #[test]
 fn test_pyproject_toml_templates() {
-    let temp_dir = PathBuf::from("/tmp");
+    let temp_dir = std::env::temp_dir();
     let generator = ConfigGenerator::new(temp_dir);
 
     // Test default template
