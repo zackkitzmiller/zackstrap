@@ -68,6 +68,9 @@ jobs:
       run: |
         cargo set-version ${{ steps.bump.outputs.version }}
 
+    - name: Update Cargo.lock
+      run: cargo check
+
     - name: Create changelog
       run: |
         echo "# Changelog for ${{ steps.bump.outputs.version }}" > CHANGELOG.md
