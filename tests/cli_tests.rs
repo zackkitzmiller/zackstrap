@@ -6,21 +6,26 @@ use std::process::Command;
 fn test_cli_help() {
     let mut cmd = Command::cargo_bin("zackstrap").unwrap();
     cmd.arg("--help");
-    cmd.assert().success().stdout(predicate::str::contains("zackstrap"));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("zackstrap"));
 }
 
 #[test]
 fn test_cli_version() {
     let mut cmd = Command::cargo_bin("zackstrap").unwrap();
     cmd.arg("--version");
-    cmd.assert().success().stdout(predicate::str::contains("zackstrap"));
+    cmd.assert()
+        .success()
+        .stdout(predicate::str::contains("zackstrap"));
 }
 
 #[test]
 fn test_cli_list_command() {
     let mut cmd = Command::cargo_bin("zackstrap").unwrap();
     cmd.arg("list");
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("Available configuration files"))
         .stdout(predicate::str::contains("Available templates"))
         .stdout(predicate::str::contains("Available commands"));
@@ -35,7 +40,8 @@ fn test_cli_basic_command() {
         .arg("--dry-run")
         .arg("basic");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("basic project configuration"));
 }
@@ -51,7 +57,8 @@ fn test_cli_basic_command_with_template() {
         .arg("--template")
         .arg("google");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: google"));
 }
@@ -65,7 +72,8 @@ fn test_cli_ruby_command() {
         .arg("--dry-run")
         .arg("ruby");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Ruby project configuration"));
 }
@@ -81,7 +89,8 @@ fn test_cli_ruby_command_with_template() {
         .arg("--template")
         .arg("rails");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: rails"));
 }
@@ -95,7 +104,8 @@ fn test_cli_python_command() {
         .arg("--dry-run")
         .arg("python");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Python project configuration"));
 }
@@ -111,7 +121,8 @@ fn test_cli_python_command_with_template() {
         .arg("--template")
         .arg("django");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: django"));
 }
@@ -125,7 +136,8 @@ fn test_cli_node_command() {
         .arg("--dry-run")
         .arg("node");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Node.js project configuration"));
 }
@@ -141,7 +153,8 @@ fn test_cli_node_command_with_template() {
         .arg("--template")
         .arg("react");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: react"));
 }
@@ -155,7 +168,8 @@ fn test_cli_go_command() {
         .arg("--dry-run")
         .arg("go");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Go project configuration"));
 }
@@ -171,7 +185,8 @@ fn test_cli_go_command_with_template() {
         .arg("--template")
         .arg("web");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: web"));
 }
@@ -185,7 +200,8 @@ fn test_cli_rust_command() {
         .arg("--dry-run")
         .arg("rust");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Rust project configuration"));
 }
@@ -201,7 +217,8 @@ fn test_cli_rust_command_with_template() {
         .arg("--template")
         .arg("cli");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("template: cli"));
 }
@@ -215,7 +232,8 @@ fn test_cli_auto_command() {
         .arg("--dry-run")
         .arg("auto");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"));
 }
 
@@ -228,7 +246,8 @@ fn test_cli_interactive_command() {
         .arg("--dry-run")
         .arg("interactive");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"))
         .stdout(predicate::str::contains("Interactive configuration setup"));
 }
@@ -243,7 +262,8 @@ fn test_cli_force_flag() {
         .arg("--dry-run")
         .arg("basic");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"));
 }
 
@@ -256,7 +276,8 @@ fn test_cli_dry_run_flag() {
         .arg("--dry-run")
         .arg("basic");
 
-    cmd.assert().success()
+    cmd.assert()
+        .success()
         .stdout(predicate::str::contains("DRY RUN"));
 }
 
@@ -286,9 +307,7 @@ fn test_cli_invalid_directory() {
 fn test_cli_file_as_target() {
     let temp_file = assert_fs::NamedTempFile::new("test.txt").unwrap();
     let mut cmd = Command::cargo_bin("zackstrap").unwrap();
-    cmd.arg("--target")
-        .arg(temp_file.path())
-        .arg("basic");
+    cmd.arg("--target").arg(temp_file.path()).arg("basic");
 
     cmd.assert().failure();
 }
