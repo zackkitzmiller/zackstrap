@@ -32,7 +32,7 @@ jobs:
         components: rustfmt, clippy
 
     - name: Cache dependencies
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -58,44 +58,11 @@ jobs:
       run: cargo tarpaulin --out Xml --output-dir coverage
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v3
-      with:
-        file: ./coverage/cobertura.xml
-        flags: unittests
-        name: codecov-umbrella
-        fail_ci_if_error: false
-        verbose: true
-
-  coverage:
-    name: Coverage Report
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'pull_request'
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-
-    - name: Install Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
-
-    - name: Install cargo-tarpaulin
-      run: cargo install cargo-tarpaulin@0.32.8
-
-    - name: Generate coverage report
-      run: cargo tarpaulin --out Html --output-dir coverage
-
-    - name: Upload coverage artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: coverage/
-
-    - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v5
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: coverage/
+        flags: unittests
+        name: codecov-umbrella
         fail_ci_if_error: false
+        verbose: true
