@@ -1,10 +1,11 @@
-# Changelog for 1.0.5
+# Changelog for 1.0.6
 
 ## [Unreleased]
 
-## Changes since v1.0.4
+## Changes since v1.0.5
 
 ### Commits
 
-- 48aa8b8 fix changelog and version
+- c7de96c fix
+- 204afda adjust codecov
 
