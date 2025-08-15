@@ -1,4 +1,4 @@
-# Changelog for 1.0.1
+# Changelog for 1.0.3
 
 ## [Unreleased]
 
