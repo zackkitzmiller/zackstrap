@@ -87,3 +87,4 @@ node_modules/
 .eslintrc.js
 .nvmrc
 tarpaulin-report.html
+release/
