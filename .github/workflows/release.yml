@@ -20,6 +20,8 @@ jobs:
   release:
     name: Create Release
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.bump.outputs.version }}
 
     steps:
       - name: Checkout code
@@ -172,13 +174,36 @@ jobs:
     if: success()
 
     steps:
+      - name: Wait for git push to propagate
+        run: |
+          echo "Waiting for git push to propagate..."
+          sleep 10
+          echo "Proceeding with checkout..."
+
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: "main"
+          fetch-depth: 0
+          token: ${{ secrets.SECRET_KEY }}
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+
+      - name: Verify version
+        run: |
+          echo "Verifying version before publishing..."
+          current_version=$(grep '^version = ' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "Current version in Cargo.toml: $current_version"
+          echo "Expected version from release job: ${{ needs.release.outputs.version }}"
+
+          if [ "$current_version" != "${{ needs.release.outputs.version }}" ]; then
+            echo "❌ Version mismatch! Expected ${{ needs.release.outputs.version }} but found $current_version"
+            exit 1
+          fi
+          echo "✅ Version verified: $current_version"
 
       - name: Publish to crates.io
         run: cargo publish
