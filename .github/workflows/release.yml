@@ -103,6 +103,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
 
     - name: Create GitHub Release
+      id: create_release
       uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
@@ -144,9 +145,9 @@ jobs:
     - name: Upload release assets
       uses: actions/upload-release-asset@v1
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
       with:
-        upload_url: ${{ github.event.release.upload_url }}
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./release/zackstrap-ubuntu.tar.gz
         asset_name: zackstrap-ubuntu.tar.gz
         asset_content_type: application/gzip
