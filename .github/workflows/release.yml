@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       release_type:
-        description: 'Release type (will auto-bump version)'
+        description: "Release type (will auto-bump version)"
         required: true
-        default: 'patch'
+        default: "patch"
         type: choice
         options:
           - major
@@ -22,137 +22,139 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
-        token: ${{ secrets.GITHUB_TOKEN }}
-        persist-credentials: true
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: true
 
-    - name: Install Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
 
-    - name: Install cargo-edit
-      run: cargo install cargo-edit
+      - name: Install cargo-edit and cargo-get
+        run: |
+          cargo install cargo-edit
+          cargo install cargo-get
 
-    - name: Configure Git
-      run: |
-        git config --local user.email "github-actions[bot]@users.noreply.github.com"
-        git config --local user.name "github-actions[bot]"
+      - name: Configure Git
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
 
-    - name: Bump version
-      id: bump
-      run: |
-        echo "Release type: '${{ github.event.inputs.release_type }}'"
+      - name: Bump version
+        id: bump
+        run: |
+          echo "Release type: '${{ github.event.inputs.release_type }}'"
 
-        # Auto-bump based on release type
-        current_version=$(cargo get version)
-        echo "Current version from Cargo.toml: $current_version"
+          # Auto-bump based on release type
+          current_version=$(cargo get version)
+          echo "Current version from Cargo.toml: $current_version"
 
-        if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
-          new_version=$(echo $current_version | awk -F. '{print $1+1 ".0.0"}')
-        elif [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
-          new_version=$(echo $current_version | awk -F. '{print $1 "." $2+1 ".0"}')
-        else
-          new_version=$(echo $current_version | awk -F. '{print $1 "." $2 "." $3+1}')
-        fi
+          if [ "${{ github.event.inputs.release_type }}" = "major" ]; then
+            new_version=$(echo $current_version | awk -F. '{print $1+1 ".0.0"}')
+          elif [ "${{ github.event.inputs.release_type }}" = "minor" ]; then
+            new_version=$(echo $current_version | awk -F. '{print $1 "." $2+1 ".0"}')
+          else
+            new_version=$(echo $current_version | awk -F. '{print $1 "." $2 "." $3+1}')
+          fi
 
-        echo "Auto-bumped version: $new_version"
-        echo "version=$new_version" >> $GITHUB_OUTPUT
-        echo "Final version output: $new_version"
+          echo "Auto-bumped version: $new_version"
+          echo "version=$new_version" >> $GITHUB_OUTPUT
+          echo "Final version output: $new_version"
 
-    - name: Update Cargo.toml version
-      run: |
-        cargo set-version ${{ steps.bump.outputs.version }}
+      - name: Update Cargo.toml version
+        run: |
+          cargo set-version ${{ steps.bump.outputs.version }}
 
-    - name: Update Cargo.lock
-      run: cargo check
+      - name: Update Cargo.lock
+        run: cargo check
 
-    - name: Create changelog
-      run: |
-        echo "# Changelog for ${{ steps.bump.outputs.version }}" > CHANGELOG.md
-        echo "" >> CHANGELOG.md
-        echo "## [Unreleased]" >> CHANGELOG.md
-        echo "" >> CHANGELOG.md
-        echo "### Added" >> CHANGELOG.md
-        echo "- New features and improvements" >> CHANGELOG.md
-        echo "" >> CHANGELOG.md
-        echo "### Changed" >> CHANGELOG.md
-        echo "- Breaking changes and updates" >> CHANGELOG.md
-        echo "" >> CHANGELOG.md
-        echo "### Fixed" >> CHANGELOG.md
-        echo "- Bug fixes and patches" >> CHANGELOG.md
+      - name: Create changelog
+        run: |
+          echo "# Changelog for ${{ steps.bump.outputs.version }}" > CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "## [Unreleased]" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Added" >> CHANGELOG.md
+          echo "- New features and improvements" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Changed" >> CHANGELOG.md
+          echo "- Breaking changes and updates" >> CHANGELOG.md
+          echo "" >> CHANGELOG.md
+          echo "### Fixed" >> CHANGELOG.md
+          echo "- Bug fixes and patches" >> CHANGELOG.md
 
-    - name: Build release
-      run: cargo build --release
+      - name: Build release
+        run: cargo build --release
 
-    - name: Create release assets
-      run: |
-        mkdir -p release
-        cp target/release/zackstrap release/zackstrap-ubuntu
-        tar -czf release/zackstrap-ubuntu.tar.gz -C release zackstrap-ubuntu
+      - name: Create release assets
+        run: |
+          mkdir -p release
+          cp target/release/zackstrap release/zackstrap-ubuntu
+          tar -czf release/zackstrap-ubuntu.tar.gz -C release zackstrap-ubuntu
 
-    - name: Commit and push changes
-      run: |
-        git add Cargo.toml Cargo.lock CHANGELOG.md
-        git commit -m "Bump version to ${{ steps.bump.outputs.version }}"
-        git tag -a "v${{ steps.bump.outputs.version }}" -m "Release v${{ steps.bump.outputs.version }}"
-        git push origin main
-        git push origin "v${{ steps.bump.outputs.version }}"
-      env:
-        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
+      - name: Commit and push changes
+        run: |
+          git add Cargo.toml Cargo.lock CHANGELOG.md
+          git commit -m "Bump version to ${{ steps.bump.outputs.version }}"
+          git tag -a "v${{ steps.bump.outputs.version }}" -m "Release v${{ steps.bump.outputs.version }}"
+          git push origin main
+          git push origin "v${{ steps.bump.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
 
-    - name: Create GitHub Release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
-      with:
-        tag_name: "v${{ steps.bump.outputs.version }}"
-        release_name: "Release v${{ steps.bump.outputs.version }}"
-        body: |
-          ## What's Changed
+      - name: Create GitHub Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
+        with:
+          tag_name: "v${{ steps.bump.outputs.version }}"
+          release_name: "Release v${{ steps.bump.outputs.version }}"
+          body: |
+            ## What's Changed
 
-          This release includes various improvements and bug fixes.
+            This release includes various improvements and bug fixes.
 
-          ### 🔧 Features
-          - Enhanced language support
-          - Improved template system
-          - Better error handling
+            ### 🔧 Features
+            - Enhanced language support
+            - Improved template system
+            - Better error handling
 
-          ### 🐛 Bug Fixes
-          - Fixed various edge cases
-          - Improved stability
+            ### 🐛 Bug Fixes
+            - Fixed various edge cases
+            - Improved stability
 
-          ### 📚 Documentation
-          - Updated README
-          - Added examples
+            ### 📚 Documentation
+            - Updated README
+            - Added examples
 
-          ## Installation
+            ## Installation
 
-          ```bash
-          cargo install zackstrap
-          ```
+            ```bash
+            cargo install zackstrap
+            ```
 
-          ## Usage
+            ## Usage
 
-          ```bash
-          zackstrap --help
-          ```
-        draft: false
-        prerelease: false
+            ```bash
+            zackstrap --help
+            ```
+          draft: false
+          prerelease: false
 
-    - name: Upload release assets
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
-      with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./release/zackstrap-ubuntu.tar.gz
-        asset_name: zackstrap-ubuntu.tar.gz
-        asset_content_type: application/gzip
+      - name: Upload release assets
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_KEY }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./release/zackstrap-ubuntu.tar.gz
+          asset_name: zackstrap-ubuntu.tar.gz
+          asset_content_type: application/gzip
 
   publish:
     name: Publish to Crates.io
@@ -161,15 +163,15 @@ jobs:
     if: success()
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Install Rust toolchain
-      uses: actions-rust-lang/setup-rust-toolchain@v1
-      with:
-        toolchain: stable
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
 
-    - name: Publish to crates.io
-      run: cargo publish
-      env:
-        CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+      - name: Publish to crates.io
+        run: cargo publish
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
