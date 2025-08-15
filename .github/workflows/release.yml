@@ -76,14 +76,30 @@ jobs:
           echo "" >> CHANGELOG.md
           echo "## [Unreleased]" >> CHANGELOG.md
           echo "" >> CHANGELOG.md
-          echo "### Added" >> CHANGELOG.md
-          echo "- New features and improvements" >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          echo "### Changed" >> CHANGELOG.md
-          echo "- Breaking changes and updates" >> CHANGELOG.md
-          echo "" >> CHANGELOG.md
-          echo "### Fixed" >> CHANGELOG.md
-          echo "- Bug fixes and patches" >> CHANGELOG.md
+
+          # Get the previous tag or use initial commit
+          if git tag --sort=-version:refname | head -n1 | grep -q .; then
+            previous_tag=$(git tag --sort=-version:refname | head -n1)
+            echo "## Changes since $previous_tag" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+
+            # Get commits since last tag
+            commits=$(git log --oneline --no-merges "$previous_tag..HEAD" | head -20)
+            if [ -n "$commits" ]; then
+              echo "### Commits" >> CHANGELOG.md
+              echo "" >> CHANGELOG.md
+              echo "$commits" | while read -r commit; do
+                echo "- $commit" >> CHANGELOG.md
+              done
+              echo "" >> CHANGELOG.md
+            fi
+          else
+            echo "## Initial Release" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+            echo "### Features" >> CHANGELOG.md
+            echo "- Initial project setup" >> CHANGELOG.md
+            echo "" >> CHANGELOG.md
+          fi
 
       - name: Build release
         run: cargo build --release
@@ -113,34 +129,29 @@ jobs:
           tag_name: "v${{ steps.bump.outputs.version }}"
           release_name: "Release v${{ steps.bump.outputs.version }}"
           body: |
-            ## What's Changed
+            ## Release v${{ steps.bump.outputs.version }}
 
-            This release includes various improvements and bug fixes.
+            This release includes the following changes since the previous version.
 
-            ### 🔧 Features
-            - Enhanced language support
-            - Improved template system
-            - Better error handling
+            ### 📋 Changelog
+            See the [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) file for detailed information about this release.
 
-            ### 🐛 Bug Fixes
-            - Fixed various edge cases
-            - Improved stability
-
-            ### 📚 Documentation
-            - Updated README
-            - Added examples
-
-            ## Installation
+            ### 🚀 Installation
 
             ```bash
             cargo install zackstrap
             ```
 
-            ## Usage
+            ### 📖 Usage
 
             ```bash
             zackstrap --help
             ```
+
+            ### 🔗 Links
+            - [Repository](https://github.com/${{ github.repository }})
+            - [Documentation](https://docs.rs/zackstrap)
+            - [Issues](https://github.com/${{ github.repository }}/issues)
           draft: false
           prerelease: false
 

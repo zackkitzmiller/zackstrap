@@ -24,7 +24,7 @@ A powerful Rust CLI tool to bootstrap project configuration files. Quickly gener
 ### From Source
 
 ```bash
-git clone https://github.com/yourusername/zackstrap.git
+git clone https://github.com/zackkitzmiller/zackstrap.git
 cd zackstrap
 cargo build --release
 cargo install --path .
@@ -61,8 +61,8 @@ This will create:
 - .prettierrc
 - .ruby-version (set to 3.3.0)
 - .node-version (set to 24)
-- .rubocop.yml  (comprehensive configuration)
-- package.json  (with prettier-plugin-ruby)
+- .rubocop.yml (comprehensive configuration)
+- package.json (with prettier-plugin-ruby)
 ```
 
 ### Python Project Configuration
@@ -501,4 +501,4 @@ MIT License - see LICENSE file for details.
 
 ## Author
 
-Zack Kitzmiller - [GitHub](https://github.com/yourusername)
+Zack Kitzmiller - [GitHub](https://github.com/zackkitzmiller)
