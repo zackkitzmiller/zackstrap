@@ -28,6 +28,10 @@ struct Cli {
     #[arg(short, long)]
     force: bool,
 
+    /// Fail if files already exist (default: false - will skip existing files)
+    #[arg(short = 'e', long)]
+    fail_on_exists: bool,
+
     /// Show what would be created without actually creating files
     #[arg(long)]
     dry_run: bool,
@@ -120,7 +124,7 @@ async fn main() -> Result<(), ZackstrapError> {
                 );
                 let generator = ConfigGenerator::new(target_dir);
                 generator
-                    .generate_basic_with_template(cli.force, template_name)
+                    .generate_basic_with_template(cli.force, cli.fail_on_exists, template_name)
                     .await?;
                 println!(
                     "{}",
@@ -398,7 +402,7 @@ async fn main() -> Result<(), ZackstrapError> {
                             "{}",
                             "📁 Detected basic project, generating configuration...".green()
                         );
-                        generator.generate_basic(cli.force).await?;
+                        generator.generate_basic(cli.force, true).await?;
                         println!(
                             "{}",
                             "✅ Basic configuration files generated successfully!".green()
