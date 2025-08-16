@@ -22,19 +22,25 @@ impl ConfigGenerator {
         Self { target_dir }
     }
 
-    pub async fn generate_basic(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_basic_with_template(force, "default").await
+    pub async fn generate_basic(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
+        self.generate_basic_with_template(
+            force,
+            fail_on_exists,
+            "default",
+        )
+        .await
     }
 
     pub async fn generate_basic_with_template(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
-        self.generate_editor_config(force).await?;
-        self.generate_prettier_config_with_template(force, template)
+        self.generate_editor_config(force, fail_on_exists).await?;
+        self.generate_prettier_config_with_template(force, fail_on_exists, template)
             .await?;
-        self.generate_justfile(force).await?;
+        self.generate_justfile(force, fail_on_exists).await?;
         Ok(())
     }
 
@@ -55,14 +61,14 @@ impl ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first (includes justfile)
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Ruby-specific configs
-        self.generate_ruby_version(force).await?;
-        self.generate_node_version(force).await?;
-        self.generate_rubocop_config_with_template(force, template)
+        self.generate_ruby_version(force, false).await?;
+        self.generate_node_version(force, false).await?;
+        self.generate_rubocop_config_with_template(force, false, template)
             .await?;
-        self.generate_package_json_with_template(force, template)
+        self.generate_package_json_with_template(force, false, template)
             .await?;
 
         // Overwrite the basic justfile with Ruby-specific one
@@ -90,16 +96,16 @@ impl ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Python-specific configs
-        self.generate_python_version(force).await?;
-        self.generate_pyproject_toml(force, template).await?;
-        self.generate_flake8_config(force).await?;
-        self.generate_requirements_dev(force).await?;
+        self.generate_python_version(force, false).await?;
+        self.generate_pyproject_toml(force, false, template).await?;
+        self.generate_flake8_config(force, false).await?;
+        self.generate_requirements_dev(force, false).await?;
 
         // Overwrite the basic justfile with Python-specific one
-        self.generate_python_justfile(force, template).await?;
+        self.generate_python_justfile(force, false, template).await?;
 
         Ok(())
     }
@@ -129,15 +135,16 @@ impl ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Node.js-specific configs
-        self.generate_nvmrc(force).await?;
-        self.generate_eslint_config(force, template).await?;
-        self.generate_node_package_json(force, template).await?;
+        self.generate_nvmrc(force, false).await?;
+        self.generate_eslint_config(force, false, template).await?;
+        self.generate_node_package_json(force, false, template)
+            .await?;
 
         // Overwrite the basic justfile with Node.js-specific one
-        self.generate_node_justfile(force, template).await?;
+        self.generate_node_justfile(force, false, template).await?;
 
         Ok(())
     }
@@ -163,15 +170,15 @@ impl ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Go-specific configs
-        self.generate_go_mod(force).await?;
-        self.generate_golangci_config(force).await?;
-        self.generate_go_gitignore(force).await?;
+        self.generate_go_mod(force, false).await?;
+        self.generate_golangci_config(force, false).await?;
+        self.generate_go_gitignore(force, false).await?;
 
         // Overwrite the basic justfile with Go-specific one
-        self.generate_go_justfile(force, template).await?;
+        self.generate_go_justfile(force, false, template).await?;
 
         Ok(())
     }
@@ -194,15 +201,15 @@ impl ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Rust-specific configs
-        self.generate_rustfmt_config(force).await?;
-        self.generate_clippy_config(force).await?;
-        self.generate_cargo_config(force).await?;
+        self.generate_rustfmt_config(force, false).await?;
+        self.generate_clippy_config(force, false).await?;
+        self.generate_cargo_config(force, false).await?;
 
         // Overwrite the basic justfile with Rust-specific one
-        self.generate_rust_justfile(force, template).await?;
+        self.generate_rust_justfile(force, false, template).await?;
 
         Ok(())
     }
@@ -328,12 +335,12 @@ impl ConfigGenerator {
             }
             "basic" => {
                 println!("📁 Setting up basic project configuration...");
-                self.generate_basic(force).await?;
+                self.generate_basic(force, false).await?;
                 println!("✅ Basic configuration complete!");
             }
             _ => {
                 println!("📁 Setting up basic project configuration...");
-                self.generate_basic(force).await?;
+                self.generate_basic(force, false).await?;
                 println!("✅ Basic configuration complete!");
             }
         }
@@ -341,11 +348,14 @@ impl ConfigGenerator {
         Ok(())
     }
 
-    async fn generate_editor_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_editor_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".editorconfig");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
+        } else if file_path.exists() && !force {
+            println!("  📝 Skipping .editorconfig (already exists)");
+            return Ok(());
         }
 
         let config = EditorConfig::default();
@@ -361,11 +371,12 @@ impl ConfigGenerator {
     async fn generate_prettier_config_with_template(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".prettierrc");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -397,10 +408,10 @@ impl ConfigGenerator {
         Ok(())
     }
 
-    async fn generate_ruby_version(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_ruby_version(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".ruby-version");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -411,10 +422,10 @@ impl ConfigGenerator {
         Ok(())
     }
 
-    async fn generate_node_version(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_node_version(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".node-version");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -428,11 +439,12 @@ impl ConfigGenerator {
     async fn generate_rubocop_config_with_template(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".rubocop.yml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -453,11 +465,12 @@ impl ConfigGenerator {
     async fn generate_package_json_with_template(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("package.json");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -904,10 +917,10 @@ RSpec/VerifiedDoubles:
         .to_string()
     }
 
-    async fn generate_justfile(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_justfile(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1117,10 +1130,10 @@ info:
     }
 
     // Python file generation methods
-    async fn generate_python_version(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_python_version(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".python-version");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1136,11 +1149,12 @@ info:
     async fn generate_pyproject_toml(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("pyproject.toml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1153,10 +1167,10 @@ info:
         Ok(())
     }
 
-    async fn generate_flake8_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_flake8_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".flake8");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1169,10 +1183,10 @@ info:
         Ok(())
     }
 
-    async fn generate_requirements_dev(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_requirements_dev(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("requirements-dev.txt");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1187,10 +1201,15 @@ info:
 
     async fn generate_python_justfile(
         &self,
-        _force: bool,
+        force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
+
+        if file_path.exists() && !force && fail_on_exists {
+            return Err(ZackstrapError::FileExists(file_path));
+        }
 
         // For Python projects, always overwrite the justfile since it's meant to replace the basic one
         let content = self.get_python_justfile_content(template);
@@ -1203,10 +1222,10 @@ info:
     }
 
     // Node.js file generation methods
-    async fn generate_nvmrc(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_nvmrc(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".nvmrc");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1222,35 +1241,130 @@ info:
     async fn generate_eslint_config(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
-        let file_path = self.target_dir.join(".eslintrc.js");
+        let file_path = self.target_dir.join(".eslintrc.json");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
-        let content = self.get_eslint_config_content(template);
+        let config = match template {
+            "google" => serde_json::json!({
+                "extends": ["google"],
+                "env": {
+                    "browser": true,
+                    "es2021": true,
+                    "node": true
+                },
+                "parserOptions": {
+                    "ecmaVersion": "latest",
+                    "sourceType": "module"
+                },
+                "rules": {
+                    "indent": ["error", 2],
+                    "quotes": ["error", "single"],
+                    "semi": ["error", "always"]
+                }
+            }),
+            "airbnb" => serde_json::json!({
+                "extends": ["airbnb-base"],
+                "env": {
+                    "browser": true,
+                    "es2021": true,
+                    "node": true
+                },
+                "parserOptions": {
+                    "ecmaVersion": "latest",
+                    "sourceType": "module"
+                },
+                "rules": {
+                    "indent": ["error", 2],
+                    "quotes": ["error", "single"],
+                    "semi": ["error", "never"]
+                }
+            }),
+            _ => serde_json::json!({
+                "env": {
+                    "browser": true,
+                    "es2021": true,
+                    "node": true
+                },
+                "parserOptions": {
+                    "ecmaVersion": "latest",
+                    "sourceType": "module"
+                },
+                "rules": {
+                    "indent": ["error", 2],
+                    "quotes": ["error", "double"],
+                    "semi": ["error", "always"]
+                }
+            }),
+        };
+
+        let content =
+            serde_json::to_string_pretty(&config).map_err(ZackstrapError::SerializationError)?;
 
         fs::write(&file_path, content)
             .map_err(|e| ZackstrapError::WriteFileError(file_path.clone(), e))?;
 
-        println!("  🔍 Generated .eslintrc.js (template: {})", template);
+        println!("  🔍 Generated .eslintrc.json (template: {})", template);
         Ok(())
     }
 
     async fn generate_node_package_json(
         &self,
         force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("package.json");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
-        let content = self.get_node_package_json_content(template);
+        let config = match template {
+            "google" => PackageJson {
+                name: "node-app".to_string(),
+                version: "0.1.0".to_string(),
+                description: "A Node.js application".to_string(),
+                dev_dependencies: {
+                    let mut deps = std::collections::HashMap::new();
+                    deps.insert("prettier".to_string(), "^3.0.0".to_string());
+                    deps.insert("eslint".to_string(), "^8.0.0".to_string());
+                    deps.insert("eslint-config-google".to_string(), "^0.14.0".to_string());
+                    deps
+                },
+            },
+            "airbnb" => PackageJson {
+                name: "node-app".to_string(),
+                version: "0.1.0".to_string(),
+                description: "A Node.js application".to_string(),
+                dev_dependencies: {
+                    let mut deps = std::collections::HashMap::new();
+                    deps.insert("prettier".to_string(), "^3.0.0".to_string());
+                    deps.insert("eslint".to_string(), "^8.0.0".to_string());
+                    deps.insert("eslint-config-airbnb-base".to_string(), "^15.0.0".to_string());
+                    deps
+                },
+            },
+            _ => PackageJson {
+                name: "node-app".to_string(),
+                version: "0.1.0".to_string(),
+                description: "A Node.js application".to_string(),
+                dev_dependencies: {
+                    let mut deps = std::collections::HashMap::new();
+                    deps.insert("prettier".to_string(), "^3.0.0".to_string());
+                    deps.insert("eslint".to_string(), "^8.0.0".to_string());
+                    deps
+                },
+            },
+        };
+
+        let content =
+            serde_json::to_string_pretty(&config).map_err(ZackstrapError::SerializationError)?;
 
         fs::write(&file_path, content)
             .map_err(|e| ZackstrapError::WriteFileError(file_path.clone(), e))?;
@@ -1261,12 +1375,15 @@ info:
 
     async fn generate_node_justfile(
         &self,
-        _force: bool,
+        force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        // For Node.js projects, always overwrite the justfile since it's meant to replace the basic one
+        if file_path.exists() && !force && fail_on_exists {
+            return Err(ZackstrapError::FileExists(file_path));
+        }
 
         let content = self.get_node_justfile_content(template);
 
@@ -1278,10 +1395,10 @@ info:
     }
 
     // Go file generation methods
-    async fn generate_go_mod(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_go_mod(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("go.mod");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1294,10 +1411,10 @@ info:
         Ok(())
     }
 
-    async fn generate_golangci_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_golangci_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".golangci.yml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1310,14 +1427,14 @@ info:
         Ok(())
     }
 
-    async fn generate_go_gitignore(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_go_gitignore(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let gitignore_path = self.target_dir.join(".gitignore");
 
         let go_gitignore_content =
             "\n# Go\n*.exe\n*.exe~\n*.dll\n*.so\n*.dylib\n*.test\n*.out\ngo.work\n";
 
         if gitignore_path.exists() {
-            if !force {
+            if !force && fail_on_exists {
                 return Err(ZackstrapError::FileExists(gitignore_path));
             }
             // Append to existing .gitignore
@@ -1338,12 +1455,15 @@ info:
 
     async fn generate_go_justfile(
         &self,
-        _force: bool,
+        force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        // For Go projects, always overwrite the justfile since it's meant to replace the basic one
+        if file_path.exists() && !force && fail_on_exists {
+            return Err(ZackstrapError::FileExists(file_path));
+        }
 
         let content = self.get_go_justfile_content(template);
 
@@ -1355,10 +1475,10 @@ info:
     }
 
     // Rust file generation methods
-    async fn generate_rustfmt_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_rustfmt_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("rustfmt.toml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1371,10 +1491,10 @@ info:
         Ok(())
     }
 
-    async fn generate_clippy_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_clippy_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join(".clippy.toml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1387,11 +1507,11 @@ info:
         Ok(())
     }
 
-    async fn generate_cargo_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_cargo_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let cargo_dir = self.target_dir.join(".cargo");
         let file_path = cargo_dir.join("config.toml");
 
-        if file_path.exists() && !force {
+        if file_path.exists() && !force && fail_on_exists {
             return Err(ZackstrapError::FileExists(file_path));
         }
 
@@ -1412,12 +1532,15 @@ info:
 
     async fn generate_rust_justfile(
         &self,
-        _force: bool,
+        force: bool,
+        fail_on_exists: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir.join("justfile");
 
-        // For Rust projects, always overwrite the justfile since it's meant to replace the basic one
+        if file_path.exists() && !force && fail_on_exists {
+            return Err(ZackstrapError::FileExists(file_path));
+        }
 
         let content = self.get_rust_justfile_content(template);
 
@@ -1459,6 +1582,11 @@ info:
         content
     }
 
+
+
+
+
+    #[allow(dead_code)]
     pub fn get_eslint_config_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("module.exports = {\n");
@@ -1497,6 +1625,7 @@ info:
         content
     }
 
+    #[allow(dead_code)]
     pub fn get_node_package_json_content(&self, template: &str) -> String {
         let mut content = String::new();
         content.push_str("{\n");
