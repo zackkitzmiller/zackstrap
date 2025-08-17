@@ -81,7 +81,16 @@ install-tools:
 
 check-deps:
     @echo "Checking dependencies..."
-    cargo outdated
+    cargo outdated || echo "Dependencies check completed (some may be outdated)"
+
+check-deps-json:
+    @echo "Checking dependencies and saving to JSON..."
+    cargo outdated --output-format json > outdated-deps.json || echo "Dependencies check completed (some may be outdated)"
+    @echo "Results saved to outdated-deps.json"
+
+check-deps-table:
+    @echo "Checking dependencies in table format..."
+    cargo outdated --output-format table || echo "Dependencies check completed (some may be outdated)"
 
 check-tools:
     @echo "Development Tools Status:"

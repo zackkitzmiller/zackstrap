@@ -462,6 +462,8 @@ The project uses GitHub Actions for continuous integration and deployment, organ
    - Linting with `clippy`
    - Dependency validation
    - Unused dependency detection
+   - Outdated dependency reporting (non-blocking)
+   - PR comments with dependency status
 
 2. **Test and Coverage** (`test.yml`)
    - Unit and integration tests
@@ -490,6 +492,8 @@ just pre-commit       # Pre-commit checks
 just install-tools     # Install required development tools
 just check-tools       # Check which tools are installed
 just check-deps        # Check for outdated dependencies
+just check-deps-json   # Check dependencies and save to JSON file
+just check-deps-table  # Check dependencies in table format
 ```
 
 ### Manual Workflow Triggers
@@ -499,6 +503,22 @@ All workflows can be triggered manually from the GitHub Actions tab:
 - **Lint and Format**: For code quality checks only
 - **Test and Coverage**: For testing across platforms
 - **CI/CD Pipeline**: For full pipeline execution
+
+### Dependency Management
+
+The CI pipeline automatically checks for outdated dependencies and:
+
+- **Uploads reports** as artifacts for download
+- **Comments on PRs** with dependency status
+- **Never fails** the build due to outdated dependencies
+- **Provides actionable feedback** for developers
+
+**Dependency check outputs:**
+
+- 📊 **Table format**: Human-readable summary
+- 📄 **JSON format**: Machine-readable data
+- 🎯 **PR comments**: Inline notifications
+- 📦 **Artifacts**: Downloadable reports
 
 ## Development
 

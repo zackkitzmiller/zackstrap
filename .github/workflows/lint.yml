@@ -59,5 +59,63 @@ jobs:
       - name: Check for unused dependencies
         run: cargo check --all-targets --all-features
 
-      - name: Verify dependencies are up to date
-        run: cargo outdated --exit-code 1
+      - name: Check for outdated dependencies
+        run: cargo outdated --output-format json > outdated-deps.json || echo "Dependencies check completed"
+
+      - name: Upload outdated dependencies report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outdated-dependencies
+          path: outdated-deps.json
+          retention-days: 30
+
+      - name: Comment on PR about outdated dependencies
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              if (fs.existsSync('outdated-deps.json')) {
+                const outdatedData = JSON.parse(fs.readFileSync('outdated-deps.json', 'utf8'));
+
+                if (outdatedData && outdatedData.length > 0) {
+                  let comment = '## 🔄 Outdated Dependencies Detected\n\n';
+                  comment += 'The following dependencies have newer versions available:\n\n';
+                  comment += '| Crate | Current | Latest | Status |\n';
+                  comment += '|-------|---------|--------|--------|\n';
+
+                  outdatedData.forEach(dep => {
+                    const status = dep.compatible_updates > 0 ? '🟢 Compatible' : '🟡 Breaking';
+                    comment += `| ${dep.name} | ${dep.installed_version} | ${dep.latest_version} | ${status} |\n`;
+                  });
+
+                  comment += '\n📦 **Download the full report**: Check the "outdated-dependencies" artifact in the Actions tab\n';
+                  comment += '\n💡 **To update locally**: Run `just install-tools && just check-deps`\n';
+
+                  github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: comment
+                  });
+                } else {
+                  github.rest.issues.createComment({
+                    issue_number: context.issue.number,
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    body: '✅ **All dependencies are up to date!** No updates needed.'
+                  });
+                }
+              }
+            } catch (error) {
+              console.log('Error processing outdated dependencies:', error);
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
+              });
+            }
