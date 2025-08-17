@@ -33,13 +33,72 @@ cargo-clippy:
 cargo-clean:
     cargo clean
 
-# CI/CD
-ci-local:
-    @echo "Running local CI checks..."
+# CI/CD Stages
+# Note: These commands require 'just' to be installed in CI
+# The CI workflows automatically install 'just' using taiki-e/install-action@just
+ci-lint-format:
+    @echo "Running lint and format checks..."
     cargo fmt --all -- --check
     cargo clippy --all-targets --all-features -- -D warnings
+
+ci-test:
+    @echo "Running tests and coverage..."
     cargo test --all-features
     cargo tarpaulin --out Xml --output-dir coverage
+
+ci-local:
+    @echo "Running full local CI pipeline..."
+    just ci-lint-format
+    just ci-test
+
+# Quick checks
+quick-check:
+    @echo "Quick code check..."
+    cargo check --all-targets --all-features
+
+quick-fmt:
+    @echo "Formatting code..."
+    cargo fmt --all
+
+quick-lint:
+    @echo "Running clippy..."
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# Pre-commit checks
+pre-commit:
+    @echo "Running pre-commit checks..."
+    just quick-fmt
+    just quick-lint
+    just quick-check
+
+# Development tools
+install-tools:
+    @echo "Installing development tools..."
+    cargo install cargo-audit
+    cargo install cargo-outdated
+    cargo install cargo-watch
+    cargo install cargo-tarpaulin --version 0.32.8
+
+check-deps:
+    @echo "Checking dependencies..."
+    cargo outdated || echo "Dependencies check completed (some may be outdated)"
+
+check-deps-json:
+    @echo "Checking dependencies and saving to JSON..."
+    cargo outdated --output-format json > outdated-deps.json || echo "Dependencies check completed (some may be outdated)"
+    @echo "Results saved to outdated-deps.json"
+
+check-deps-table:
+    @echo "Checking dependencies in table format..."
+    cargo outdated --output-format table || echo "Dependencies check completed (some may be outdated)"
+
+check-tools:
+    @echo "Development Tools Status:"
+    @echo "========================"
+    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
 
 # Release
 release-patch:
@@ -77,3 +136,10 @@ info:
     @echo "Cargo version: $(cargo --version)"
     @echo "Just version: $(just --version)"
     @echo "Current version: $(cargo get version)"
+    @echo ""
+    @echo "Development Tools Status:"
+    @echo "========================"
+    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"

@@ -14,9 +14,13 @@ on:
           - patch
 
 permissions:
+  actions: write
   contents: write
   id-token: write
   attestations: write
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   release:

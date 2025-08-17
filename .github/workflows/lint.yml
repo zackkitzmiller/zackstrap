@@ -1,0 +1,238 @@
+name: Lint and Format
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  # Allow manual triggering
+  workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Source that triggered this workflow"
+        required: false
+        default: "manual"
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  lint-and-format:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Cache strategy: Layer caching for maximum speed
+      # 1. Rust toolchain (built-in caching)
+      # 2. Just installation (binary caching)
+      # 3. Development tools (cargo bin caching)
+      # 4. Dependencies (registry and target caching)
+
+      - name: Install Rust toolchain
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+        with:
+          toolchain: stable
+          components: rustfmt, clippy
+          cache: true # Enable built-in caching
+
+      - name: Cache just installation
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin
+          key: ${{ runner.os }}-just-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-just-
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Verify just installation
+        run: just --version
+
+      - name: Cache dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+            ~/.cargo/bin  # Cache installed binaries
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache development tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-dev-tools-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-dev-tools-
+
+      - name: Install Support Toolchain
+        run: just install-tools
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Check for unused dependencies
+        run: cargo check --all-targets --all-features
+
+      - name: Check for outdated dependencies
+        run: |
+          if cargo outdated --output-format json > outdated-deps.json 2>/dev/null; then
+            echo "Dependencies check completed successfully"
+            # Verify the file has content
+            if [ -s outdated-deps.json ]; then
+              echo "Found outdated dependencies"
+            else
+              echo "No outdated dependencies found"
+              echo "[]" > outdated-deps.json  # Ensure valid JSON
+            fi
+          else
+            echo "Dependencies check completed with no updates needed"
+            echo "[]" > outdated-deps.json  # Ensure valid JSON
+          fi
+
+      - name: Upload outdated dependencies report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outdated-dependencies
+          path: outdated-deps.json
+          retention-days: 30
+
+      - name: Comment on PR about outdated dependencies
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            try {
+              if (fs.existsSync('outdated-deps.json')) {
+                const fileContent = fs.readFileSync('outdated-deps.json', 'utf8').trim();
+
+                // Check if file is empty or just whitespace
+                if (!fileContent) {
+                  console.log('outdated-deps.json is empty, skipping comment');
+                  return;
+                }
+
+                const outdatedData = JSON.parse(fileContent);
+
+                if (outdatedData && Array.isArray(outdatedData) && outdatedData.length > 0) {
+                  let comment = '## 🔄 Outdated Dependencies Detected\n\n';
+                  comment += 'The following dependencies have newer versions available:\n\n';
+                  comment += '| Crate | Current | Latest | Status |\n';
+                  comment += '|-------|---------|--------|--------|\n';
+
+                  outdatedData.forEach(dep => {
+                    const status = dep.compatible_updates > 0 ? '🟢 Compatible' : '🟡 Breaking';
+                    comment += `| ${dep.name} | ${dep.installed_version} | ${dep.latest_version} | ${status} |\n`;
+                  });
+
+                  comment += '\n📦 **Download the full report**: Check the "outdated-dependencies" artifact in the Actions tab\n';
+                  comment += '\n💡 **To update locally**: Run `just install-tools && just check-deps`\n';
+
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: context.issue.number,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: comment
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                } else {
+                  console.log('No outdated dependencies found');
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: context.issue.number,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: '✅ **All dependencies are up to date!** No updates needed.'
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                }
+              } else {
+                console.log('outdated-deps.json file not found');
+              }
+            } catch (error) {
+              console.log('Error processing outdated dependencies:', error);
+              console.log('File content preview:', fs.existsSync('outdated-deps.json') ? fs.readFileSync('outdated-deps.json', 'utf8').substring(0, 100) : 'File not found');
+
+              try {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
+                });
+                console.log('Comment posted successfully');
+              } catch (commentError) {
+                console.log('Failed to post comment:', commentError.message);
+              }
+            }
+
+      - name: Trigger test workflow on success
+        if: success() && github.event.inputs.trigger_source == 'ci-pipeline'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Note: We need to handle different ref formats for workflow dispatch
+            // - Pull requests: context.ref is 'refs/pull/X/merge' (invalid for dispatch)
+            // - Pushes: context.ref is 'refs/heads/branch-name' (needs cleaning)
+            // - We extract the actual branch name for workflow dispatch
+
+            // Debug context information
+            console.log(`Event: ${context.eventName}`);
+            console.log(`Original ref: ${context.ref}`);
+            console.log(`Repo: ${context.repo.owner}/${context.repo.repo}`);
+
+            // Use the correct ref for workflow dispatch
+            let targetRef = context.ref;
+
+            // For pull requests, use the head ref (source branch) instead of the merge ref
+            if (context.eventName === 'pull_request') {
+              targetRef = context.payload.pull_request.head.ref;
+              console.log(`PR head ref: ${targetRef}`);
+            }
+
+            // For pushes, use the branch name
+            if (context.eventName === 'push') {
+              targetRef = context.ref.replace('refs/heads/', '');
+              console.log(`Push branch: ${targetRef}`);
+            }
+
+            console.log(`Final target ref: ${targetRef}`);
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test.yml',
+              ref: targetRef,
+              inputs: {
+                trigger_source: 'lint-workflow'
+              }
+            });
+
+            console.log('Test workflow triggered successfully');

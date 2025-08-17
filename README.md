@@ -444,6 +444,96 @@ zackstrap --dry-run auto
   - **Web**: Web application commands
   - **CLI**: Command-line application commands
 
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment, organized into separate stages for better efficiency and maintainability.
+
+### Workflow Structure
+
+- **`ci.yml`**: Main CI/CD pipeline that triggers the lint workflow
+- **`lint.yml`**: Dedicated workflow for code quality checks (formatting, linting)
+- **`test.yml`**: Dedicated workflow for testing and coverage across multiple platforms
+- **`release.yml`**: Release automation workflow
+
+### Workflow Dependencies
+
+The CI pipeline uses a **trigger-based approach** where:
+
+- **Stage 1**: `ci.yml` triggers `lint.yml`
+- **Stage 2**: `lint.yml` triggers `test.yml` only on success
+- **Benefits**:
+  - Keeps workflows organized in separate files
+  - Tests only run if linting passes
+  - Each workflow can be run independently
+  - Clear separation of concerns
+
+### CI Stages
+
+1. **Lint and Format** (Stage 1)
+   - Code formatting check with `rustfmt`
+   - Linting with `clippy`
+   - Dependency validation
+   - Unused dependency detection
+   - Outdated dependency reporting (non-blocking)
+   - PR comments with dependency status
+   - **Triggers test workflow on success**
+
+2. **Test and Coverage** (Stage 2)
+   - **Only triggered by successful lint workflow**
+   - Unit and integration tests
+   - Multi-platform testing (Ubuntu, macOS, Windows)
+   - Multi-Rust-version testing (stable, 1.89)
+   - Coverage reporting with `cargo-tarpaulin`
+   - Codecov integration
+
+### Local Development
+
+Use the justfile commands for local development:
+
+```bash
+# Run individual CI stages
+just ci-lint-format    # Linting and formatting checks
+just ci-test          # Tests and coverage
+just ci-local         # Full local CI pipeline
+
+# Quick development checks
+just quick-check      # Quick compilation check
+just quick-fmt        # Format code
+just quick-lint       # Run clippy
+just pre-commit       # Pre-commit checks
+
+# Development tools
+just install-tools     # Install required development tools
+just check-tools       # Check which tools are installed
+just check-deps        # Check for outdated dependencies
+just check-deps-json   # Check dependencies and save to JSON file
+just check-deps-table  # Check dependencies in table format
+```
+
+### Manual Workflow Triggers
+
+All workflows can be triggered manually from the GitHub Actions tab:
+
+- **Lint and Format**: For code quality checks only
+- **Test and Coverage**: For testing across platforms
+- **CI/CD Pipeline**: For full pipeline execution
+
+### Dependency Management
+
+The CI pipeline automatically checks for outdated dependencies and:
+
+- **Uploads reports** as artifacts for download
+- **Comments on PRs** with dependency status
+- **Never fails** the build due to outdated dependencies
+- **Provides actionable feedback** for developers
+
+**Dependency check outputs:**
+
+- 📊 **Table format**: Human-readable summary
+- 📄 **JSON format**: Machine-readable data
+- 🎯 **PR comments**: Inline notifications
+- 📦 **Artifacts**: Downloadable reports
+
 ## Development
 
 ### Prerequisites
