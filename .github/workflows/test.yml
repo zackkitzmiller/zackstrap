@@ -36,6 +36,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Cache strategy: Layer caching for maximum speed
+      # 1. Rust toolchain (built-in caching)
+      # 2. Just installation (binary caching)
+      # 3. Dependencies (registry and target caching)
+      # 4. Cargo-tarpaulin (binary caching)
+
       - name: Show trigger source
         run: |
           echo "Triggered by: ${{ github.event.inputs.trigger_source || 'direct' }}"
@@ -46,6 +52,15 @@ jobs:
         with:
           toolchain: ${{ matrix.rust }}
           components: rustfmt, clippy
+          cache: true # Enable built-in caching
+
+      - name: Cache just installation
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin
+          key: ${{ runner.os }}-just-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-just-
 
       - name: Install just
         uses: taiki-e/install-action@just
@@ -60,9 +75,18 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
+            ~/.cargo/bin  # Cache installed binaries
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+
+      - name: Cache cargo-tarpaulin
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-tarpaulin-0.32.8
+          restore-keys: |
+            ${{ runner.os }}-tarpaulin-
 
       - name: Install cargo-tarpaulin
         run: cargo install cargo-tarpaulin@0.32.8

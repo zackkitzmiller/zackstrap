@@ -25,6 +25,20 @@ jobs:
     name: Trigger Lint and Format
     runs-on: ubuntu-latest
     steps:
+      - name: Cache just installation
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin
+          key: ${{ runner.os }}-just-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-just-
+
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Verify just installation
+        run: just --version
+
       - name: Trigger lint workflow
         uses: actions/github-script@v7
         with:

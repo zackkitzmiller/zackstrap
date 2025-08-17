@@ -32,11 +32,26 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # Cache strategy: Layer caching for maximum speed
+      # 1. Rust toolchain (built-in caching)
+      # 2. Just installation (binary caching)
+      # 3. Development tools (cargo bin caching)
+      # 4. Dependencies (registry and target caching)
+
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
           components: rustfmt, clippy
+          cache: true # Enable built-in caching
+
+      - name: Cache just installation
+        uses: actions/cache@v4
+        with:
+          path: ~/.local/bin
+          key: ${{ runner.os }}-just-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-just-
 
       - name: Install just
         uses: taiki-e/install-action@just
@@ -51,9 +66,18 @@ jobs:
             ~/.cargo/registry
             ~/.cargo/git
             target
+            ~/.cargo/bin  # Cache installed binaries
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
+
+      - name: Cache development tools
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin
+          key: ${{ runner.os }}-dev-tools-${{ hashFiles('justfile') }}
+          restore-keys: |
+            ${{ runner.os }}-dev-tools-
 
       - name: Install Support Toolchain
         run: just install-tools
