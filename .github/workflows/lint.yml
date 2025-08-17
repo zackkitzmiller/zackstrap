@@ -21,6 +21,8 @@ env:
 permissions:
   actions: write
   contents: write
+  issues: write
+  pull-requests: write
 
 jobs:
   lint-and-format:
@@ -66,7 +68,20 @@ jobs:
         run: cargo check --all-targets --all-features
 
       - name: Check for outdated dependencies
-        run: cargo outdated --output-format json > outdated-deps.json || echo "Dependencies check completed"
+        run: |
+          if cargo outdated --output-format json > outdated-deps.json 2>/dev/null; then
+            echo "Dependencies check completed successfully"
+            # Verify the file has content
+            if [ -s outdated-deps.json ]; then
+              echo "Found outdated dependencies"
+            else
+              echo "No outdated dependencies found"
+              echo "[]" > outdated-deps.json  # Ensure valid JSON
+            fi
+          else
+            echo "Dependencies check completed with no updates needed"
+            echo "[]" > outdated-deps.json  # Ensure valid JSON
+          fi
 
       - name: Upload outdated dependencies report
         uses: actions/upload-artifact@v4
@@ -85,9 +100,17 @@ jobs:
 
             try {
               if (fs.existsSync('outdated-deps.json')) {
-                const outdatedData = JSON.parse(fs.readFileSync('outdated-deps.json', 'utf8'));
+                const fileContent = fs.readFileSync('outdated-deps.json', 'utf8').trim();
 
-                if (outdatedData && outdatedData.length > 0) {
+                // Check if file is empty or just whitespace
+                if (!fileContent) {
+                  console.log('outdated-deps.json is empty, skipping comment');
+                  return;
+                }
+
+                const outdatedData = JSON.parse(fileContent);
+
+                if (outdatedData && Array.isArray(outdatedData) && outdatedData.length > 0) {
                   let comment = '## 🔄 Outdated Dependencies Detected\n\n';
                   comment += 'The following dependencies have newer versions available:\n\n';
                   comment += '| Crate | Current | Latest | Status |\n';
@@ -101,29 +124,49 @@ jobs:
                   comment += '\n📦 **Download the full report**: Check the "outdated-dependencies" artifact in the Actions tab\n';
                   comment += '\n💡 **To update locally**: Run `just install-tools && just check-deps`\n';
 
-                  github.rest.issues.createComment({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: comment
-                  });
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: context.issue.number,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: comment
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
                 } else {
-                  github.rest.issues.createComment({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: '✅ **All dependencies are up to date!** No updates needed.'
-                  });
+                  console.log('No outdated dependencies found');
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: context.issue.number,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: '✅ **All dependencies are up to date!** No updates needed.'
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
                 }
+              } else {
+                console.log('outdated-deps.json file not found');
               }
             } catch (error) {
               console.log('Error processing outdated dependencies:', error);
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
-              });
+              console.log('File content preview:', fs.existsSync('outdated-deps.json') ? fs.readFileSync('outdated-deps.json', 'utf8').substring(0, 100) : 'File not found');
+
+              try {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
+                });
+                console.log('Comment posted successfully');
+              } catch (commentError) {
+                console.log('Failed to post comment:', commentError.message);
+              }
             }
 
       - name: Trigger test workflow on success
