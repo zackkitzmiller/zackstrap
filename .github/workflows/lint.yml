@@ -19,7 +19,8 @@ env:
   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
-  contents: read
+  actions: write
+  contents: write
 
 jobs:
   lint-and-format:
