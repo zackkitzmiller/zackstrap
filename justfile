@@ -34,6 +34,8 @@ cargo-clean:
     cargo clean
 
 # CI/CD Stages
+# Note: These commands require 'just' to be installed in CI
+# The CI workflows automatically install 'just' using taiki-e/install-action@just
 ci-lint-format:
     @echo "Running lint and format checks..."
     cargo fmt --all -- --check

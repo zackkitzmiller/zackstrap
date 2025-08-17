@@ -30,6 +30,12 @@ jobs:
           toolchain: stable
           components: rustfmt, clippy
 
+      - name: Install just
+        uses: taiki-e/install-action@just
+
+      - name: Verify just installation
+        run: just --version
+
       - name: Cache dependencies
         uses: actions/cache@v4
         with:
