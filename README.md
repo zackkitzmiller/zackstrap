@@ -458,9 +458,10 @@ The project uses GitHub Actions for continuous integration and deployment, organ
 ### Workflow Dependencies
 
 The CI pipeline uses a **trigger-based approach** where:
+
 - **Stage 1**: `ci.yml` triggers `lint.yml`
 - **Stage 2**: `lint.yml` triggers `test.yml` only on success
-- **Benefits**: 
+- **Benefits**:
   - Keeps workflows organized in separate files
   - Tests only run if linting passes
   - Each workflow can be run independently
