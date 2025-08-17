@@ -33,13 +33,41 @@ cargo-clippy:
 cargo-clean:
     cargo clean
 
-# CI/CD
-ci-local:
-    @echo "Running local CI checks..."
+# CI/CD Stages
+ci-lint-format:
+    @echo "Running lint and format checks..."
     cargo fmt --all -- --check
     cargo clippy --all-targets --all-features -- -D warnings
+
+ci-test:
+    @echo "Running tests and coverage..."
     cargo test --all-features
     cargo tarpaulin --out Xml --output-dir coverage
+
+ci-local:
+    @echo "Running full local CI pipeline..."
+    just ci-lint-format
+    just ci-test
+
+# Quick checks
+quick-check:
+    @echo "Quick code check..."
+    cargo check --all-targets --all-features
+
+quick-fmt:
+    @echo "Formatting code..."
+    cargo fmt --all
+
+quick-lint:
+    @echo "Running clippy..."
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# Pre-commit checks
+pre-commit:
+    @echo "Running pre-commit checks..."
+    just quick-fmt
+    just quick-lint
+    just quick-check
 
 # Release
 release-patch:

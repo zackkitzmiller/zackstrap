@@ -444,6 +444,56 @@ zackstrap --dry-run auto
   - **Web**: Web application commands
   - **CLI**: Command-line application commands
 
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment, organized into separate stages for better efficiency and maintainability.
+
+### Workflow Structure
+
+- **`ci.yml`**: Main CI/CD pipeline that orchestrates all stages
+- **`lint.yml`**: Dedicated workflow for code quality checks (formatting, linting)
+- **`test.yml`**: Dedicated workflow for testing and coverage across multiple platforms
+- **`release.yml`**: Release automation workflow
+
+### CI Stages
+
+1. **Lint and Format** (`lint.yml`)
+   - Code formatting check with `rustfmt`
+   - Linting with `clippy`
+   - Dependency validation
+   - Unused dependency detection
+
+2. **Test and Coverage** (`test.yml`)
+   - Unit and integration tests
+   - Multi-platform testing (Ubuntu, macOS, Windows)
+   - Multi-Rust-version testing (stable, 1.89)
+   - Coverage reporting with `cargo-tarpaulin`
+   - Codecov integration
+
+### Local Development
+
+Use the justfile commands for local development:
+
+```bash
+# Run individual CI stages
+just ci-lint-format    # Linting and formatting checks
+just ci-test          # Tests and coverage
+just ci-local         # Full local CI pipeline
+
+# Quick development checks
+just quick-check      # Quick compilation check
+just quick-fmt        # Format code
+just quick-lint       # Run clippy
+just pre-commit       # Pre-commit checks
+```
+
+### Manual Workflow Triggers
+
+All workflows can be triggered manually from the GitHub Actions tab:
+- **Lint and Format**: For code quality checks only
+- **Test and Coverage**: For testing across platforms
+- **CI/CD Pipeline**: For full pipeline execution
+
 ## Development
 
 ### Prerequisites
