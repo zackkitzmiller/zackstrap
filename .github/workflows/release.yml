@@ -18,6 +18,9 @@ permissions:
   id-token: write
   attestations: write
 
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   release:
     name: Create Release

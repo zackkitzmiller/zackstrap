@@ -7,15 +7,20 @@ on:
     branches: [main, develop]
   # Allow manual triggering
   workflow_dispatch:
-  # Allow triggering from other workflows
-  workflow_call:
+    inputs:
+      trigger_source:
+        description: "Source that triggered this workflow"
+        required: false
+        default: "manual"
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
   RUST_BACKTRACE: 1
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   test:
@@ -29,6 +34,11 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Show trigger source
+        run: |
+          echo "Triggered by: ${{ github.event.inputs.trigger_source || 'direct' }}"
+          echo "Workflow: ${{ github.workflow }}"
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1

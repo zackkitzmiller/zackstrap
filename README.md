@@ -450,22 +450,35 @@ The project uses GitHub Actions for continuous integration and deployment, organ
 
 ### Workflow Structure
 
-- **`ci.yml`**: Main CI/CD pipeline that orchestrates all stages
+- **`ci.yml`**: Main CI/CD pipeline that triggers the lint workflow
 - **`lint.yml`**: Dedicated workflow for code quality checks (formatting, linting)
 - **`test.yml`**: Dedicated workflow for testing and coverage across multiple platforms
 - **`release.yml`**: Release automation workflow
 
+### Workflow Dependencies
+
+The CI pipeline uses a **trigger-based approach** where:
+- **Stage 1**: `ci.yml` triggers `lint.yml`
+- **Stage 2**: `lint.yml` triggers `test.yml` only on success
+- **Benefits**: 
+  - Keeps workflows organized in separate files
+  - Tests only run if linting passes
+  - Each workflow can be run independently
+  - Clear separation of concerns
+
 ### CI Stages
 
-1. **Lint and Format** (`lint.yml`)
+1. **Lint and Format** (Stage 1)
    - Code formatting check with `rustfmt`
    - Linting with `clippy`
    - Dependency validation
    - Unused dependency detection
    - Outdated dependency reporting (non-blocking)
    - PR comments with dependency status
+   - **Triggers test workflow on success**
 
-2. **Test and Coverage** (`test.yml`)
+2. **Test and Coverage** (Stage 2)
+   - **Only triggered by successful lint workflow**
    - Unit and integration tests
    - Multi-platform testing (Ubuntu, macOS, Windows)
    - Multi-Rust-version testing (stable, 1.89)

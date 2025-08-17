@@ -7,11 +7,16 @@ on:
     branches: [main, develop]
   # Allow manual triggering
   workflow_dispatch:
-  # Allow triggering from other workflows
-  workflow_call:
+    inputs:
+      trigger_source:
+        description: "Source that triggered this workflow"
+        required: false
+        default: "manual"
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 permissions:
   contents: read
@@ -119,3 +124,18 @@ jobs:
                 body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
               });
             }
+
+      - name: Trigger test workflow on success
+        if: success() && github.event.inputs.trigger_source == 'ci-pipeline'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test.yml',
+              ref: context.ref,
+              inputs: {
+                trigger_source: 'lint-workflow'
+              }
+            });
