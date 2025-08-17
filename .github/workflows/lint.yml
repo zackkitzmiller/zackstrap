@@ -41,6 +41,9 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cargo-
 
+      - name: Install Support Toolchain
+        run: just install-tools
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 

@@ -69,6 +69,26 @@ pre-commit:
     just quick-lint
     just quick-check
 
+# Development tools
+install-tools:
+    @echo "Installing development tools..."
+    cargo install cargo-audit
+    cargo install cargo-outdated
+    cargo install cargo-watch
+    cargo install cargo-tarpaulin --version 0.32.8
+
+check-deps:
+    @echo "Checking dependencies..."
+    cargo outdated
+
+check-tools:
+    @echo "Development Tools Status:"
+    @echo "========================"
+    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
+
 # Release
 release-patch:
     @echo "Creating patch release..."
@@ -105,3 +125,10 @@ info:
     @echo "Cargo version: $(cargo --version)"
     @echo "Just version: $(just --version)"
     @echo "Current version: $(cargo get version)"
+    @echo ""
+    @echo "Development Tools Status:"
+    @echo "========================"
+    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"

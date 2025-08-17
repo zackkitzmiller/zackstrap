@@ -485,11 +485,17 @@ just quick-check      # Quick compilation check
 just quick-fmt        # Format code
 just quick-lint       # Run clippy
 just pre-commit       # Pre-commit checks
+
+# Development tools
+just install-tools     # Install required development tools
+just check-tools       # Check which tools are installed
+just check-deps        # Check for outdated dependencies
 ```
 
 ### Manual Workflow Triggers
 
 All workflows can be triggered manually from the GitHub Actions tab:
+
 - **Lint and Format**: For code quality checks only
 - **Test and Coverage**: For testing across platforms
 - **CI/CD Pipeline**: For full pipeline execution
