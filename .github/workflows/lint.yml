@@ -82,6 +82,9 @@ jobs:
       - name: Install Support Toolchain
         run: just install-tools
 
+      - name: Install jq for JSON validation
+        run: sudo apt-get update && sudo apt-get install -y jq
+
       - name: Check formatting
         run: cargo fmt --all -- --check
 
@@ -93,19 +96,44 @@ jobs:
 
       - name: Check for outdated dependencies
         run: |
-          if cargo outdated --output-format json > outdated-deps.json 2>/dev/null; then
-            echo "Dependencies check completed successfully"
-            # Verify the file has content
-            if [ -s outdated-deps.json ]; then
-              echo "Found outdated dependencies"
+          # cargo outdated returns exit code 1 when there are outdated dependencies
+          # and exit code 0 when everything is up to date
+          # We want to capture output in both cases
+          echo "Checking for outdated dependencies..."
+
+          # First, let's see what cargo outdated outputs in table format for debugging
+          if cargo outdated --exit-code 1 >/dev/null 2>&1; then
+
+            echo "=== Table format output ==="
+            cargo outdated --format list || echo "Table format completed (exit code: $?)"
+            echo "=== End table format ==="
+
+            echo "=== Capturing JSON output ==="
+            cargo outdated --exit-code 1 --format json > outdated-deps.json 2>&1 || echo "JSON capture completed (exit code: $?)"
+          else
+            echo "Cargo outdated is not installed"
+            exit 1
+          fi
+
+          # Check if we got any output
+          if [ -s outdated-deps.json ]; then
+            echo "Found output - file size: $(wc -c < outdated-deps.json) bytes"
+            # Verify it's valid JSON
+            if jq empty outdated-deps.json 2>/dev/null; then
+              echo "JSON output is valid"
+              echo "Number of outdated dependencies: $(jq '.dependencies | length' outdated-deps.json)"
             else
-              echo "No outdated dependencies found"
-              echo "[]" > outdated-deps.json  # Ensure valid JSON
+              echo "Invalid JSON output, creating empty array"
+              echo "[]" > outdated-deps.json
             fi
           else
-            echo "Dependencies check completed with no updates needed"
-            echo "[]" > outdated-deps.json  # Ensure valid JSON
+            echo "No output captured - file is empty"
+            echo "[]" > outdated-deps.json
           fi
+
+          echo "=== Final outdated-deps.json content ==="
+          cat outdated-deps.json
+          echo "=== End content ==="
 
       - name: Upload outdated dependencies report
         uses: actions/upload-artifact@v4
@@ -132,17 +160,42 @@ jobs:
                   return;
                 }
 
-                const outdatedData = JSON.parse(fileContent);
+                let outdatedData;
+                try {
+                  outdatedData = JSON.parse(fileContent);
+                } catch (parseError) {
+                  console.log('Failed to parse JSON:', parseError.message);
+                  console.log('Raw content:', fileContent);
 
-                if (outdatedData && Array.isArray(outdatedData) && outdatedData.length > 0) {
+                  // Try to post a comment about the parsing failure
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: context.issue.number,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.\n\nNote: JSON parsing failed, but dependencies may still be outdated.'
+                    });
+                    console.log('Comment posted about parsing failure');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                  return;
+                }
+
+                // The JSON structure is { "crate_name": "...", "dependencies": [...] }
+                const dependencies = outdatedData.dependencies || outdatedData;
+
+                if (dependencies && Array.isArray(dependencies) && dependencies.length > 0) {
                   let comment = '## 🔄 Outdated Dependencies Detected\n\n';
                   comment += 'The following dependencies have newer versions available:\n\n';
                   comment += '| Crate | Current | Latest | Status |\n';
                   comment += '|-------|---------|--------|--------|\n';
 
-                  outdatedData.forEach(dep => {
-                    const status = dep.compatible_updates > 0 ? '🟢 Compatible' : '🟡 Breaking';
-                    comment += `| ${dep.name} | ${dep.installed_version} | ${dep.latest_version} | ${status} |\n`;
+                  dependencies.forEach(dep => {
+                    // Check if there are compatible updates (this field might not exist in newer versions)
+                    const hasCompatibleUpdates = dep.compat && dep.compat !== '---';
+                    const status = hasCompatibleUpdates ? '🟢 Compatible' : '🟡 Breaking';
+                    comment += `| ${dep.name} | ${dep.project} | ${dep.latest} | ${status} |\n`;
                   });
 
                   comment += '\n📦 **Download the full report**: Check the "outdated-dependencies" artifact in the Actions tab\n';
