@@ -3,8 +3,6 @@ name: Lint and Format
 on:
   push:
     branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
   # Allow manual triggering
   workflow_dispatch:
     inputs:
@@ -109,6 +107,7 @@ jobs:
             echo "=== Table format output ==="
             cargo outdated --format list
             echo "=== End table format ==="
+          fi
 
           # Check if we got any output
           if [ -s outdated-deps.json ]; then
