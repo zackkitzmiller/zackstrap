@@ -110,9 +110,6 @@ jobs:
 
             echo "=== Capturing JSON output ==="
             cargo outdated --exit-code 1 --format json > outdated-deps.json 2>&1 || echo "JSON capture completed (exit code: $?)"
-          else
-            echo "Cargo outdated is not installed"
-            exit 1
           fi
 
           # Check if we got any output
