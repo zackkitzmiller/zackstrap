@@ -99,7 +99,7 @@ jobs:
           # We want to capture output in both cases
           echo "Checking for outdated dependencies..."
 
-          if cargo outdated --exit-code 1 >/dev/null 2>&1; then
+          if ! cargo outdated --exit-code 1 >/dev/null 2>&1; then
             echo "=== Capturing JSON output ==="
             cargo outdated --format json > outdated-deps.json 2>&1
 
