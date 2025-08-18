@@ -100,7 +100,6 @@ jobs:
           echo "Checking for outdated dependencies..."
 
           if ! cargo outdated --exit-code 1 >/dev/null 2>&1; then
-            echo "=== Capturing JSON output ==="
             cargo outdated --format json > outdated-deps.json 2>&1
 
             # Show table format for debugging
@@ -125,10 +124,6 @@ jobs:
             echo "[]" > outdated-deps.json
           fi
 
-          echo "=== Final outdated-deps.json content ==="
-          cat outdated-deps.json
-          echo "=== End content ==="
-
       - name: Upload outdated dependencies report
         uses: actions/upload-artifact@v4
         if: always()
@@ -138,11 +133,46 @@ jobs:
           retention-days: 30
 
       - name: Comment on PR about outdated dependencies
-        if: github.event_name == 'pull_request' && always()
+        if: always()
         uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
+
+            // Since this workflow is triggered by workflow_dispatch, we need to determine context
+            // Check if we're on a main branch (don't post comments for those)
+            const isMainBranch = context.ref === 'refs/heads/main' || context.ref === 'refs/heads/develop';
+
+            if (isMainBranch) {
+              console.log('On main branch, skipping comment');
+              return;
+            }
+
+            // For feature branches, try to find the PR number
+            const branchName = context.ref.replace('refs/heads/', '');
+            console.log(`On branch: ${branchName}, attempting to find PR...`);
+
+            // Try to find PRs for this branch
+            let prNumber = null;
+            try {
+              const prs = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                head: `${context.repo.owner}:${branchName}`
+              });
+
+              if (prs.data.length > 0) {
+                prNumber = prs.data[0].number;
+                console.log(`Found PR #${prNumber} for branch ${branchName}`);
+              } else {
+                console.log(`No open PRs found for branch ${branchName}`);
+                return;
+              }
+            } catch (prError) {
+              console.log('Failed to find PR:', prError.message);
+              return;
+            }
 
             try {
               if (fs.existsSync('outdated-deps.json')) {
@@ -164,7 +194,7 @@ jobs:
                   // Try to post a comment about the parsing failure
                   try {
                     await github.rest.issues.createComment({
-                      issue_number: context.issue.number,
+                      issue_number: prNumber,
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.\n\nNote: JSON parsing failed, but dependencies may still be outdated.'
@@ -197,7 +227,7 @@ jobs:
 
                   try {
                     await github.rest.issues.createComment({
-                      issue_number: context.issue.number,
+                      issue_number: prNumber,
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       body: comment
@@ -210,7 +240,7 @@ jobs:
                   console.log('No outdated dependencies found');
                   try {
                     await github.rest.issues.createComment({
-                      issue_number: context.issue.number,
+                      issue_number: prNumber,
                       owner: context.repo.owner,
                       repo: context.repo.repo,
                       body: '✅ **All dependencies are up to date!** No updates needed.'
@@ -229,7 +259,7 @@ jobs:
 
               try {
                 await github.rest.issues.createComment({
-                  issue_number: context.issue.number,
+                  issue_number: prNumber,
                   owner: context.repo.owner,
                   repo: context.repo.repo,
                   body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
