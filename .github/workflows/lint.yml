@@ -101,16 +101,14 @@ jobs:
           # We want to capture output in both cases
           echo "Checking for outdated dependencies..."
 
-          # First, let's see what cargo outdated outputs in table format for debugging
           if cargo outdated --exit-code 1 >/dev/null 2>&1; then
-
-            echo "=== Table format output ==="
-            cargo outdated --format list || echo "Table format completed (exit code: $?)"
-            echo "=== End table format ==="
-
             echo "=== Capturing JSON output ==="
-            cargo outdated --exit-code 1 --format json > outdated-deps.json 2>&1 || echo "JSON capture completed (exit code: $?)"
-          fi
+            cargo outdated --format json > outdated-deps.json 2>&1
+
+            # Show table format for debugging
+            echo "=== Table format output ==="
+            cargo outdated --format list
+            echo "=== End table format ==="
 
           # Check if we got any output
           if [ -s outdated-deps.json ]; then

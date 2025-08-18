@@ -3,8 +3,7 @@ name: Test and Coverage
 on:
   push:
     branches: [main, develop]
-  pull_request:
-    branches: [main, develop]
+
   # Allow manual triggering
   workflow_dispatch:
     inputs:
