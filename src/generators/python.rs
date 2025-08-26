@@ -12,7 +12,7 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Python-specific configs
         self.generate_python_version(force).await?;
@@ -40,7 +40,7 @@ impl super::ConfigGenerator {
 
     async fn generate_python_version(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "3.12\n";
-        self.write_file_if_not_exists(".python-version", content, force).await
+        self.write_file_if_not_exists(".python-version", content, force, false).await
     }
 
     async fn generate_pyproject_toml(
@@ -169,7 +169,7 @@ warn_unused_configs = true
 strict = true
 "#,
         };
-        self.write_file_if_not_exists("pyproject.toml", content, force).await
+        self.write_file_if_not_exists("pyproject.toml", content, force, false).await
     }
 
     async fn generate_flake8_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -178,7 +178,7 @@ max-line-length = 88
 extend-ignore = E203, W503
 exclude = .git,__pycache__,build,dist,.venv,venv
 "#;
-        self.write_file_if_not_exists(".flake8", content, force).await
+        self.write_file_if_not_exists(".flake8", content, force, false).await
     }
 
     async fn generate_requirements_dev(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -189,7 +189,7 @@ flake8==6.1.0
 mypy==1.8.0
 pytest-cov==4.1.0
 "#;
-        self.write_file_if_not_exists("requirements-dev.txt", content, force).await
+        self.write_file_if_not_exists("requirements-dev.txt", content, force, false).await
     }
 
     async fn generate_python_justfile(
@@ -287,6 +287,6 @@ install:
     @pip install -r requirements-dev.txt
 "#,
         };
-        self.write_file_if_not_exists("justfile", content, force).await
+        self.write_file_if_not_exists("justfile", content, force, false).await
     }
 }

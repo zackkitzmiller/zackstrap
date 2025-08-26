@@ -28,6 +28,10 @@ struct Cli {
     #[arg(short, long)]
     force: bool,
 
+    /// Fail if files already exist (default: false - will skip existing files)
+    #[arg(short = 'e', long)]
+    fail_on_exists: bool,
+
     /// Show what would be created without actually creating files
     #[arg(long)]
     dry_run: bool,
@@ -95,7 +99,7 @@ async fn main() -> Result<(), ZackstrapError> {
         return Err(ZackstrapError::NotADirectory(target_dir));
     }
 
-    let handler = CommandHandler::new(target_dir, cli.force, cli.dry_run);
+    let handler = CommandHandler::new(target_dir, cli.force, cli.fail_on_exists, cli.dry_run);
 
     match cli.command {
         Commands::Basic { template } => handler.handle_basic(template).await?,

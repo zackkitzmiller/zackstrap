@@ -12,7 +12,7 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Rust-specific configs
         self.generate_rustfmt_config(force).await?;
@@ -44,7 +44,7 @@ tab_spaces = 4
 newline_style = "Unix"
 use_small_heuristics = "Default"
 "#;
-        self.write_file_if_not_exists("rustfmt.toml", content, force).await
+        self.write_file_if_not_exists("rustfmt.toml", content, force, false).await
     }
 
     async fn generate_clippy_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -67,7 +67,7 @@ deny = [
 # Set some specific configurations
 [clippy::all]
 "#;
-        self.write_file_if_not_exists(".clippy.toml", content, force).await
+        self.write_file_if_not_exists(".clippy.toml", content, force, false).await
     }
 
     async fn generate_cargo_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -103,7 +103,7 @@ debug = false
 lto = true
 codegen-units = 1
 "#;
-        self.write_file_if_not_exists(".cargo/config.toml", content, force).await
+        self.write_file_if_not_exists(".cargo/config.toml", content, force, false).await
     }
 
     async fn generate_rust_justfile(
@@ -256,6 +256,6 @@ install:
     @cargo build
 "#,
         };
-        self.write_file_if_not_exists("justfile", content, force).await
+        self.write_file_if_not_exists("justfile", content, force, false).await
     }
 }

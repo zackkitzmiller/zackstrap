@@ -96,7 +96,7 @@ impl ConfigGenerator {
         // TODO: Implement interactive setup
         println!("🎯 Interactive setup not yet implemented, generating basic configuration...");
 
-        self.generate_basic(false).await?;
+        self.generate_basic(false, false).await?;
 
         Ok(())
     }

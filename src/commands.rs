@@ -6,14 +6,16 @@ use crate::generators::{ConfigGenerator, ProjectType};
 pub struct CommandHandler {
     target_dir: PathBuf,
     force: bool,
+    fail_on_exists: bool,
     dry_run: bool,
 }
 
 impl CommandHandler {
-    pub fn new(target_dir: PathBuf, force: bool, dry_run: bool) -> Self {
+    pub fn new(target_dir: PathBuf, force: bool, fail_on_exists: bool, dry_run: bool) -> Self {
         Self {
             target_dir,
             force,
+            fail_on_exists,
             dry_run,
         }
     }
@@ -42,7 +44,7 @@ impl CommandHandler {
                 .green()
             );
             generator
-                .generate_basic_with_template(self.force, template_name)
+                .generate_basic_with_template(self.force, self.fail_on_exists, template_name)
                 .await?;
             println!(
                 "{}",
@@ -365,7 +367,7 @@ impl CommandHandler {
                     "{}",
                     "📁 Detected basic project, generating configuration...".green()
                 );
-                generator.generate_basic(self.force).await?;
+                generator.generate_basic(self.force, self.fail_on_exists).await?;
                 println!(
                     "{}",
                     "✅ Basic configuration files generated successfully!".green()

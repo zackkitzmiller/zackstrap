@@ -13,7 +13,7 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, template).await?;
+        self.generate_basic_with_template(force, false, template).await?;
 
         // Generate Node.js-specific configs
         self.generate_nvmrc(force).await?;
@@ -39,7 +39,7 @@ impl super::ConfigGenerator {
 
     async fn generate_nvmrc(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "20\n";
-        self.write_file_if_not_exists(".nvmrc", content, force).await
+        self.write_file_if_not_exists(".nvmrc", content, force, false).await
     }
 
     async fn generate_eslint_config(
@@ -136,7 +136,7 @@ impl super::ConfigGenerator {
 };
 "#,
         };
-        self.write_file_if_not_exists(".eslintrc.js", content, force).await
+        self.write_file_if_not_exists(".eslintrc.js", content, force, false).await
     }
 
     async fn generate_node_package_json(
@@ -146,7 +146,7 @@ impl super::ConfigGenerator {
     ) -> Result<(), ZackstrapError> {
         let package_json = PackageJson::from_template(template);
         let content = package_json.to_string();
-        self.write_file_if_not_exists("package.json", &content, force).await
+        self.write_file_if_not_exists("package.json", &content, force, false).await
     }
 
     async fn generate_node_justfile(
@@ -261,6 +261,6 @@ build:
     @npm run build
 "#,
         };
-        self.write_file_if_not_exists("justfile", content, force).await
+        self.write_file_if_not_exists("justfile", content, force, false).await
     }
 }

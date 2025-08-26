@@ -10,11 +10,17 @@ pub trait FileGenerator {
         filename: &str,
         content: &str,
         force: bool,
+        fail_on_exists: bool,
     ) -> Result<(), ZackstrapError> {
         let file_path = self.target_dir().join(filename);
 
         if file_path.exists() && !force {
-            return Err(ZackstrapError::FileExists(file_path));
+            if fail_on_exists {
+                return Err(ZackstrapError::FileExists(file_path));
+            } else {
+                // Skip writing if the file exists and we're not forcing or failing
+                return Ok(());
+            }
         }
 
         // Ensure parent directory exists
