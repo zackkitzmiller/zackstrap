@@ -1,9 +1,12 @@
 # Zackstrap Project Justfile
 # Just is a command runner - https://github.com/casey/just
 
+default:
+    just info
+
 # Development
 rust-version:
-    rustc --version
+    just info
 
 cargo-build:
     cargo build
@@ -74,10 +77,13 @@ pre-commit:
 # Development tools
 install-tools:
     @echo "Installing development tools..."
+    cargo install cargo-get
+    cargo install cargo-set-version
     cargo install cargo-audit
     cargo install cargo-outdated
     cargo install cargo-watch
     cargo install cargo-tarpaulin --version 0.32.8
+
 
 check-deps:
     @echo "Checking dependencies..."
@@ -95,6 +101,8 @@ check-deps-table:
 check-tools:
     @echo "Development Tools Status:"
     @echo "========================"
+    @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
@@ -106,6 +114,10 @@ release-patch:
     cargo set-version --bump patch
     git add Cargo.toml Cargo.lock
     git commit -m "Bump version for patch release"
+    @if ! cargo get version >/dev/null 2>&1; then \
+        echo "cargo-get not found, installing tools..."; \
+        just install-tools; \
+    fi
     git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
     git push origin main
     git push origin "v$(cargo get version)"
@@ -115,6 +127,10 @@ release-minor:
     cargo set-version --bump minor
     git add Cargo.toml Cargo.lock
     git commit -m "Bump version for minor release"
+    @if ! cargo get version >/dev/null 2>&1; then \
+        echo "cargo-get not found, installing tools..."; \
+        just install-tools; \
+    fi
     git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
     git push origin main
     git push origin "v$(cargo get version)"
@@ -124,6 +140,10 @@ release-major:
     cargo set-version --bump major
     git add Cargo.toml Cargo.lock
     git commit -m "Bump version for major release"
+    @if ! cargo get version >/dev/null 2>&1; then \
+        echo "cargo-get not found, installing tools..."; \
+        just install-tools; \
+    fi
     git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
     git push origin main
     git push origin "v$(cargo get version)"
@@ -135,10 +155,16 @@ info:
     @echo "Rust version: $(rustc --version)"
     @echo "Cargo version: $(cargo --version)"
     @echo "Just version: $(just --version)"
+    @if ! cargo get version >/dev/null 2>&1; then \
+        echo "cargo-get not found, installing tools..."; \
+        just install-tools; \
+    fi
     @echo "Current version: $(cargo get version)"
     @echo ""
     @echo "Development Tools Status:"
     @echo "========================"
+    @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
     @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
