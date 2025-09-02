@@ -45,7 +45,11 @@ impl fmt::Display for EditorConfig {
         writeln!(f, "charset = {}", self.charset)?;
         writeln!(f, "end_of_line = {}", self.end_of_line)?;
         writeln!(f, "insert_final_newline = {}", self.insert_final_newline)?;
-        writeln!(f, "trim_trailing_whitespace = {}", self.trim_trailing_whitespace)?;
+        writeln!(
+            f,
+            "trim_trailing_whitespace = {}",
+            self.trim_trailing_whitespace
+        )?;
         writeln!(f)?;
 
         for (pattern, section) in &self.sections {
@@ -205,8 +209,11 @@ impl PrettierConfig {
 
 impl fmt::Display for PrettierConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, r#"{{"semi": {}, "single_quote": {}, "tab_width": {}, "trailing_comma": "{}", "print_width": {}}}"#,
-            self.semi, self.single_quote, self.tab_width, self.trailing_comma, self.print_width)
+        write!(
+            f,
+            r#"{{"semi": {}, "single_quote": {}, "tab_width": {}, "trailing_comma": "{}", "print_width": {}}}"#,
+            self.semi, self.single_quote, self.tab_width, self.trailing_comma, self.print_width
+        )
     }
 }
 
@@ -238,7 +245,10 @@ impl PackageJson {
                 dev_dependencies: {
                     let mut deps = HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps.insert("eslint".to_string(), "^8.0.0".to_string());
                     deps
                 },
@@ -250,7 +260,10 @@ impl PackageJson {
                 dev_dependencies: {
                     let mut deps = HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps
                 },
             },
@@ -261,7 +274,10 @@ impl PackageJson {
                 dev_dependencies: {
                     let mut deps = HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
-                    deps.insert("prettier-plugin-ruby".to_string(), "github:prettier/plugin-ruby".to_string());
+                    deps.insert(
+                        "prettier-plugin-ruby".to_string(),
+                        "github:prettier/plugin-ruby".to_string(),
+                    );
                     deps.insert("rspec".to_string(), "^3.12.0".to_string());
                     deps
                 },
@@ -274,8 +290,14 @@ impl PackageJson {
                     let mut deps = HashMap::new();
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
                     deps.insert("eslint".to_string(), "^8.0.0".to_string());
-                    deps.insert("@typescript-eslint/eslint-plugin".to_string(), "^6.0.0".to_string());
-                    deps.insert("@typescript-eslint/parser".to_string(), "^6.0.0".to_string());
+                    deps.insert(
+                        "@typescript-eslint/eslint-plugin".to_string(),
+                        "^6.0.0".to_string(),
+                    );
+                    deps.insert(
+                        "@typescript-eslint/parser".to_string(),
+                        "^6.0.0".to_string(),
+                    );
                     deps
                 },
             },
@@ -288,9 +310,18 @@ impl PackageJson {
                     deps.insert("prettier".to_string(), "^3.0.0".to_string());
                     deps.insert("eslint".to_string(), "^8.0.0".to_string());
                     deps.insert("eslint-plugin-react".to_string(), "^7.33.0".to_string());
-                    deps.insert("eslint-plugin-react-hooks".to_string(), "^4.6.0".to_string());
-                    deps.insert("@typescript-eslint/eslint-plugin".to_string(), "^6.0.0".to_string());
-                    deps.insert("@typescript-eslint/parser".to_string(), "^6.0.0".to_string());
+                    deps.insert(
+                        "eslint-plugin-react-hooks".to_string(),
+                        "^4.6.0".to_string(),
+                    );
+                    deps.insert(
+                        "@typescript-eslint/eslint-plugin".to_string(),
+                        "^6.0.0".to_string(),
+                    );
+                    deps.insert(
+                        "@typescript-eslint/parser".to_string(),
+                        "^6.0.0".to_string(),
+                    );
                     deps
                 },
             },
@@ -312,8 +343,11 @@ impl PackageJson {
 
 impl fmt::Display for PackageJson {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, r#"{{"name":"{}","version":"{}","description":"{}","devDependencies":{{"#,
-            self.name, self.version, self.description)?;
+        write!(
+            f,
+            r#"{{"name":"{}","version":"{}","description":"{}","devDependencies":{{"#,
+            self.name, self.version, self.description
+        )?;
 
         let mut first = true;
         for (key, value) in &self.dev_dependencies {

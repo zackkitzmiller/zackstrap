@@ -1,5 +1,5 @@
-use crate::error::ZackstrapError;
 use super::common::FileGenerator;
+use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
@@ -13,7 +13,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template).await?;
+        self.generate_basic_with_template(force, false, template)
+            .await?;
 
         // Generate Rust-specific configs
         self.generate_rustfmt_config(force).await?;
@@ -45,7 +46,8 @@ tab_spaces = 4
 newline_style = "Unix"
 use_small_heuristics = "Default"
 "#;
-        self.write_file_if_not_exists("rustfmt.toml", content, force, false).await
+        self.write_file_if_not_exists("rustfmt.toml", content, force, false)
+            .await
     }
 
     async fn generate_clippy_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -68,7 +70,8 @@ deny = [
 # Set some specific configurations
 [clippy::all]
 "#;
-        self.write_file_if_not_exists(".clippy.toml", content, force, false).await
+        self.write_file_if_not_exists(".clippy.toml", content, force, false)
+            .await
     }
 
     async fn generate_cargo_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -104,7 +107,8 @@ debug = false
 lto = true
 codegen-units = 1
 "#;
-        self.write_file_if_not_exists(".cargo/config.toml", content, force, false).await
+        self.write_file_if_not_exists(".cargo/config.toml", content, force, false)
+            .await
     }
 
     async fn generate_rust_justfile(
@@ -113,7 +117,8 @@ codegen-units = 1
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "web" => r#"# Rust web project justfile
+            "web" => {
+                r#"# Rust web project justfile
 default:
     @echo "Available Rust web commands:"
     @just --list
@@ -158,8 +163,10 @@ fmt:
 install:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
-            "cli" => r#"# Rust CLI project justfile
+"#
+            }
+            "cli" => {
+                r#"# Rust CLI project justfile
 default:
     @echo "Available Rust CLI commands:"
     @just --list
@@ -209,8 +216,10 @@ fmt:
 install-deps:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
-            _ => r#"# Rust project justfile
+"#
+            }
+            _ => {
+                r#"# Rust project justfile
 default:
     @echo "Available Rust commands:"
     @just --list
@@ -255,8 +264,10 @@ fmt:
 install:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("justfile", content, force, false).await
+        self.write_file_if_not_exists("justfile", content, force, false)
+            .await
     }
 }

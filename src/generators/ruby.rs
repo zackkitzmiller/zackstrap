@@ -1,6 +1,6 @@
+use super::common::FileGenerator;
 use crate::config::PackageJson;
 use crate::error::ZackstrapError;
-use super::common::FileGenerator;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
@@ -14,13 +14,16 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first (includes justfile)
-        self.generate_basic_with_template(force, false, template).await?;
+        self.generate_basic_with_template(force, false, template)
+            .await?;
 
         // Generate Ruby-specific configs
         self.generate_ruby_version(force).await?;
         self.generate_node_version(force).await?;
-        self.generate_rubocop_config_with_template(force, template).await?;
-        self.generate_package_json_with_template(force, template).await?;
+        self.generate_rubocop_config_with_template(force, template)
+            .await?;
+        self.generate_package_json_with_template(force, template)
+            .await?;
 
         // Overwrite the basic justfile with Ruby-specific one
         self.generate_ruby_justfile(true, template).await?;
@@ -42,12 +45,14 @@ impl super::ConfigGenerator {
 
     async fn generate_ruby_version(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "3.3.0\n";
-        self.write_file_if_not_exists(".ruby-version", content, force, false).await
+        self.write_file_if_not_exists(".ruby-version", content, force, false)
+            .await
     }
 
     async fn generate_node_version(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "24\n";
-        self.write_file_if_not_exists(".node-version", content, force, false).await
+        self.write_file_if_not_exists(".node-version", content, force, false)
+            .await
     }
 
     async fn generate_rubocop_config_with_template(
@@ -56,7 +61,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "rails" => r#"# Rails-specific RuboCop configuration
+            "rails" => {
+                r#"# Rails-specific RuboCop configuration
 inherit_from: .rubocop_todo.yml
 
 AllCops:
@@ -81,8 +87,10 @@ Metrics/BlockLength:
   Exclude:
     - 'spec/**/*'
     - 'test/**/*'
-"#,
-            "sinatra" => r#"# Sinatra-specific RuboCop configuration
+"#
+            }
+            "sinatra" => {
+                r#"# Sinatra-specific RuboCop configuration
 inherit_from: .rubocop_todo.yml
 
 AllCops:
@@ -99,8 +107,10 @@ Style/StringLiterals:
 
 Layout/LineLength:
   Max: 120
-"#,
-            "gem" => r#"# Gem-specific RuboCop configuration
+"#
+            }
+            "gem" => {
+                r#"# Gem-specific RuboCop configuration
 inherit_from: .rubocop_todo.yml
 
 AllCops:
@@ -117,8 +127,10 @@ Style/StringLiterals:
 
 Layout/LineLength:
   Max: 120
-"#,
-            _ => r#"# Default RuboCop configuration
+"#
+            }
+            _ => {
+                r#"# Default RuboCop configuration
 inherit_from: .rubocop_todo.yml
 
 AllCops:
@@ -133,9 +145,11 @@ Style/StringLiterals:
 
 Layout/LineLength:
   Max: 120
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists(".rubocop.yml", content, force, false).await
+        self.write_file_if_not_exists(".rubocop.yml", content, force, false)
+            .await
     }
 
     async fn generate_package_json_with_template(
@@ -148,7 +162,8 @@ Layout/LineLength:
             _ => PackageJson::default(),
         };
         let content = package_json.to_string();
-        self.write_file_if_not_exists("package.json", &content, force, false).await
+        self.write_file_if_not_exists("package.json", &content, force, false)
+            .await
     }
 
     async fn generate_ruby_justfile(
@@ -157,7 +172,8 @@ Layout/LineLength:
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "rails" => r#"# Rails project justfile
+            "rails" => {
+                r#"# Rails project justfile
 default:
     @echo "Available Rails commands:"
     @just --list
@@ -190,8 +206,10 @@ db:seed:
 install:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            "sinatra" => r#"# Sinatra project justfile
+"#
+            }
+            "sinatra" => {
+                r#"# Sinatra project justfile
 default:
     @echo "Available Sinatra commands:"
     @just --list
@@ -215,8 +233,10 @@ rubocop:
 install:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            "gem" => r#"# Ruby gem project justfile
+"#
+            }
+            "gem" => {
+                r#"# Ruby gem project justfile
 default:
     @echo "Available gem commands:"
     @just --list
@@ -245,8 +265,10 @@ rubocop:
 install-deps:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            _ => r#"# Ruby project justfile
+"#
+            }
+            _ => {
+                r#"# Ruby project justfile
 default:
     @echo "Available Ruby commands:"
     @just --list
@@ -265,8 +287,10 @@ rubocop:
 install:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("justfile", content, force, false).await
+        self.write_file_if_not_exists("justfile", content, force, false)
+            .await
     }
 }

@@ -3,12 +3,12 @@ use std::path::PathBuf;
 
 // Module declarations
 pub mod basic;
-pub mod ruby;
-pub mod python;
-pub mod node;
-pub mod go;
-pub mod rust;
 pub mod common;
+pub mod go;
+pub mod node;
+pub mod python;
+pub mod ruby;
+pub mod rust;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum ProjectType {
@@ -92,7 +92,7 @@ impl ConfigGenerator {
         Ok(ProjectType::Basic)
     }
 
-        pub async fn interactive_setup(&self) -> Result<(), ZackstrapError> {
+    pub async fn interactive_setup(&self) -> Result<(), ZackstrapError> {
         // TODO: Implement interactive setup
         println!("🎯 Interactive setup not yet implemented, generating basic configuration...");
 
@@ -133,7 +133,8 @@ clean:
     #[allow(dead_code)]
     pub fn get_ruby_justfile_content(&self, template: &str) -> &'static str {
         match template {
-            "rails" => r#"# Ruby Project Justfile
+            "rails" => {
+                r#"# Ruby Project Justfile
 default:
     @echo "Available Rails commands:"
     @just --list
@@ -172,8 +173,10 @@ rails-routes:
 install:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            "sinatra" => r#"# Ruby Project Justfile
+"#
+            }
+            "sinatra" => {
+                r#"# Ruby Project Justfile
 default:
     @echo "Available Sinatra commands:"
     @just --list
@@ -207,8 +210,10 @@ rubocop:
 install:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            "gem" => r#"# Ruby Project Justfile
+"#
+            }
+            "gem" => {
+                r#"# Ruby Project Justfile
 default:
     @echo "Available gem commands:"
     @just --list
@@ -242,8 +247,10 @@ gem-release:
 install-deps:
     @echo "Installing Ruby dependencies..."
     @bundle install
-"#,
-            _ => r#"# Ruby Project Justfile
+"#
+            }
+            _ => {
+                r#"# Ruby Project Justfile
 default:
     @echo "Available Ruby commands:"
     @just --list
@@ -277,14 +284,16 @@ install:
 update:
     @echo "Updating Ruby dependencies..."
     @bundle update
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_python_justfile_content(&self, template: &str) -> &'static str {
         match template {
-            "django" => r#"# Python Project Justfile
+            "django" => {
+                r#"# Python Project Justfile
 default:
     @echo "Available Django commands:"
     @just --list
@@ -324,8 +333,10 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
-            "flask" => r#"# Python Project Justfile
+"#
+            }
+            "flask" => {
+                r#"# Python Project Justfile
 default:
     @echo "Available Flask commands:"
     @just --list
@@ -350,8 +361,10 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
-            _ => r#"# Python Project Justfile
+"#
+            }
+            _ => {
+                r#"# Python Project Justfile
 default:
     @echo "Available Python commands:"
     @just --list
@@ -386,14 +399,16 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_node_justfile_content(&self, template: &str) -> &'static str {
         match template {
-            "express" => r#"# Node.js Project Justfile
+            "express" => {
+                r#"# Node.js Project Justfile
 default:
     @echo "Available Express.js commands:"
     @just --list
@@ -432,8 +447,10 @@ install:
 build:
     @echo "Building Express.js project..."
     @npm run build
-"#,
-            "react" => r#"# Node.js Project Justfile
+"#
+            }
+            "react" => {
+                r#"# Node.js Project Justfile
 default:
     @echo "Available React commands:"
     @just --list
@@ -467,8 +484,10 @@ install:
 eject:
     @echo "Ejecting React app..."
     @npm run eject
-"#,
-            _ => r#"# Node.js Project Justfile
+"#
+            }
+            _ => {
+                r#"# Node.js Project Justfile
 default:
     @echo "Available Node.js commands:"
     @just --list
@@ -507,14 +526,16 @@ install:
 build:
     @echo "Building Node.js project..."
     @npm run build
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_go_justfile_content(&self, template: &str) -> &'static str {
         match template {
-            "web" => r#"# Go Project Justfile
+            "web" => {
+                r#"# Go Project Justfile
 default:
     @echo "Available Go web commands:"
     @just --list
@@ -555,8 +576,10 @@ install:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
-            "cli" => r#"# Go Project Justfile
+"#
+            }
+            "cli" => {
+                r#"# Go Project Justfile
 default:
     @echo "Available Go CLI commands:"
     @just --list
@@ -597,8 +620,10 @@ install-deps:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
-            _ => r#"# Go Project Justfile
+"#
+            }
+            _ => {
+                r#"# Go Project Justfile
 default:
     @echo "Available Go commands:"
     @just --list
@@ -644,14 +669,16 @@ install:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_rust_justfile_content(&self, template: &str) -> &'static str {
         match template {
-            "web" => r#"# Rust Project Justfile
+            "web" => {
+                r#"# Rust Project Justfile
 default:
     @echo "Available Rust web commands:"
     @just --list
@@ -696,8 +723,10 @@ fmt:
 install:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
-            "cli" => r#"# Rust Project Justfile
+"#
+            }
+            "cli" => {
+                r#"# Rust Project Justfile
 default:
     @echo "Available Rust CLI commands:"
     @just --list
@@ -747,8 +776,10 @@ fmt:
 install-deps:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
-            _ => r#"# Rust Project Justfile
+"#
+            }
+            _ => {
+                r#"# Rust Project Justfile
 default:
     @echo "Available Rust commands:"
     @just --list
@@ -803,7 +834,8 @@ check:
 install:
     @echo "Installing Rust dependencies..."
     @cargo build
-"#,
+"#
+            }
         }
     }
 
@@ -811,7 +843,8 @@ install:
     #[allow(dead_code)]
     pub fn get_pyproject_toml_content(&self, template: &str) -> &'static str {
         match template {
-            "django" => r#"[build-system]
+            "django" => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -852,8 +885,10 @@ strict = true
 
 [tool.django-stubs]
 django_settings_module = "myproject.settings"
-"#,
-            "flask" => r#"[build-system]
+"#
+            }
+            "flask" => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -894,8 +929,10 @@ strict = true
 
 [tool.flask]
 app_name = "app"
-"#,
-            _ => r#"[build-system]
+"#
+            }
+            _ => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -929,14 +966,16 @@ python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 strict = true
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_eslint_config_content(&self, template: &str) -> &'static str {
         match template {
-            "express" => r#"module.exports = {
+            "express" => {
+                r#"module.exports = {
   env: {
     node: true,
     es2022: true,
@@ -961,8 +1000,10 @@ strict = true
     'no-console': 'off',
   },
 };
-"#,
-            "react" => r#"module.exports = {
+"#
+            }
+            "react" => {
+                r#"module.exports = {
   env: {
     browser: true,
     es2022: true,
@@ -997,8 +1038,10 @@ strict = true
     },
   },
 };
-"#,
-            _ => r#"module.exports = {
+"#
+            }
+            _ => {
+                r#"module.exports = {
   env: {
     node: true,
     es2022: true,
@@ -1022,14 +1065,16 @@ strict = true
     '@typescript-eslint/no-unused-vars': 'warn',
   },
 };
-"#,
+"#
+            }
         }
     }
 
     #[allow(dead_code)]
     pub fn get_node_package_json_content(&self, template: &str) -> &'static str {
         match template {
-            "express" => r#"{
+            "express" => {
+                r#"{
   "name": "express-project",
   "version": "0.1.0",
   "description": "An Express.js web application",
@@ -1055,8 +1100,10 @@ strict = true
     "nodemon": "^3.0.0",
     "typescript": "^5.0.0"
   }
-}"#,
-            "react" => r#"{
+}"#
+            }
+            "react" => {
+                r#"{
   "name": "react-project",
   "version": "0.1.0",
   "description": "A React web application",
@@ -1092,8 +1139,10 @@ strict = true
       "last 1 safari version"
     ]
   }
-}"#,
-            _ => r#"{
+}"#
+            }
+            _ => {
+                r#"{
   "name": "myproject",
   "version": "0.1.0",
   "description": "A Node.js project",
@@ -1116,7 +1165,8 @@ strict = true
     "nodemon": "^3.0.0",
     "typescript": "^5.0.0"
   }
-}"#,
+}"#
+            }
         }
     }
 }

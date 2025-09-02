@@ -1,5 +1,5 @@
-use crate::error::ZackstrapError;
 use super::common::FileGenerator;
+use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
@@ -13,7 +13,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template).await?;
+        self.generate_basic_with_template(force, false, template)
+            .await?;
 
         // Generate Python-specific configs
         self.generate_python_version(force).await?;
@@ -32,16 +33,23 @@ impl super::ConfigGenerator {
         println!("  🎨 Would generate .prettierrc (template: {})", template);
         println!("  🔧 Would generate justfile");
         println!("  🐍 Would generate .python-version (3.12)");
-        println!("  📋 Would generate pyproject.toml (template: {})", template);
+        println!(
+            "  📋 Would generate pyproject.toml (template: {})",
+            template
+        );
         println!("  🔍 Would generate .flake8");
         println!("  📦 Would generate requirements-dev.txt");
-        println!("  🔧 Would generate Python justfile (template: {})", template);
+        println!(
+            "  🔧 Would generate Python justfile (template: {})",
+            template
+        );
         Ok(())
     }
 
     async fn generate_python_version(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "3.12\n";
-        self.write_file_if_not_exists(".python-version", content, force, false).await
+        self.write_file_if_not_exists(".python-version", content, force, false)
+            .await
     }
 
     async fn generate_pyproject_toml(
@@ -50,7 +58,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "django" => r#"[build-system]
+            "django" => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -91,8 +100,10 @@ strict = true
 
 [tool.django-stubs]
 django_settings_module = "project.settings"
-"#,
-            "flask" => r#"[build-system]
+"#
+            }
+            "flask" => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -133,8 +144,10 @@ strict = true
 
 [tool.flask]
 app_name = "app"
-"#,
-            _ => r#"[build-system]
+"#
+            }
+            _ => {
+                r#"[build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
@@ -168,9 +181,11 @@ python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 strict = true
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("pyproject.toml", content, force, false).await
+        self.write_file_if_not_exists("pyproject.toml", content, force, false)
+            .await
     }
 
     async fn generate_flake8_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -179,7 +194,8 @@ max-line-length = 88
 extend-ignore = E203, W503
 exclude = .git,__pycache__,build,dist,.venv,venv
 "#;
-        self.write_file_if_not_exists(".flake8", content, force, false).await
+        self.write_file_if_not_exists(".flake8", content, force, false)
+            .await
     }
 
     async fn generate_requirements_dev(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -190,7 +206,8 @@ flake8==6.1.0
 mypy==1.8.0
 pytest-cov==4.1.0
 "#;
-        self.write_file_if_not_exists("requirements-dev.txt", content, force, false).await
+        self.write_file_if_not_exists("requirements-dev.txt", content, force, false)
+            .await
     }
 
     async fn generate_python_justfile(
@@ -199,7 +216,8 @@ pytest-cov==4.1.0
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "django" => r#"# Django project justfile
+            "django" => {
+                r#"# Django project justfile
 default:
     @echo "Available Django commands:"
     @just --list
@@ -234,8 +252,10 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
-            "flask" => r#"# Flask project justfile
+"#
+            }
+            "flask" => {
+                r#"# Flask project justfile
 default:
     @echo "Available Flask commands:"
     @just --list
@@ -255,8 +275,10 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
-            _ => r#"# Python project justfile
+"#
+            }
+            _ => {
+                r#"# Python project justfile
 default:
     @echo "Available Python commands:"
     @just --list
@@ -286,8 +308,10 @@ install:
     @echo "Installing Python dependencies..."
     @pip install -r requirements.txt
     @pip install -r requirements-dev.txt
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("justfile", content, force, false).await
+        self.write_file_if_not_exists("justfile", content, force, false)
+            .await
     }
 }

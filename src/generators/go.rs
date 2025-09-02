@@ -1,5 +1,5 @@
-use crate::error::ZackstrapError;
 use super::common::FileGenerator;
+use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
@@ -13,7 +13,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template).await?;
+        self.generate_basic_with_template(force, false, template)
+            .await?;
 
         // Generate Go-specific configs
         self.generate_go_mod(force).await?;
@@ -46,7 +47,8 @@ require (
 	// Add your Go dependencies here
 )
 "#;
-        self.write_file_if_not_exists("go.mod", content, force, false).await
+        self.write_file_if_not_exists("go.mod", content, force, false)
+            .await
     }
 
     async fn generate_golangci_config(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -94,7 +96,8 @@ issues:
         - goconst
         - gosec
 "#;
-        self.write_file_if_not_exists(".golangci.yml", content, force, false).await
+        self.write_file_if_not_exists(".golangci.yml", content, force, false)
+            .await
     }
 
     async fn generate_go_gitignore(&self, force: bool) -> Result<(), ZackstrapError> {
@@ -142,7 +145,8 @@ go-mod-cache/
 ehthumbs.db
 Thumbs.db
 "#;
-        self.write_file_if_not_exists(".gitignore", content, force, false).await
+        self.write_file_if_not_exists(".gitignore", content, force, false)
+            .await
     }
 
     async fn generate_go_justfile(
@@ -151,7 +155,8 @@ Thumbs.db
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "web" => r#"# Go web project justfile
+            "web" => {
+                r#"# Go web project justfile
 default:
     @echo "Available Go web commands:"
     @just --list
@@ -192,8 +197,10 @@ install:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
-            "cli" => r#"# Go CLI project justfile
+"#
+            }
+            "cli" => {
+                r#"# Go CLI project justfile
 default:
     @echo "Available Go CLI commands:"
     @just --list
@@ -234,8 +241,10 @@ install-deps:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
-            _ => r#"# Go project justfile
+"#
+            }
+            _ => {
+                r#"# Go project justfile
 default:
     @echo "Available Go commands:"
     @just --list
@@ -276,8 +285,10 @@ install:
     @echo "Installing Go dependencies..."
     @go mod tidy
     @go mod download
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("justfile", content, force, false).await
+        self.write_file_if_not_exists("justfile", content, force, false)
+            .await
     }
 }

@@ -1,7 +1,7 @@
-use colored::*;
-use std::path::PathBuf;
 use crate::error::ZackstrapError;
 use crate::generators::{ConfigGenerator, ProjectType};
+use colored::*;
+use std::path::PathBuf;
 
 pub struct CommandHandler {
     target_dir: PathBuf,
@@ -367,7 +367,9 @@ impl CommandHandler {
                     "{}",
                     "📁 Detected basic project, generating configuration...".green()
                 );
-                generator.generate_basic(self.force, self.fail_on_exists).await?;
+                generator
+                    .generate_basic(self.force, self.fail_on_exists)
+                    .await?;
                 println!(
                     "{}",
                     "✅ Basic configuration files generated successfully!".green()

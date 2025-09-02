@@ -1,6 +1,6 @@
+use super::common::FileGenerator;
 use crate::config::PackageJson;
 use crate::error::ZackstrapError;
-use super::common::FileGenerator;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
@@ -14,7 +14,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template).await?;
+        self.generate_basic_with_template(force, false, template)
+            .await?;
 
         // Generate Node.js-specific configs
         self.generate_nvmrc(force).await?;
@@ -34,13 +35,17 @@ impl super::ConfigGenerator {
         println!("  🟢 Would generate .nvmrc (20)");
         println!("  🔍 Would generate .eslintrc.js (template: {})", template);
         println!("  📦 Would generate package.json (template: {})", template);
-        println!("  🔧 Would generate Node.js justfile (template: {})", template);
+        println!(
+            "  🔧 Would generate Node.js justfile (template: {})",
+            template
+        );
         Ok(())
     }
 
     async fn generate_nvmrc(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = "20\n";
-        self.write_file_if_not_exists(".nvmrc", content, force, false).await
+        self.write_file_if_not_exists(".nvmrc", content, force, false)
+            .await
     }
 
     async fn generate_eslint_config(
@@ -49,7 +54,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "express" => r#"{
+            "express" => {
+                r#"{
   "env": {
     "browser": true,
     "node": true,
@@ -62,8 +68,10 @@ impl super::ConfigGenerator {
   },
   "rules": {}
 }
-"#,
-            "react" => r#"{
+"#
+            }
+            "react" => {
+                r#"{
   "env": {
     "browser": true,
     "node": true,
@@ -76,8 +84,10 @@ impl super::ConfigGenerator {
   },
   "rules": {}
 }
-"#,
-            _ => r#"{
+"#
+            }
+            _ => {
+                r#"{
   "env": {
     "browser": true,
     "node": true,
@@ -90,9 +100,11 @@ impl super::ConfigGenerator {
   },
   "rules": {}
 }
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists(".eslintrc.json", content, force, false).await
+        self.write_file_if_not_exists(".eslintrc.json", content, force, false)
+            .await
     }
 
     async fn generate_node_package_json(
@@ -102,7 +114,8 @@ impl super::ConfigGenerator {
     ) -> Result<(), ZackstrapError> {
         let package_json = PackageJson::from_template(template);
         let content = package_json.to_string();
-        self.write_file_if_not_exists("package.json", &content, force, false).await
+        self.write_file_if_not_exists("package.json", &content, force, false)
+            .await
     }
 
     async fn generate_node_justfile(
@@ -111,7 +124,8 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "express" => r#"# Express.js project justfile
+            "express" => {
+                r#"# Express.js project justfile
 default:
     @echo "Available Express.js commands:"
     @just --list
@@ -145,8 +159,10 @@ install:
 build:
     @echo "Building Express.js project..."
     @npm run build
-"#,
-            "react" => r#"# React project justfile
+"#
+            }
+            "react" => {
+                r#"# React project justfile
 default:
     @echo "Available React commands:"
     @just --list
@@ -180,8 +196,10 @@ install:
 eject:
     @echo "Ejecting React app..."
     @npm run eject
-"#,
-            _ => r#"# Node.js project justfile
+"#
+            }
+            _ => {
+                r#"# Node.js project justfile
 default:
     @echo "Available Node.js commands:"
     @just --list
@@ -215,8 +233,10 @@ install:
 build:
     @echo "Building Node.js project..."
     @npm run build
-"#,
+"#
+            }
         };
-        self.write_file_if_not_exists("justfile", content, force, false).await
+        self.write_file_if_not_exists("justfile", content, force, false)
+            .await
     }
 }

@@ -1,13 +1,13 @@
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 
+mod commands;
 mod config;
 mod error;
 mod generators;
-mod commands;
 
-use error::ZackstrapError;
 use commands::CommandHandler;
+use error::ZackstrapError;
 
 #[derive(Parser)]
 #[command(
