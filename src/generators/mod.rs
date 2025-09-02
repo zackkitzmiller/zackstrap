@@ -102,6 +102,7 @@ impl ConfigGenerator {
     }
 
     // Test helper methods to get content without writing files
+    #[allow(dead_code)]
     pub fn get_basic_justfile_content(&self) -> &'static str {
         r#"# Basic project justfile
 # Add your project-specific commands here
@@ -129,6 +130,7 @@ clean:
 "#
     }
 
+    #[allow(dead_code)]
     pub fn get_ruby_justfile_content(&self, template: &str) -> &'static str {
         match template {
             "rails" => r#"# Ruby Project Justfile
@@ -279,6 +281,7 @@ update:
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_python_justfile_content(&self, template: &str) -> &'static str {
         match template {
             "django" => r#"# Python Project Justfile
@@ -387,6 +390,7 @@ install:
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_node_justfile_content(&self, template: &str) -> &'static str {
         match template {
             "express" => r#"# Node.js Project Justfile
@@ -507,6 +511,7 @@ build:
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_go_justfile_content(&self, template: &str) -> &'static str {
         match template {
             "web" => r#"# Go Project Justfile
@@ -643,6 +648,7 @@ install:
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_rust_justfile_content(&self, template: &str) -> &'static str {
         match template {
             "web" => r#"# Rust Project Justfile
@@ -802,6 +808,7 @@ install:
     }
 
     // Additional test helper methods
+    #[allow(dead_code)]
     pub fn get_pyproject_toml_content(&self, template: &str) -> &'static str {
         match template {
             "django" => r#"[build-system]
@@ -926,6 +933,7 @@ strict = true
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_eslint_config_content(&self, template: &str) -> &'static str {
         match template {
             "express" => r#"module.exports = {
@@ -1018,6 +1026,7 @@ strict = true
         }
     }
 
+    #[allow(dead_code)]
     pub fn get_node_package_json_content(&self, template: &str) -> &'static str {
         match template {
             "express" => r#"{

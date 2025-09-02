@@ -3,7 +3,7 @@
 
 # Development
 rust-version:
-    rustc --version
+    just info
 
 cargo-build:
     cargo build

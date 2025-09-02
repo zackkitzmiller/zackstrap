@@ -3,6 +3,7 @@ use crate::error::ZackstrapError;
 use super::common::FileGenerator;
 
 impl super::ConfigGenerator {
+    #[allow(dead_code)]
     pub async fn generate_node(&self, force: bool) -> Result<(), ZackstrapError> {
         self.generate_node_with_template(force, "default").await
     }
@@ -48,95 +49,50 @@ impl super::ConfigGenerator {
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
-            "express" => r#"module.exports = {
-  env: {
-    node: true,
-    es2022: true,
+            "express" => r#"{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
   },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-  ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
   },
-  plugins: ['@typescript-eslint'],
-  rules: {
-    'indent': ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    'no-unused-vars': 'warn',
-    '@typescript-eslint/no-unused-vars': 'warn',
-    'no-console': 'off',
-  },
-};
+  "rules": {}
+}
 "#,
-            "react" => r#"module.exports = {
-  env: {
-    browser: true,
-    es2022: true,
-    node: true,
+            "react" => r#"{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
   },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-  ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true,
-    },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
   },
-  plugins: ['@typescript-eslint', 'react', 'react-hooks'],
-  rules: {
-    'indent': ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    'react/react-in-jsx-scope': 'off',
-    'react/prop-types': 'off',
-  },
-  settings: {
-    react: {
-      version: 'detect',
-    },
-  },
-};
+  "rules": {}
+}
 "#,
-            _ => r#"module.exports = {
-  env: {
-    node: true,
-    es2022: true,
+            _ => r#"{
+  "env": {
+    "browser": true,
+    "node": true,
+    "es2021": true
   },
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-  ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
   },
-  plugins: ['@typescript-eslint'],
-  rules: {
-    'indent': ['error', 2],
-    'linebreak-style': ['error', 'unix'],
-    'quotes': ['error', 'single'],
-    'semi': ['error', 'always'],
-    'no-unused-vars': 'warn',
-    '@typescript-eslint/no-unused-vars': 'warn',
-  },
-};
+  "rules": {}
+}
 "#,
         };
-        self.write_file_if_not_exists(".eslintrc.js", content, force, false).await
+        self.write_file_if_not_exists(".eslintrc.json", content, force, false).await
     }
 
     async fn generate_node_package_json(

@@ -2,6 +2,7 @@ use crate::error::ZackstrapError;
 use super::common::FileGenerator;
 
 impl super::ConfigGenerator {
+    #[allow(dead_code)]
     pub async fn generate_python(&self, force: bool) -> Result<(), ZackstrapError> {
         self.generate_python_with_template(force, "default").await
     }

@@ -2,6 +2,7 @@ use crate::error::ZackstrapError;
 use std::fs;
 use std::path::PathBuf;
 
+#[allow(async_fn_in_trait)]
 pub trait FileGenerator {
     fn target_dir(&self) -> &PathBuf;
 
@@ -28,7 +29,8 @@ pub trait FileGenerator {
             fs::create_dir_all(parent)?;
         }
 
-        fs::write(&file_path, content)?;
+        fs::write(&file_path, content)
+            .map_err(|e| ZackstrapError::WriteFileError(file_path.clone(), e))?;
         Ok(())
     }
 }

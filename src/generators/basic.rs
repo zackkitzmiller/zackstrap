@@ -26,7 +26,7 @@ impl super::ConfigGenerator {
         Ok(())
     }
 
-    async fn generate_editor_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_editor_config(&self, force: bool, fail_on_exists: bool) -> Result<(), ZackstrapError> {
         let config = EditorConfig::default();
         let content = config.to_string();
         self.write_file_if_not_exists(".editorconfig", &content, force, fail_on_exists).await

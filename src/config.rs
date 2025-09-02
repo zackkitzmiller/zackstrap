@@ -295,7 +295,7 @@ impl PackageJson {
                 },
             },
             "default" => Self {
-                name: "node-project".to_string(),
+                name: "node-app".to_string(),
                 version: "0.1.0".to_string(),
                 description: "A Node.js project".to_string(),
                 dev_dependencies: {

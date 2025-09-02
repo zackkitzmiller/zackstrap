@@ -2,6 +2,7 @@ use crate::error::ZackstrapError;
 use super::common::FileGenerator;
 
 impl super::ConfigGenerator {
+    #[allow(dead_code)]
     pub async fn generate_go(&self, force: bool) -> Result<(), ZackstrapError> {
         self.generate_go_with_template(force, "default").await
     }
