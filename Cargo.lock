@@ -1114,6 +1114,90 @@ checksum = "0a6e035dd0599267ce1ee132e51c27dd29437f63325753051e71dd9e42406c57"
 name = "windows_x86_64_msvc"
 version = "0.52.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
+1087
+checksum = "581fee95406bb13382d2f65cd4a908ca7b1e4c2f1917f143ba16efe98a589b5d"
+1088
+​
+1089
+[[package]]
+1090
+name = "windows_x86_64_gnu"
+1091
+version = "0.52.6"
+1092
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1093
+checksum = "147a5c80aabfbf0c7d901cb5895d1de30ef2907eb21fbbab29ca94c5b08b1a78"
+1094
+​
+1095
+[[package]]
+1096
+name = "windows_x86_64_gnu"
+1097
+version = "0.53.0"
+1098
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1099
+checksum = "2e55b5ac9ea33f2fc1716d1742db15574fd6fc8dadc51caab1c16a3d3b4190ba"
+1100
+​
+1101
+[[package]]
+1102
+name = "windows_x86_64_gnullvm"
+1103
+version = "0.52.6"
+1104
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1105
+checksum = "24d5b23dc417412679681396f2b49f3de8c1473deb516bd34410872eff51ed0d"
+1106
+​
+1107
+[[package]]
+1108
+name = "windows_x86_64_gnullvm"
+1109
+version = "0.53.0"
+1110
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1111
+checksum = "0a6e035dd0599267ce1ee132e51c27dd29437f63325753051e71dd9e42406c57"
+1112
+​
+1113
+[[package]]
+1114
+name = "windows_x86_64_msvc"
+1115
+version = "0.52.6"
+1116
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1117
+checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
+1118
+​
+1119
+[[package]]
+1120
+name = "windows_x86_64_msvc"
+1121
+version = "0.53.0"
+1122
+source = "registry+https://github.com/rust-lang/crates.io-index"
+1123
+checksum = "271414315aff87387382ec3d271b52d7ae78726f5d44ac98b4f4030c91880486"
+1124
+​
+1125
+[[package]]
+1126
+name = "wit-bindgen"
+1127
+version = "0.45.0"
+1128
+source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
