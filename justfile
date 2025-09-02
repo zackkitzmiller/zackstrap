@@ -118,9 +118,10 @@ release-patch:
         echo "cargo-get not found, installing tools..."; \
         just install-tools; \
     fi
-    git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
+    @VERSION=$$(cargo get version 2>/dev/null || echo "unknown"); \
+    git tag -a "v$$VERSION" -m "Release v$$VERSION"
     git push origin main
-    git push origin "v$(cargo get version)"
+    git push origin "v$$VERSION"
 
 release-minor:
     @echo "Creating minor release..."
@@ -131,9 +132,10 @@ release-minor:
         echo "cargo-get not found, installing tools..."; \
         just install-tools; \
     fi
-    git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
+    @VERSION=$$(cargo get version 2>/dev/null || echo "unknown"); \
+    git tag -a "v$$VERSION" -m "Release v$$VERSION"
     git push origin main
-    git push origin "v$(cargo get version)"
+    git push origin "v$$VERSION"
 
 release-major:
     @echo "Creating major release..."
@@ -144,9 +146,10 @@ release-major:
         echo "cargo-get not found, installing tools..."; \
         just install-tools; \
     fi
-    git tag -a "v$(cargo get version)" -m "Release v$(cargo get version)"
+    @VERSION=$$(cargo get version 2>/dev/null || echo "unknown"); \
+    git tag -a "v$$VERSION" -m "Release v$$VERSION"
     git push origin main
-    git push origin "v$(cargo get version)"
+    git push origin "v$$VERSION"
 
 # Project info
 info:
@@ -159,7 +162,7 @@ info:
         echo "cargo-get not found, installing tools..."; \
         just install-tools; \
     fi
-    @echo "Current version: $(cargo get version)"
+    @echo "Current version: $(cargo get version 2>/dev/null || echo 'unknown')"
     @echo ""
     @echo "Development Tools Status:"
     @echo "========================"
