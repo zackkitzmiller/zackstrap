@@ -14,6 +14,24 @@ cargo-build:
 cargo-build-release:
     cargo build --release
 
+release-build:
+    @echo "Building release version..."
+    @if ! cargo get version >/dev/null 2>&1; then \
+        echo "cargo-get not found, installing tools..."; \
+        just install-tools; \
+    fi
+    @echo "Building version: $(cargo get version 2>/dev/null || echo 'unknown')"
+    cargo build --release
+    @echo "Creating release directory..."
+    mkdir -p dist
+    @echo "Copying binary to dist/..."
+    cp target/release/zackstrap dist/
+    @echo "Creating zipfile..."
+    cd dist && zip -r "zackstrap-$(cargo get version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip" zackstrap
+    @echo "Release build complete!"
+    @echo "Binary: dist/zackstrap"
+    @echo "Zipfile: dist/zackstrap-$(cargo get version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip"
+
 cargo-test:
     cargo test
 

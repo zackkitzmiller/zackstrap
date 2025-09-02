@@ -2,6 +2,9 @@
 /target/
 **/*.rs.bk
 
+!.gitkeep
+dist/z*
+
 # IDE
 .vscode/
 .idea/
