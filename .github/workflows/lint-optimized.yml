@@ -1,0 +1,240 @@
+name: Lint and Format (Optimized)
+
+on:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      trigger_source:
+        description: "Source that triggered this workflow"
+        required: false
+        default: "manual"
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+permissions:
+  actions: write
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  lint-and-format:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Use the shared cache setup
+      - name: Setup caching
+        id: cache-setup
+        uses: ./.github/workflows/cache-setup.yml
+        with:
+          cache-key-suffix: ${{ github.sha }}
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Check for unused dependencies
+        run: cargo check --all-targets --all-features
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "Checking for outdated dependencies..."
+
+          if ! cargo outdated --exit-code 1 >/dev/null 2>&1; then
+            cargo outdated --format json > outdated-deps.json 2>&1
+            echo "=== Table format output ==="
+            cargo outdated --format list
+            echo "=== End table format ==="
+          fi
+
+          if [ -s outdated-deps.json ]; then
+            echo "Found output - file size: $(wc -c < outdated-deps.json) bytes"
+            if jq empty outdated-deps.json 2>/dev/null; then
+              echo "JSON output is valid"
+              echo "Number of outdated dependencies: $(jq '.dependencies | length' outdated-deps.json)"
+            else
+              echo "Invalid JSON output, creating empty array"
+              echo "[]" > outdated-deps.json
+            fi
+          else
+            echo "No output captured - file is empty"
+            echo "[]" > outdated-deps.json
+          fi
+
+      - name: Upload outdated dependencies report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: outdated-dependencies
+          path: outdated-deps.json
+          retention-days: 30
+
+      - name: Comment on PR about outdated dependencies
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+
+            const isMainBranch = context.ref === 'refs/heads/main' || context.ref === 'refs/heads/develop';
+
+            if (isMainBranch) {
+              console.log('On main branch, skipping comment');
+              return;
+            }
+
+            const branchName = context.ref.replace('refs/heads/', '');
+            console.log(`On branch: ${branchName}, attempting to find PR...`);
+
+            let prNumber = null;
+            try {
+              const prs = await github.rest.pulls.list({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                state: 'open',
+                head: `${context.repo.owner}:${branchName}`
+              });
+
+              if (prs.data.length > 0) {
+                prNumber = prs.data[0].number;
+                console.log(`Found PR #${prNumber} for branch ${branchName}`);
+              } else {
+                console.log(`No open PRs found for branch ${branchName}`);
+                return;
+              }
+            } catch (prError) {
+              console.log('Failed to find PR:', prError.message);
+              return;
+            }
+
+            try {
+              if (fs.existsSync('outdated-deps.json')) {
+                const fileContent = fs.readFileSync('outdated-deps.json', 'utf8').trim();
+
+                if (!fileContent) {
+                  console.log('outdated-deps.json is empty, skipping comment');
+                  return;
+                }
+
+                let outdatedData;
+                try {
+                  outdatedData = JSON.parse(fileContent);
+                } catch (parseError) {
+                  console.log('Failed to parse JSON:', parseError.message);
+                  console.log('Raw content:', fileContent);
+
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: prNumber,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.\n\nNote: JSON parsing failed, but dependencies may still be outdated.'
+                    });
+                    console.log('Comment posted about parsing failure');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                  return;
+                }
+
+                const dependencies = outdatedData.dependencies || outdatedData;
+
+                if (dependencies && Array.isArray(dependencies) && dependencies.length > 0) {
+                  let comment = '## 🔄 Outdated Dependencies Detected\n\n';
+                  comment += 'The following dependencies have newer versions available:\n\n';
+                  comment += '| Crate | Current | Latest | Status |\n';
+                  comment += '|-------|---------|--------|--------|\n';
+
+                  dependencies.forEach(dep => {
+                    const hasCompatibleUpdates = dep.compat && dep.compat !== '---';
+                    const status = hasCompatibleUpdates ? '🟢 Compatible' : '🟡 Breaking';
+                    comment += `| ${dep.name} | ${dep.project} | ${dep.latest} | ${status} |\n`;
+                  });
+
+                  comment += '\n📦 **Download the full report**: Check the "outdated-dependencies" artifact in the Actions tab\n';
+                  comment += '\n💡 **To update locally**: Run `just install-tools && just check-deps`\n';
+
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: prNumber,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: comment
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                } else {
+                  console.log('No outdated dependencies found');
+                  try {
+                    await github.rest.issues.createComment({
+                      issue_number: prNumber,
+                      owner: context.repo.owner,
+                      repo: context.repo.repo,
+                      body: '✅ **All dependencies are up to date!** No updates needed.'
+                    });
+                    console.log('Comment posted successfully');
+                  } catch (commentError) {
+                    console.log('Failed to post comment:', commentError.message);
+                  }
+                }
+              } else {
+                console.log('outdated-deps.json file not found');
+              }
+            } catch (error) {
+              console.log('Error processing outdated dependencies:', error);
+              console.log('File content preview:', fs.existsSync('outdated-deps.json') ? fs.readFileSync('outdated-deps.json', 'utf8').substring(0, 100) : 'File not found');
+
+              try {
+                await github.rest.issues.createComment({
+                  issue_number: prNumber,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: '⚠️ **Dependency check completed** - Check the "outdated-dependencies" artifact for details.'
+                });
+                console.log('Comment posted successfully');
+              } catch (commentError) {
+                console.log('Failed to post comment:', commentError.message);
+              }
+            }
+
+      - name: Trigger test workflow on success
+        if: success() && github.event.inputs.trigger_source == 'ci-pipeline'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            let targetRef = context.ref;
+
+            if (context.eventName === 'pull_request') {
+              targetRef = context.payload.pull_request.head.ref;
+              console.log(`PR head ref: ${targetRef}`);
+            }
+
+            if (context.eventName === 'push') {
+              targetRef = context.ref.replace('refs/heads/', '');
+              console.log(`Push branch: ${targetRef}`);
+            }
+
+            console.log(`Final target ref: ${targetRef}`);
+
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'test.yml',
+              ref: targetRef,
+              inputs: {
+                trigger_source: 'lint-workflow'
+              }
+            });
+
+            console.log('Test workflow triggered successfully');

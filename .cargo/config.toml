@@ -1,6 +1,6 @@
 [build]
-# Set the target directory
-target = "target"
+# Set the target directory (use absolute path to avoid confusion)
+target-dir = "target"
 
 [target.x86_64-unknown-linux-gnu]
 rustflags = ["-C", "target-cpu=native"]
