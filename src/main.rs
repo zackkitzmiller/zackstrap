@@ -35,6 +35,10 @@ struct Cli {
     /// Show what would be created without actually creating files
     #[arg(long)]
     dry_run: bool,
+
+    /// Generate git hooks for the project
+    #[arg(long)]
+    hooks: bool,
 }
 
 #[derive(Subcommand)]
@@ -99,7 +103,7 @@ async fn main() -> Result<(), ZackstrapError> {
         return Err(ZackstrapError::NotADirectory(target_dir));
     }
 
-    let handler = CommandHandler::new(target_dir, cli.force, cli.fail_on_exists, cli.dry_run);
+    let handler = CommandHandler::new(target_dir, cli.force, cli.fail_on_exists, cli.dry_run, cli.hooks);
 
     match cli.command {
         Commands::Basic { template } => handler.handle_basic(template).await?,

@@ -45,3 +45,6 @@ indent_size = 2
 
 [reg*.[ch]]
 indent_size = 2
+
+[reg*.[justfile] ]
+indent_size = 2

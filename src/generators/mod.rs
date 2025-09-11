@@ -5,6 +5,7 @@ use std::path::PathBuf;
 pub mod basic;
 pub mod common;
 pub mod go;
+pub mod hooks;
 pub mod node;
 pub mod python;
 pub mod ruby;
