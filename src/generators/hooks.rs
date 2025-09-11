@@ -11,7 +11,11 @@ impl GitHooksGenerator {
         Self { target_dir }
     }
 
-    pub async fn generate_ruby_hooks(&self, template: &str, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_ruby_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
         // Ensure .git/hooks directory exists
@@ -21,20 +25,27 @@ impl GitHooksGenerator {
 
         // Generate pre-commit hook
         let pre_commit_content = self.get_ruby_pre_commit_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         // Generate pre-push hook
         let pre_push_content = self.get_ruby_pre_push_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         // Generate commit-msg hook
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
 
-    pub async fn generate_python_hooks(&self, template: &str, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_python_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
         if !hooks_dir.exists() {
@@ -42,18 +53,25 @@ impl GitHooksGenerator {
         }
 
         let pre_commit_content = self.get_python_pre_commit_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         let pre_push_content = self.get_python_pre_push_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
 
-    pub async fn generate_node_hooks(&self, template: &str, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_node_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
         if !hooks_dir.exists() {
@@ -61,18 +79,25 @@ impl GitHooksGenerator {
         }
 
         let pre_commit_content = self.get_node_pre_commit_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         let pre_push_content = self.get_node_pre_push_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
 
-    pub async fn generate_go_hooks(&self, template: &str, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_go_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
         if !hooks_dir.exists() {
@@ -80,18 +105,25 @@ impl GitHooksGenerator {
         }
 
         let pre_commit_content = self.get_go_pre_commit_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         let pre_push_content = self.get_go_pre_push_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
 
-    pub async fn generate_rust_hooks(&self, template: &str, force: bool) -> Result<(), ZackstrapError> {
+    pub async fn generate_rust_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
         if !hooks_dir.exists() {
@@ -99,13 +131,16 @@ impl GitHooksGenerator {
         }
 
         let pre_commit_content = self.get_rust_pre_commit_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         let pre_push_content = self.get_rust_pre_push_hook(template);
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
@@ -118,18 +153,26 @@ impl GitHooksGenerator {
         }
 
         let pre_commit_content = self.get_basic_pre_commit_hook();
-        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
 
         let pre_push_content = self.get_basic_pre_push_hook();
-        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
 
         let commit_msg_content = self.get_commit_msg_hook();
-        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force).await?;
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
 
         Ok(())
     }
 
-    async fn write_hook_file(&self, path: &PathBuf, content: &str, force: bool) -> Result<(), ZackstrapError> {
+    async fn write_hook_file(
+        &self,
+        path: &PathBuf,
+        content: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
         if path.exists() && !force {
             return Err(ZackstrapError::FileAlreadyExists(path.clone()));
         }
@@ -140,10 +183,7 @@ impl GitHooksGenerator {
         #[cfg(unix)]
         {
             use std::process::Command;
-            let _ = Command::new("chmod")
-                .arg("+x")
-                .arg(path)
-                .output();
+            let _ = Command::new("chmod").arg("+x").arg(path).output();
         }
 
         Ok(())
@@ -152,8 +192,7 @@ impl GitHooksGenerator {
     // Ruby hooks
     fn get_ruby_pre_commit_hook(&self, template: &str) -> String {
         match template {
-            "rails" => {
-                r#"#!/bin/bash
+            "rails" => r#"#!/bin/bash
 # Ruby Rails Pre-commit Hook
 set -e
 
@@ -186,10 +225,9 @@ echo "🧪 Running RSpec tests..."
 bundle exec rspec --format documentation
 
 echo "✅ Ruby Rails pre-commit checks passed!"
-"#.to_string()
-            }
-            "sinatra" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "sinatra" => r#"#!/bin/bash
 # Ruby Sinatra Pre-commit Hook
 set -e
 
@@ -222,10 +260,9 @@ echo "🧪 Running RSpec tests..."
 bundle exec rspec --format documentation
 
 echo "✅ Ruby Sinatra pre-commit checks passed!"
-"#.to_string()
-            }
-            "gem" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "gem" => r#"#!/bin/bash
 # Ruby Gem Pre-commit Hook
 set -e
 
@@ -262,10 +299,9 @@ echo "🔨 Building gem..."
 bundle exec gem build *.gemspec
 
 echo "✅ Ruby Gem pre-commit checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Ruby Pre-commit Hook
 set -e
 
@@ -300,15 +336,14 @@ if [ -f "spec/spec_helper.rb" ] || [ -f "spec/rails_helper.rb" ]; then
 fi
 
 echo "✅ Ruby pre-commit checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     fn get_ruby_pre_push_hook(&self, template: &str) -> String {
         match template {
-            "rails" => {
-                r#"#!/bin/bash
+            "rails" => r#"#!/bin/bash
 # Ruby Rails Pre-push Hook
 set -e
 
@@ -327,10 +362,9 @@ echo "📦 Checking for outdated dependencies..."
 bundle exec bundle outdated || true
 
 echo "✅ Ruby Rails pre-push checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Ruby Pre-push Hook
 set -e
 
@@ -351,16 +385,15 @@ echo "📦 Checking for outdated dependencies..."
 bundle exec bundle outdated || true
 
 echo "✅ Ruby pre-push checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     // Python hooks
     fn get_python_pre_commit_hook(&self, template: &str) -> String {
         match template {
-            "django" => {
-                r#"#!/bin/bash
+            "django" => r#"#!/bin/bash
 # Python Django Pre-commit Hook
 set -e
 
@@ -409,10 +442,9 @@ echo "🧪 Running Django tests..."
 python manage.py test
 
 echo "✅ Python Django pre-commit checks passed!"
-"#.to_string()
-            }
-            "flask" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "flask" => r#"#!/bin/bash
 # Python Flask Pre-commit Hook
 set -e
 
@@ -461,10 +493,9 @@ echo "🧪 Running Pytest tests..."
 pytest
 
 echo "✅ Python Flask pre-commit checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Python Pre-commit Hook
 set -e
 
@@ -515,15 +546,14 @@ if [ -f "pytest.ini" ] || [ -f "pyproject.toml" ] || [ -d "tests" ]; then
 fi
 
 echo "✅ Python pre-commit checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     fn get_python_pre_push_hook(&self, template: &str) -> String {
         match template {
-            "django" => {
-                r#"#!/bin/bash
+            "django" => r#"#!/bin/bash
 # Python Django Pre-push Hook
 set -e
 
@@ -552,10 +582,9 @@ coverage run --source='.' manage.py test
 coverage report
 
 echo "✅ Python Django pre-push checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Python Pre-push Hook
 set -e
 
@@ -580,16 +609,15 @@ coverage run -m pytest
 coverage report
 
 echo "✅ Python pre-push checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     // Node.js hooks
     fn get_node_pre_commit_hook(&self, template: &str) -> String {
         match template {
-            "express" => {
-                r#"#!/bin/bash
+            "express" => r#"#!/bin/bash
 # Node.js Express Pre-commit Hook
 set -e
 
@@ -632,10 +660,9 @@ echo "🧪 Running Jest tests..."
 npm test
 
 echo "✅ Node.js Express pre-commit checks passed!"
-"#.to_string()
-            }
-            "react" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "react" => r#"#!/bin/bash
 # Node.js React Pre-commit Hook
 set -e
 
@@ -678,10 +705,9 @@ echo "🧪 Running React tests..."
 npm test -- --watchAll=false
 
 echo "✅ Node.js React pre-commit checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Node.js Pre-commit Hook
 set -e
 
@@ -730,15 +756,14 @@ if [ -f "package.json" ] && grep -q '"test"' package.json; then
 fi
 
 echo "✅ Node.js pre-commit checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     fn get_node_pre_push_hook(&self, template: &str) -> String {
         match template {
-            "express" => {
-                r#"#!/bin/bash
+            "express" => r#"#!/bin/bash
 # Node.js Express Pre-push Hook
 set -e
 
@@ -763,10 +788,9 @@ echo "🔨 Building project..."
 npm run build
 
 echo "✅ Node.js Express pre-push checks passed!"
-"#.to_string()
-            }
-            "react" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "react" => r#"#!/bin/bash
 # Node.js React Pre-push Hook
 set -e
 
@@ -791,10 +815,9 @@ echo "🔨 Building project..."
 npm run build
 
 echo "✅ Node.js React pre-push checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Node.js Pre-push Hook
 set -e
 
@@ -823,16 +846,15 @@ if [ -f "package.json" ] && grep -q '"build"' package.json; then
 fi
 
 echo "✅ Node.js pre-push checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     // Go hooks
     fn get_go_pre_commit_hook(&self, template: &str) -> String {
         match template {
-            "web" => {
-                r#"#!/bin/bash
+            "web" => r#"#!/bin/bash
 # Go Web Pre-commit Hook
 set -e
 
@@ -868,10 +890,9 @@ echo "🧪 Running Go tests..."
 go test ./...
 
 echo "✅ Go web pre-commit checks passed!"
-"#.to_string()
-            }
-            "cli" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "cli" => r#"#!/bin/bash
 # Go CLI Pre-commit Hook
 set -e
 
@@ -911,10 +932,9 @@ echo "🔨 Building CLI..."
 go build -o /tmp/cli ./cmd/cli
 
 echo "✅ Go CLI pre-commit checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Go Pre-commit Hook
 set -e
 
@@ -950,15 +970,14 @@ echo "🧪 Running Go tests..."
 go test ./...
 
 echo "✅ Go pre-commit checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     fn get_go_pre_push_hook(&self, template: &str) -> String {
         match template {
-            "web" => {
-                r#"#!/bin/bash
+            "web" => r#"#!/bin/bash
 # Go Web Pre-push Hook
 set -e
 
@@ -987,10 +1006,9 @@ GOOS=darwin GOARCH=amd64 go build -o /tmp/app-darwin-amd64 .
 GOOS=windows GOARCH=amd64 go build -o /tmp/app-windows-amd64.exe .
 
 echo "✅ Go web pre-push checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Go Pre-push Hook
 set -e
 
@@ -1013,16 +1031,15 @@ if command -v golangci-lint &> /dev/null; then
 fi
 
 echo "✅ Go pre-push checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     // Rust hooks
     fn get_rust_pre_commit_hook(&self, template: &str) -> String {
         match template {
-            "web" => {
-                r#"#!/bin/bash
+            "web" => r#"#!/bin/bash
 # Rust Web Pre-commit Hook
 set -e
 
@@ -1051,10 +1068,9 @@ echo "🧪 Running Rust tests..."
 cargo test
 
 echo "✅ Rust web pre-commit checks passed!"
-"#.to_string()
-            }
-            "cli" => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            "cli" => r#"#!/bin/bash
 # Rust CLI Pre-commit Hook
 set -e
 
@@ -1087,10 +1103,9 @@ echo "🔨 Building CLI..."
 cargo build
 
 echo "✅ Rust CLI pre-commit checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Rust Pre-commit Hook
 set -e
 
@@ -1119,15 +1134,14 @@ echo "🧪 Running Rust tests..."
 cargo test
 
 echo "✅ Rust pre-commit checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
     fn get_rust_pre_push_hook(&self, template: &str) -> String {
         match template {
-            "web" => {
-                r#"#!/bin/bash
+            "web" => r#"#!/bin/bash
 # Rust Web Pre-push Hook
 set -e
 
@@ -1152,10 +1166,9 @@ echo "🔨 Building for release..."
 cargo build --release
 
 echo "✅ Rust web pre-push checks passed!"
-"#.to_string()
-            }
-            _ => {
-                r#"#!/bin/bash
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
 # Rust Pre-push Hook
 set -e
 
@@ -1180,8 +1193,8 @@ echo "🔨 Building for release..."
 cargo build --release
 
 echo "✅ Rust pre-push checks passed!"
-"#.to_string()
-            }
+"#
+            .to_string(),
         }
     }
 
@@ -1216,7 +1229,8 @@ if [ -f "pyproject.toml" ]; then
 fi
 
 echo "✅ Basic pre-commit checks passed!"
-"#.to_string()
+"#
+        .to_string()
     }
 
     fn get_basic_pre_push_hook(&self) -> String {
@@ -1253,7 +1267,8 @@ if [ -f "go.mod" ]; then
 fi
 
 echo "✅ Basic pre-push checks passed!"
-"#.to_string()
+"#
+        .to_string()
     }
 
     // Common hooks

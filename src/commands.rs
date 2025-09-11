@@ -1,5 +1,5 @@
 use crate::error::ZackstrapError;
-use crate::generators::{ConfigGenerator, ProjectType, hooks::GitHooksGenerator};
+use crate::generators::{hooks::GitHooksGenerator, ConfigGenerator, ProjectType};
 use colored::*;
 use std::path::PathBuf;
 
@@ -12,7 +12,13 @@ pub struct CommandHandler {
 }
 
 impl CommandHandler {
-    pub fn new(target_dir: PathBuf, force: bool, fail_on_exists: bool, dry_run: bool, hooks: bool) -> Self {
+    pub fn new(
+        target_dir: PathBuf,
+        force: bool,
+        fail_on_exists: bool,
+        dry_run: bool,
+        hooks: bool,
+    ) -> Self {
         Self {
             target_dir,
             force,
@@ -64,10 +70,7 @@ impl CommandHandler {
                 println!("{}", "🪝 Generating git hooks for basic project...".green());
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
                 hooks_generator.generate_basic_hooks(self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
@@ -94,7 +97,8 @@ impl CommandHandler {
                     format!(
                         "🪝 [DRY RUN] Would generate git hooks for Ruby project (template: {})...",
                         template_name
-                    ).blue()
+                    )
+                    .blue()
                 );
             }
         } else {
@@ -120,14 +124,14 @@ impl CommandHandler {
                     format!(
                         "🪝 Generating git hooks for Ruby project (template: {})...",
                         template_name
-                    ).green()
+                    )
+                    .green()
                 );
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
-                hooks_generator.generate_ruby_hooks(template_name, self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                hooks_generator
+                    .generate_ruby_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
@@ -182,14 +186,14 @@ impl CommandHandler {
                     format!(
                         "🪝 Generating git hooks for Python project (template: {})...",
                         template_name
-                    ).green()
+                    )
+                    .green()
                 );
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
-                hooks_generator.generate_python_hooks(template_name, self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                hooks_generator
+                    .generate_python_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
@@ -242,14 +246,14 @@ impl CommandHandler {
                     format!(
                         "🪝 Generating git hooks for Node.js project (template: {})...",
                         template_name
-                    ).green()
+                    )
+                    .green()
                 );
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
-                hooks_generator.generate_node_hooks(template_name, self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                hooks_generator
+                    .generate_node_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
@@ -276,7 +280,8 @@ impl CommandHandler {
                     format!(
                         "🪝 [DRY RUN] Would generate git hooks for Go project (template: {})...",
                         template_name
-                    ).blue()
+                    )
+                    .blue()
                 );
             }
         } else {
@@ -302,14 +307,14 @@ impl CommandHandler {
                     format!(
                         "🪝 Generating git hooks for Go project (template: {})...",
                         template_name
-                    ).green()
+                    )
+                    .green()
                 );
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
-                hooks_generator.generate_go_hooks(template_name, self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                hooks_generator
+                    .generate_go_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
@@ -336,7 +341,8 @@ impl CommandHandler {
                     format!(
                         "🪝 [DRY RUN] Would generate git hooks for Rust project (template: {})...",
                         template_name
-                    ).blue()
+                    )
+                    .blue()
                 );
             }
         } else {
@@ -362,14 +368,14 @@ impl CommandHandler {
                     format!(
                         "🪝 Generating git hooks for Rust project (template: {})...",
                         template_name
-                    ).green()
+                    )
+                    .green()
                 );
                 let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
-                hooks_generator.generate_rust_hooks(template_name, self.force).await?;
-                println!(
-                    "{}",
-                    "✅ Git hooks generated successfully!".green()
-                );
+                hooks_generator
+                    .generate_rust_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
             }
         }
         Ok(())
