@@ -36,7 +36,7 @@ jobs:
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          
+
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
@@ -123,10 +123,10 @@ jobs:
 
       - name: Create GitHub Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         with:
           tag_name: "v${{ steps.bump.outputs.version }}"
-          release_name: "Release v${{ steps.bump.outputs.version }}"
+          name: "Release v${{ steps.bump.outputs.version }}"
           body: |
             ## Release v${{ steps.bump.outputs.version }}
 
