@@ -358,7 +358,7 @@ impl fmt::Display for PackageJson {
             first = false;
         }
 
-        write!(f, "}}")?;
+        write!(f, "}}}}")?;
         Ok(())
     }
 }
