@@ -1,10 +1,11 @@
-use assert_cmd::prelude::*;
+use assert_cmd::Command;
 use predicates::prelude::*;
-use std::process::Command;
 
 #[test]
 fn test_cli_help() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--help");
     cmd.assert()
         .success()
@@ -13,7 +14,9 @@ fn test_cli_help() {
 
 #[test]
 fn test_cli_version() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--version");
     cmd.assert()
         .success()
@@ -22,7 +25,9 @@ fn test_cli_version() {
 
 #[test]
 fn test_cli_list_command() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("list");
     cmd.assert()
         .success()
@@ -34,7 +39,9 @@ fn test_cli_list_command() {
 #[test]
 fn test_cli_basic_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -49,7 +56,9 @@ fn test_cli_basic_command() {
 #[test]
 fn test_cli_basic_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -66,7 +75,9 @@ fn test_cli_basic_command_with_template() {
 #[test]
 fn test_cli_ruby_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -81,7 +92,9 @@ fn test_cli_ruby_command() {
 #[test]
 fn test_cli_ruby_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -98,7 +111,9 @@ fn test_cli_ruby_command_with_template() {
 #[test]
 fn test_cli_python_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -113,7 +128,9 @@ fn test_cli_python_command() {
 #[test]
 fn test_cli_python_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -130,7 +147,9 @@ fn test_cli_python_command_with_template() {
 #[test]
 fn test_cli_node_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -145,7 +164,9 @@ fn test_cli_node_command() {
 #[test]
 fn test_cli_node_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -162,7 +183,9 @@ fn test_cli_node_command_with_template() {
 #[test]
 fn test_cli_go_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -177,7 +200,9 @@ fn test_cli_go_command() {
 #[test]
 fn test_cli_go_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -194,7 +219,9 @@ fn test_cli_go_command_with_template() {
 #[test]
 fn test_cli_rust_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -209,7 +236,9 @@ fn test_cli_rust_command() {
 #[test]
 fn test_cli_rust_command_with_template() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -226,7 +255,9 @@ fn test_cli_rust_command_with_template() {
 #[test]
 fn test_cli_auto_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -240,7 +271,9 @@ fn test_cli_auto_command() {
 #[test]
 fn test_cli_interactive_command() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -255,7 +288,9 @@ fn test_cli_interactive_command() {
 #[test]
 fn test_cli_force_flag() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--force")
@@ -270,7 +305,9 @@ fn test_cli_force_flag() {
 #[test]
 fn test_cli_dry_run_flag() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -284,7 +321,9 @@ fn test_cli_dry_run_flag() {
 #[test]
 fn test_cli_target_directory() {
     let temp_dir = assert_fs::TempDir::new().unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg(temp_dir.path())
         .arg("--dry-run")
@@ -295,7 +334,9 @@ fn test_cli_target_directory() {
 
 #[test]
 fn test_cli_invalid_directory() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target")
         .arg("/nonexistent/directory")
         .arg("basic");
@@ -306,7 +347,9 @@ fn test_cli_invalid_directory() {
 #[test]
 fn test_cli_file_as_target() {
     let temp_file = assert_fs::NamedTempFile::new("test.txt").unwrap();
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("--target").arg(temp_file.path()).arg("basic");
 
     cmd.assert().failure();
@@ -314,13 +357,17 @@ fn test_cli_file_as_target() {
 
 #[test]
 fn test_cli_no_subcommand() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.assert().failure();
 }
 
 #[test]
 fn test_cli_invalid_subcommand() {
-    let mut cmd = Command::cargo_bin("zackstrap").unwrap();
+    let mut cmd = Command::from_std(std::process::Command::new(assert_cmd::cargo::cargo_bin!(
+        "zackstrap"
+    )));
     cmd.arg("invalid");
 
     cmd.assert().failure();
