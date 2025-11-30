@@ -235,8 +235,7 @@ fn test_ruby_package_json_valid_json() {
         );
 
         // Verify the JSON is valid by parsing it
-        let parsed: Result<serde_json::Value, _> =
-            serde_json::from_str(&json_string);
+        let parsed: Result<serde_json::Value, _> = serde_json::from_str(&json_string);
         assert!(
             parsed.is_ok(),
             "PackageJson for template '{}' should be valid JSON, got error: {:?}, content: '{}'",
