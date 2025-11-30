@@ -1,12 +1,11 @@
-# Changelog for 1.1.2
+# Changelog for 1.1.3
 
 ## [Unreleased]
 
-## Changes since v1.1.1
+## Changes since v1.1.2
 
 ### Commits
 
-- 8b079ac Refactor Git config and push command in release workflow
-- 63a29d4 fix lint
-- bc29a73 fix just file, fix bug in package.json
+- 0fc1eff Configure Git user for release workflow
+- ba07923 Refactor release workflow by cleaning up env vars
 
