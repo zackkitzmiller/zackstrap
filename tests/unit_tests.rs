@@ -1,5 +1,6 @@
 use std::path::PathBuf;
 use zackstrap::ConfigGenerator;
+use zackstrap::PackageJson;
 
 #[test]
 fn test_pyproject_toml_content_generation() {
@@ -214,4 +215,51 @@ fn test_ruby_justfile_content_generation() {
     assert!(content.contains("gem-install"));
     assert!(content.contains("gem-test"));
     assert!(content.contains("gem-release"));
+}
+
+#[test]
+fn test_ruby_package_json_valid_json() {
+    // Test that all Ruby templates produce valid JSON with proper closing braces
+    let templates = ["rails", "sinatra", "gem"];
+
+    for template in templates {
+        let package_json = PackageJson::from_template(template);
+        let json_string = package_json.to_string();
+
+        // Verify the JSON string ends with closing braces
+        assert!(
+            json_string.ends_with("}}"),
+            "PackageJson for template '{}' should end with '}}', got: '{}'",
+            template,
+            json_string
+        );
+
+        // Verify the JSON is valid by parsing it
+        let parsed: Result<serde_json::Value, _> = serde_json::from_str(&json_string);
+        assert!(
+            parsed.is_ok(),
+            "PackageJson for template '{}' should be valid JSON, got error: {:?}, content: '{}'",
+            template,
+            parsed.err(),
+            json_string
+        );
+
+        // Verify it contains expected fields
+        let value = parsed.unwrap();
+        assert!(
+            value.get("name").is_some(),
+            "PackageJson for template '{}' should have 'name' field",
+            template
+        );
+        assert!(
+            value.get("version").is_some(),
+            "PackageJson for template '{}' should have 'version' field",
+            template
+        );
+        assert!(
+            value.get("devDependencies").is_some(),
+            "PackageJson for template '{}' should have 'devDependencies' field",
+            template
+        );
+    }
 }
