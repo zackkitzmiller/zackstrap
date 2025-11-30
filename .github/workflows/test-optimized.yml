@@ -1,4 +1,6 @@
 name: Test Suite (Optimized)
+permissions:
+  contents: read
 
 on:
   workflow_dispatch:
