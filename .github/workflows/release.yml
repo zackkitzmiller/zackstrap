@@ -28,9 +28,9 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Configure Git
         run: |
@@ -41,6 +41,7 @@ jobs:
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+          cache-all-crates: true
 
       - name: Install cargo-edit
         run: cargo install cargo-edit
@@ -113,6 +114,11 @@ jobs:
           cp target/release/zackstrap release/zackstrap-ubuntu
           tar -czf release/zackstrap-ubuntu.tar.gz -C release zackstrap-ubuntu
 
+      - name: Generate artifact attestations
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: "${{ github.workspace }}/release/zackstrap-ubuntu.tar.gz"
+
       - name: Commit and push changes
         run: |
           git add Cargo.toml Cargo.lock CHANGELOG.md
@@ -153,14 +159,7 @@ jobs:
             - [Issues](https://github.com/${{ github.repository }}/issues)
           draft: false
           prerelease: false
-
-      - name: Upload release assets
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./release/zackstrap-ubuntu.tar.gz
-          asset_name: zackstrap-ubuntu.tar.gz
-          asset_content_type: application/gzip
+          files: release/zackstrap-ubuntu.tar.gz
 
   publish:
     name: Publish to Crates.io
@@ -176,15 +175,16 @@ jobs:
           echo "Proceeding with checkout..."
 
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: "main"
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Install Rust toolchain
         uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           toolchain: stable
+          cache-all-crates: true
 
       - name: Verify version
         run: |
