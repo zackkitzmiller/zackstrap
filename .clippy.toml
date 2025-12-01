@@ -1,0 +1,32 @@
+# Clippy configuration file
+# This file configures Clippy behavior and thresholds
+
+# Increase threshold for too_many_arguments lint
+too-many-arguments-threshold = 8
+
+# Increase threshold for too_many_lines lint
+too-many-lines-threshold = 150
+
+# Increase threshold for type_complexity lint
+type-complexity-threshold = 300
+
+# Allow longer cognitive complexity for complex functions
+cognitive-complexity-threshold = 35
+
+# Set minimum identifier length threshold
+min-ident-chars-threshold = 2
+
+# Allow larger stack sizes before warning
+stack-size-threshold = 1024000
+
+# Set maximum suggested slice pattern length
+max-suggested-slice-pattern-length = 5
+
+# Configure enum variant name threshold
+enum-variant-name-threshold = 4
+
+# Allow more struct boolean fields
+max-struct-bools = 5
+
+# Allow more function boolean parameters
+max-fn-params-bools = 3

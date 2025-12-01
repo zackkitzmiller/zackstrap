@@ -42,7 +42,7 @@ impl super::ConfigGenerator {
         let content = r#"# Rustfmt configuration
 edition = "2021"
 max_width = 100
-tab_spaces = 4
+tab_spaces = 2
 newline_style = "Unix"
 use_small_heuristics = "Default"
 "#;

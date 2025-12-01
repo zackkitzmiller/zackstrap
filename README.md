@@ -18,6 +18,7 @@ A powerful Rust CLI tool to bootstrap project configuration files. Quickly gener
 - 🎯 **Interactive**: Guided setup with user prompts
 - 🎨 **Templates**: Multiple configuration templates for different coding styles
 - 👀 **Dry Run**: Preview what would be created without actually creating files
+- 🪝 **Git Hooks**: Generate pre-commit, pre-push, and commit-msg hooks for all languages
 
 ## Installation
 
@@ -270,6 +271,80 @@ zackstrap --dry-run auto
 - `.clippy.toml` - Clippy linting configuration
 - `.cargo/config.toml` - Cargo configuration
 - `justfile` - Rust-specific automation tasks
+
+## Git Hooks
+
+Generate git hooks for your project to ensure code quality and consistency:
+
+```bash
+# Generate git hooks for Ruby project
+zackstrap --hooks ruby
+
+# Generate git hooks for Python Django project
+zackstrap --hooks python --template django
+
+# Generate git hooks for Node.js React project
+zackstrap --hooks node --template react
+
+# Generate git hooks for Go web project
+zackstrap --hooks go --template web
+
+# Generate git hooks for Rust CLI project
+zackstrap --hooks rust --template cli
+```
+
+### Available Git Hooks
+
+- **pre-commit**: Runs linters, formatters, and tests before each commit
+- **pre-push**: Runs full test suite before pushing to remote
+- **commit-msg**: Validates commit message format (conventional commits)
+
+### Language-Specific Hooks
+
+Each language gets tailored git hooks:
+
+**Ruby Projects:**
+
+- RuboCop linting
+- Prettier formatting
+- RSpec tests
+- Bundle security audit
+
+**Python Projects:**
+
+- Black formatting
+- Flake8 linting
+- MyPy type checking
+- Pytest tests
+
+**Node.js Projects:**
+
+- ESLint linting
+- Prettier formatting
+- TypeScript checking
+- Jest tests
+
+**Go Projects:**
+
+- golangci-lint
+- go fmt
+- go test
+- go mod tidy
+
+**Rust Projects:**
+
+- Clippy linting
+- rustfmt formatting
+- cargo test
+- cargo check
+
+### Requirements
+
+Git hooks require:
+
+- Git repository initialized (`git init`)
+- Language-specific tools installed (Ruby, Python, Node.js, Go, or Rust)
+- Project dependencies installed
 
 ## Configuration Files
 

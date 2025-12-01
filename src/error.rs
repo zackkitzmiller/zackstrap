@@ -18,6 +18,12 @@ pub enum ZackstrapError {
     #[error("File already exists and force flag not set: {0}")]
     FileExists(PathBuf),
 
+    #[error("File already exists: {0}")]
+    FileAlreadyExists(PathBuf),
+
+    #[error("Git repository not initialized. Please run 'git init' first.")]
+    GitNotInitialized,
+
     #[error("Failed to serialize configuration: {0}")]
     SerializationError(#[from] serde_json::Error),
 

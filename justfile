@@ -172,6 +172,49 @@ release-major:
     git push origin main
     git push origin "v$$VERSION"
 
+# Cache management
+clear-cache:
+    @echo "Clearing all caches..."
+    @echo "Clearing cargo cache..."
+    @rm -rf ~/.cargo/registry ~/.cargo/git target
+    @echo "Clearing development tools cache..."
+    @rm -rf ~/.cargo/bin
+    @echo "Clearing just cache..."
+    @rm -rf ~/.local/bin
+    @echo "✅ All caches cleared!"
+
+clear-cache-cargo:
+    @echo "Clearing cargo cache..."
+    @rm -rf ~/.cargo/registry ~/.cargo/git target
+    @echo "✅ Cargo cache cleared!"
+
+clear-cache-tools:
+    @echo "Clearing development tools cache..."
+    @rm -rf ~/.cargo/bin
+    @echo "✅ Development tools cache cleared!"
+
+clear-cache-just:
+    @echo "Clearing just cache..."
+    @rm -rf ~/.local/bin
+    @echo "✅ Just cache cleared!"
+
+cache-status:
+    @echo "Cache Status"
+    @echo "============"
+    @echo "Cargo registry: $(du -sh ~/.cargo/registry 2>/dev/null || echo 'not found')"
+    @echo "Cargo git: $(du -sh ~/.cargo/git 2>/dev/null || echo 'not found')"
+    @echo "Target directory: $(du -sh target 2>/dev/null || echo 'not found')"
+    @echo "Cargo bin: $(du -sh ~/.cargo/bin 2>/dev/null || echo 'not found')"
+    @echo "Just bin: $(du -sh ~/.local/bin 2>/dev/null || echo 'not found')"
+    @echo ""
+    @echo "Development Tools:"
+    @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
+
 # Project info
 info:
   @echo "Zackstrap Project Information"
