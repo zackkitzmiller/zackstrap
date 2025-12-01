@@ -30,7 +30,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 1
 
       - name: Configure Git
         run: |
@@ -114,6 +114,11 @@ jobs:
           cp target/release/zackstrap release/zackstrap-ubuntu
           tar -czf release/zackstrap-ubuntu.tar.gz -C release zackstrap-ubuntu
 
+      - name: Generate artifact attestations
+        uses: actions/attest-build-provenance@v3
+        with:
+          subject-path: "${{ github.workspace }}/release/zackstrap-ubuntu.tar.gz"
+
       - name: Commit and push changes
         run: |
           git add Cargo.toml Cargo.lock CHANGELOG.md
@@ -154,7 +159,7 @@ jobs:
             - [Issues](https://github.com/${{ github.repository }}/issues)
           draft: false
           prerelease: false
-          files: zackstrap-ubuntu.tar.gz
+          files: release/zackstrap-ubuntu.tar.gz
 
   publish:
     name: Publish to Crates.io
