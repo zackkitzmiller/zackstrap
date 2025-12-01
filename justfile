@@ -40,7 +40,7 @@ test:
 
 test-coverage:
   cargo install cargo-tarpaulin --version 0.32.8
-  cargo tarpaulin --out Html
+  cargo tarpaulin --out Html --output-directory coverage
 
 check:
   cargo check
