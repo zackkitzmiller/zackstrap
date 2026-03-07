@@ -174,7 +174,7 @@ impl GitHooksGenerator {
         force: bool,
     ) -> Result<(), ZackstrapError> {
         if path.exists() && !force {
-            return Err(ZackstrapError::FileAlreadyExists(path.clone()));
+            return Err(ZackstrapError::FileExists(path.clone()));
         }
 
         fs::write(path, content).await?;
