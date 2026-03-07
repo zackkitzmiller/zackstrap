@@ -34,10 +34,8 @@
 
 ### 4. **Enhanced Justfile Commands**
 
-- `just clear-cache`: Clear all caches
-- `just clear-cache-cargo`: Clear cargo-specific caches
-- `just clear-cache-tools`: Clear development tools cache
-- `just clear-cache-just`: Clear just installation cache
+- `just clear-cache`: Clear project build cache (target/)
+- `just clear-cache-cargo`: Clear cargo registry and project cache
 - `just cache-status`: Show cache status and sizes
 
 ## 🔧 **Cache Key Strategy**
@@ -128,11 +126,11 @@ just clear-cache
 # Check cache status
 just cache-status
 
-# Clear specific caches
-just clear-cache-cargo
-
-# Clear all caches
+# Clear project cache
 just clear-cache
+
+# Clear cargo registry and project cache
+just clear-cache-cargo
 ```
 
 ## 📊 **Monitoring and Debugging**

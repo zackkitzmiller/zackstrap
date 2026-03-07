@@ -33,14 +33,10 @@ This guide will help you set up the development environment for Zackstrap and un
 
    ```bash
    # Run all tests
-   cargo test
+   just test
 
    # Generate coverage report
-   cargo tarpaulin --out Html
-
-   # Or use the justfile
-   just cargo-test
-   just cargo-test-coverage
+   just test-coverage
    ```
 
 ## 🧪 Testing
@@ -55,17 +51,17 @@ This guide will help you set up the development environment for Zackstrap and un
 
 ```bash
 # All tests
-cargo test
+just test
 
 # Specific test file
 cargo test --test integration_tests
 
 # With coverage
-cargo tarpaulin --out Html
+just test-coverage
 
-# Using justfile
-just cargo-test
-just cargo-test-coverage
+# Using justfile (preferred)
+just test
+just test-coverage
 ```
 
 ## 🔄 CI/CD Pipeline
@@ -140,12 +136,12 @@ git push origin "v$(cargo get version)"
 # Development
 just cargo-build          # Build debug
 just cargo-build-release  # Build release
-just cargo-test           # Run tests
-just cargo-check          # Check compilation
-just cargo-fmt            # Format code
-just cargo-fmt-check      # Check formatting
-just cargo-clippy         # Run linter
-just cargo-clean          # Clean build artifacts
+just test                 # Run tests
+just check                # Check compilation
+just fmt                  # Format code
+just fmt-check            # Check formatting
+just clippy               # Run linter
+just clean                # Clean build artifacts
 
 # CI/CD
 just ci-local             # Run local CI checks
@@ -206,10 +202,10 @@ open target/tarpaulin/index.html
 
 #### CI Failures
 
-- **Formatting**: Run `just cargo-fmt` locally
-- **Clippy**: Fix warnings with `just cargo-clippy`
-- **Tests**: Run `just cargo-test` locally
-- **Coverage**: Ensure `cargo-tarpaulin` is installed
+- **Formatting**: Run `just fmt` locally
+- **Clippy**: Fix warnings with `just clippy`
+- **Tests**: Run `just test` locally
+- **Coverage**: Ensure `cargo-tarpaulin` is installed (`just install-tools`)
 
 #### Release Issues
 
@@ -221,7 +217,7 @@ open target/tarpaulin/index.html
 
 - **Low coverage**: Add tests for untested functions
 - **Build failures**: Check Rust toolchain version
-- **Report generation**: Verify `cargo-tarpaulin` installation
+- **Report generation**: Run `just install-tools` for cargo-tarpaulin
 
 ### Getting Help
 

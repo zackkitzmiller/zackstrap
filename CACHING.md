@@ -192,16 +192,11 @@ just cache-status
 ### **Manual Cache Management**
 
 ```bash
-# Clear cargo cache
-rm -rf ~/.cargo/registry
-rm -rf ~/.cargo/git
+# Clear project build artifacts only
 rm -rf target
 
-# Clear development tools
-rm -rf ~/.cargo/bin
-
-# Clear just cache
-rm -rf ~/.local/bin
+# Clear cargo registry (use with caution)
+rm -rf ~/.cargo/registry ~/.cargo/git
 ```
 
 ## 📊 **Expected Results**
@@ -249,11 +244,12 @@ rm -rf ~/.local/bin
 # Check cache status
 just cache-status
 
-# Clear specific caches
-just clear-cache cargo
+# Clear caches
+just clear-cache
+just clear-cache-cargo
 
 # Rebuild with fresh cache
-just clean && just build
+just clean && just cargo-build
 ```
 
 ## 📈 **Future Optimizations**
