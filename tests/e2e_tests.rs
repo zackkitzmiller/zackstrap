@@ -14,9 +14,8 @@ fn zackstrap_cmd() -> Command {
 
 /// Assert file exists and contains valid JSON. On failure, dump content.
 fn assert_valid_json(path: &Path, context: &str) {
-    let content = std::fs::read_to_string(path).unwrap_or_else(|e| {
-        panic!("{}: failed to read {:?}: {}", context, path, e)
-    });
+    let content = std::fs::read_to_string(path)
+        .unwrap_or_else(|e| panic!("{}: failed to read {:?}: {}", context, path, e));
     let parse_result: Result<serde_json::Value, _> = serde_json::from_str(&content);
     assert!(
         parse_result.is_ok(),
@@ -30,9 +29,8 @@ fn assert_valid_json(path: &Path, context: &str) {
 
 /// Assert file exists and contains valid TOML. On failure, dump content.
 fn assert_valid_toml(path: &Path, context: &str) {
-    let content = std::fs::read_to_string(path).unwrap_or_else(|e| {
-        panic!("{}: failed to read {:?}: {}", context, path, e)
-    });
+    let content = std::fs::read_to_string(path)
+        .unwrap_or_else(|e| panic!("{}: failed to read {:?}: {}", context, path, e));
     let parse_result: Result<toml::Value, _> = toml::from_str(&content);
     assert!(
         parse_result.is_ok(),
@@ -108,7 +106,10 @@ fn e2e_ruby_default() {
 
     let p = temp.path();
     assert!(p.join("package.json").exists());
-    assert_valid_json(p.join("package.json").as_path(), "ruby default package.json");
+    assert_valid_json(
+        p.join("package.json").as_path(),
+        "ruby default package.json",
+    );
     assert_valid_json(p.join(".prettierrc").as_path(), "ruby default .prettierrc");
 }
 
@@ -155,7 +156,10 @@ fn e2e_python_default() {
         p.join("pyproject.toml").as_path(),
         "python default pyproject.toml",
     );
-    assert_valid_json(p.join(".prettierrc").as_path(), "python default .prettierrc");
+    assert_valid_json(
+        p.join(".prettierrc").as_path(),
+        "python default .prettierrc",
+    );
 }
 
 #[test]
@@ -188,7 +192,10 @@ fn e2e_node_default() {
     let p = temp.path();
     assert!(p.join("package.json").exists());
     assert!(p.join(".eslintrc.json").exists());
-    assert_valid_json(p.join("package.json").as_path(), "node default package.json");
+    assert_valid_json(
+        p.join("package.json").as_path(),
+        "node default package.json",
+    );
     assert_valid_json(
         p.join(".eslintrc.json").as_path(),
         "node default .eslintrc.json",
@@ -358,8 +365,11 @@ fn e2e_auto_go() {
 #[test]
 fn e2e_auto_rust() {
     let temp = TempDir::new().unwrap();
-    std::fs::write(temp.path().join("Cargo.toml"), "[package]\nname=\"x\"\nversion=\"0.1\"")
-        .unwrap();
+    std::fs::write(
+        temp.path().join("Cargo.toml"),
+        "[package]\nname=\"x\"\nversion=\"0.1\"",
+    )
+    .unwrap();
     run_ok(&temp, &["auto"]);
     assert_valid_toml(
         temp.path().join("rustfmt.toml").as_path(),
@@ -395,16 +405,17 @@ fn e2e_fail_on_exists() {
         .arg("--fail-on-exists")
         .arg("basic");
     let out = cmd.output().unwrap();
-    assert!(!out.status.success(), "expected failure with --fail-on-exists");
+    assert!(
+        !out.status.success(),
+        "expected failure with --fail-on-exists"
+    );
 }
 
 #[test]
 fn e2e_target_short() {
     let temp = TempDir::new().unwrap();
     let mut cmd = zackstrap_cmd();
-    cmd.arg("-t")
-        .arg(temp.path())
-        .arg("basic");
+    cmd.arg("-t").arg(temp.path()).arg("basic");
     cmd.assert().success();
     assert!(temp.path().join(".editorconfig").exists());
 }
@@ -428,7 +439,9 @@ fn e2e_list() {
 #[test]
 fn e2e_invalid_dir_fails() {
     let mut cmd = zackstrap_cmd();
-    cmd.arg("--target").arg("/nonexistent/path/xyz").arg("basic");
+    cmd.arg("--target")
+        .arg("/nonexistent/path/xyz")
+        .arg("basic");
     cmd.assert().failure();
 }
 
