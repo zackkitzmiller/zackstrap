@@ -556,7 +556,7 @@ impl CommandHandler {
         println!("  • .editorconfig");
         println!("  • .prettierrc");
         println!("  • .ruby-version (Ruby projects)");
-        println!("  • .node-version (Ruby projects)");
+        println!("  • .node-version (Ruby projects, for frontend tooling)");
         println!("  • .rubocop.yml (Ruby projects)");
         println!("  • package.json (Ruby projects)");
         println!("  • .python-version (Python projects)");

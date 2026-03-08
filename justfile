@@ -40,7 +40,7 @@ test:
 
 test-coverage:
   cargo install cargo-tarpaulin --version 0.32.8
-  cargo tarpaulin --out Html
+  cargo tarpaulin --out Html --output-directory coverage
 
 check:
   cargo check
@@ -163,40 +163,25 @@ release-major:
     cargo set-version --bump major
     git add Cargo.toml Cargo.lock
     git commit -m "Bump version for major release"
-    @if ! cargo get version >/dev/null 2>&1; then \
+    @if ! cargo get --version >/dev/null 2>&1; then \
       echo "cargo-get not found, installing tools..."; \
       just install-tools; \
     fi
-    @VERSION=$$(cargo get version 2>/dev/null || echo "unknown"); \
+    @VERSION=$$(cargo get --version 2>/dev/null || echo "unknown"); \
     git tag -a "v$$VERSION" -m "Release v$$VERSION"
     git push origin main
     git push origin "v$$VERSION"
 
-# Cache management
+# Cache management (project/cargo only - never touches ~/.cargo/bin or ~/.local/bin)
 clear-cache:
-    @echo "Clearing all caches..."
-    @echo "Clearing cargo cache..."
-    @rm -rf ~/.cargo/registry ~/.cargo/git target
-    @echo "Clearing development tools cache..."
-    @rm -rf ~/.cargo/bin
-    @echo "Clearing just cache..."
-    @rm -rf ~/.local/bin
-    @echo "✅ All caches cleared!"
+    @echo "Clearing project and cargo caches..."
+    @rm -rf target
+    @echo "✅ Project build cache (target/) cleared!"
 
 clear-cache-cargo:
-    @echo "Clearing cargo cache..."
+    @echo "Clearing cargo registry and project cache..."
     @rm -rf ~/.cargo/registry ~/.cargo/git target
     @echo "✅ Cargo cache cleared!"
-
-clear-cache-tools:
-    @echo "Clearing development tools cache..."
-    @rm -rf ~/.cargo/bin
-    @echo "✅ Development tools cache cleared!"
-
-clear-cache-just:
-    @echo "Clearing just cache..."
-    @rm -rf ~/.local/bin
-    @echo "✅ Just cache cleared!"
 
 cache-status:
     @echo "Cache Status"
