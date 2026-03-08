@@ -1,11 +1,9 @@
-# Changelog for 1.1.3
+# Changelog for 1.2.1
 
 ## [Unreleased]
 
-## Changes since v1.1.2
+## Initial Release
 
-### Commits
-
-- 0fc1eff Configure Git user for release workflow
-- ba07923 Refactor release workflow by cleaning up env vars
+### Features
+- Initial project setup
 
