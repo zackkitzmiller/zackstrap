@@ -38,6 +38,9 @@ release-build:
 test:
   cargo test
 
+test-e2e:
+  cargo test -p zackstrap --test e2e_tests
+
 test-coverage:
   cargo install cargo-tarpaulin --version 0.32.8
   cargo tarpaulin --out Html --output-directory coverage
