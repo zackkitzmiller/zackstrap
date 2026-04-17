@@ -211,7 +211,7 @@ impl fmt::Display for PrettierConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            r#"{{"semi": {}, "single_quote": {}, "tab_width": {}, "trailing_comma": "{}", "print_width": {}}}"#,
+            r#"{{"semi": {}, "singleQuote": {}, "tabWidth": {}, "trailingComma": "{}", "printWidth": {}}}"#,
             self.semi, self.single_quote, self.tab_width, self.trailing_comma, self.print_width
         )
     }

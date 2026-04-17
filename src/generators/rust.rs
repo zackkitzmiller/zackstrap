@@ -52,23 +52,15 @@ use_small_heuristics = "Default"
 
     async fn generate_clippy_config(&self, force: bool) -> Result<(), ZackstrapError> {
         let content = r#"# Clippy configuration
-# Allow some lints that are too strict for development
-allow = [
-    "clippy::too_many_arguments",
-    "clippy::needless_pass_by_value",
-    "clippy::missing_errors_doc",
-    "clippy::missing_panics_doc",
-]
+# Threshold settings for common lints
 
-# Deny some important lints
-deny = [
-    "clippy::unwrap_used",
-    "clippy::expect_used",
-    "clippy::panic",
-]
-
-# Set some specific configurations
-[clippy::all]
+too-many-arguments-threshold = 8
+too-many-lines-threshold = 150
+type-complexity-threshold = 300
+cognitive-complexity-threshold = 30
+enum-variant-name-threshold = 4
+max-struct-bools = 3
+max-fn-params-bools = 3
 "#;
         self.write_file_if_not_exists(".clippy.toml", content, force, false)
             .await

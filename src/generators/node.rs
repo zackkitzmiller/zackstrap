@@ -57,7 +57,6 @@ impl super::ConfigGenerator {
             "express" => {
                 r#"{
   "env": {
-    "browser": true,
     "node": true,
     "es2021": true
   },
@@ -66,7 +65,9 @@ impl super::ConfigGenerator {
     "ecmaVersion": 12,
     "sourceType": "module"
   },
-  "rules": {}
+  "rules": {
+    "no-console": "off"
+  }
 }
 "#
             }
@@ -80,7 +81,10 @@ impl super::ConfigGenerator {
   "extends": ["eslint:recommended"],
   "parserOptions": {
     "ecmaVersion": 12,
-    "sourceType": "module"
+    "sourceType": "module",
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "rules": {}
 }

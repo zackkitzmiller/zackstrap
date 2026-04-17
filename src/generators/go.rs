@@ -31,7 +31,7 @@ impl super::ConfigGenerator {
         println!("  📝 Would generate .editorconfig");
         println!("  🎨 Would generate .prettierrc (template: {})", template);
         println!("  🔧 Would generate justfile");
-        println!("  🦀 Would generate go.mod");
+        println!("  🐹 Would generate go.mod");
         println!("  🔍 Would generate .golangci.yml");
         println!("  🚫 Would generate .gitignore");
         println!("  🔧 Would generate Go justfile (template: {})", template);

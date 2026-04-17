@@ -99,7 +99,7 @@ warn_unused_configs = true
 strict = true
 
 [tool.django-stubs]
-django_settings_module = "project.settings"
+django_settings_module = "myproject.settings"
 "#
             }
             "flask" => {
