@@ -25,7 +25,7 @@ async fn test_generate_basic_config() {
     // Verify .prettierrc content
     let prettier_config = std::fs::read_to_string(temp_dir.child(".prettierrc").path()).unwrap();
     assert!(prettier_config.contains("\"semi\": true"));
-    assert!(prettier_config.contains("\"single_quote\": true"));
+    assert!(prettier_config.contains("\"singleQuote\": true"));
 }
 
 #[tokio::test]
@@ -195,16 +195,17 @@ async fn test_generate_node_config_with_templates() {
     let temp_dir = TempDir::new().unwrap();
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
-    // Test Express template
+    // Test Express template — server-side, so no "browser" env
     generator
         .generate_node_with_template(false, "express")
         .await
         .unwrap();
     let eslint_config = std::fs::read_to_string(temp_dir.child(".eslintrc.json").path()).unwrap();
     assert!(eslint_config.contains("es2021"));
-    assert!(eslint_config.contains("browser"));
+    assert!(eslint_config.contains("node"));
+    assert!(eslint_config.contains("no-console"));
 
-    // Clean and test React template
+    // Clean and test React template — client-side, has "browser" and jsx
     std::fs::remove_file(temp_dir.child(".eslintrc.json").path()).unwrap();
     std::fs::remove_file(temp_dir.child("package.json").path()).unwrap();
     std::fs::remove_file(temp_dir.child("justfile").path()).unwrap();
@@ -218,6 +219,7 @@ async fn test_generate_node_config_with_templates() {
     let eslint_config = std::fs::read_to_string(temp_dir.child(".eslintrc.json").path()).unwrap();
     assert!(eslint_config.contains("es2021"));
     assert!(eslint_config.contains("browser"));
+    assert!(eslint_config.contains("jsx"));
 }
 
 #[tokio::test]
@@ -350,6 +352,72 @@ async fn test_generate_rust_config_with_templates() {
 }
 
 #[tokio::test]
+async fn test_generate_bash_config() {
+    let temp_dir = TempDir::new().unwrap();
+    let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
+
+    // Test Bash generation
+    generator
+        .generate_bash_with_template(false, "default")
+        .await
+        .unwrap();
+
+    // Verify all files were created
+    temp_dir
+        .child(".editorconfig")
+        .assert(predicates::path::exists());
+    temp_dir
+        .child(".prettierrc")
+        .assert(predicates::path::exists());
+    temp_dir
+        .child(".shellcheckrc")
+        .assert(predicates::path::exists());
+    temp_dir
+        .child("justfile")
+        .assert(predicates::path::exists());
+
+    // Verify Bash-specific content
+    let shellcheckrc = std::fs::read_to_string(temp_dir.child(".shellcheckrc").path()).unwrap();
+    assert!(shellcheckrc.contains("shell=bash"));
+    assert!(shellcheckrc.contains("enable=require-variable-braces"));
+    assert!(shellcheckrc.contains("disable=SC1091"));
+
+    let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
+    assert!(justfile.contains("ShellCheck"));
+    assert!(justfile.contains("shfmt"));
+    assert!(justfile.contains("bats"));
+}
+
+#[tokio::test]
+async fn test_generate_bash_config_with_templates() {
+    let temp_dir = TempDir::new().unwrap();
+    let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
+
+    // Test devops template
+    generator
+        .generate_bash_with_template(false, "devops")
+        .await
+        .unwrap();
+    let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
+    assert!(justfile.contains("DevOps"));
+    assert!(justfile.contains("deploy"));
+
+    // Clean and test CLI template
+    std::fs::remove_file(temp_dir.child("justfile").path()).unwrap();
+    std::fs::remove_file(temp_dir.child(".editorconfig").path()).unwrap();
+    std::fs::remove_file(temp_dir.child(".prettierrc").path()).unwrap();
+    std::fs::remove_file(temp_dir.child(".shellcheckrc").path()).unwrap();
+    generator
+        .generate_bash_with_template(false, "cli")
+        .await
+        .unwrap();
+    let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
+    assert!(justfile.contains("CLI"));
+    assert!(justfile.contains("main.sh"));
+    assert!(justfile.contains("install"));
+}
+
+#[tokio::test]
 async fn test_project_type_detection() {
     let temp_dir = TempDir::new().unwrap();
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
@@ -387,8 +455,14 @@ async fn test_project_type_detection() {
     let project_type = generator.detect_project_type().await.unwrap();
     assert!(matches!(project_type, zackstrap::ProjectType::Ruby));
 
-    // Test basic detection (default)
+    // Test Bash detection
     std::fs::remove_file(temp_dir.child("Gemfile").path()).unwrap();
+    std::fs::write(temp_dir.child(".shellcheckrc").path(), "shell=bash").unwrap();
+    let project_type = generator.detect_project_type().await.unwrap();
+    assert!(matches!(project_type, zackstrap::ProjectType::Bash));
+
+    // Test basic detection (default)
+    std::fs::remove_file(temp_dir.child(".shellcheckrc").path()).unwrap();
     let project_type = generator.detect_project_type().await.unwrap();
     assert!(matches!(project_type, zackstrap::ProjectType::Basic));
 }
@@ -419,11 +493,18 @@ async fn test_dry_run_modes() {
         .await
         .unwrap();
 
+    // Test Bash dry run
+    generator
+        .dry_run_bash_with_template("default")
+        .await
+        .unwrap();
+
     // Verify no files were actually created
     assert!(!temp_dir.child(".python-version").exists());
     assert!(!temp_dir.child(".nvmrc").exists());
     assert!(!temp_dir.child("go.mod").exists());
     assert!(!temp_dir.child("rustfmt.toml").exists());
+    assert!(!temp_dir.child(".shellcheckrc").exists());
 }
 
 #[tokio::test]

@@ -145,6 +145,32 @@ impl GitHooksGenerator {
         Ok(())
     }
 
+    pub async fn generate_bash_hooks(
+        &self,
+        template: &str,
+        force: bool,
+    ) -> Result<(), ZackstrapError> {
+        let hooks_dir = self.target_dir.join(".git").join("hooks");
+
+        if !hooks_dir.exists() {
+            return Err(ZackstrapError::GitNotInitialized);
+        }
+
+        let pre_commit_content = self.get_bash_pre_commit_hook(template);
+        self.write_hook_file(&hooks_dir.join("pre-commit"), &pre_commit_content, force)
+            .await?;
+
+        let pre_push_content = self.get_bash_pre_push_hook(template);
+        self.write_hook_file(&hooks_dir.join("pre-push"), &pre_push_content, force)
+            .await?;
+
+        let commit_msg_content = self.get_commit_msg_hook();
+        self.write_hook_file(&hooks_dir.join("commit-msg"), &commit_msg_content, force)
+            .await?;
+
+        Ok(())
+    }
+
     pub async fn generate_basic_hooks(&self, force: bool) -> Result<(), ZackstrapError> {
         let hooks_dir = self.target_dir.join(".git").join("hooks");
 
@@ -1193,6 +1219,176 @@ echo "🔨 Building for release..."
 cargo build --release
 
 echo "✅ Rust pre-push checks passed!"
+"#
+            .to_string(),
+        }
+    }
+
+    // Bash hooks
+    fn get_bash_pre_commit_hook(&self, template: &str) -> String {
+        match template {
+            "devops" => r#"#!/bin/bash
+# Bash DevOps Pre-commit Hook
+set -e
+
+echo "🔍 Running Bash DevOps pre-commit checks..."
+
+# Check if ShellCheck is available
+if ! command -v shellcheck &> /dev/null; then
+    echo "❌ ShellCheck not found. Please install ShellCheck."
+    exit 1
+fi
+
+# Run ShellCheck on all shell scripts
+echo "🔍 Running ShellCheck..."
+find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Check formatting with shfmt if available
+if command -v shfmt &> /dev/null; then
+    echo "🎨 Checking formatting with shfmt..."
+    shfmt -d -i 2 -ci .
+fi
+
+# Validate syntax
+echo "🔍 Checking Bash syntax..."
+find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Run BATS tests if available
+if [ -d "test" ] && command -v bats &> /dev/null; then
+    echo "🧪 Running BATS tests..."
+    bats test/
+fi
+
+echo "✅ Bash DevOps pre-commit checks passed!"
+"#
+            .to_string(),
+            "cli" => r#"#!/bin/bash
+# Bash CLI Pre-commit Hook
+set -e
+
+echo "🔍 Running Bash CLI pre-commit checks..."
+
+# Check if ShellCheck is available
+if ! command -v shellcheck &> /dev/null; then
+    echo "❌ ShellCheck not found. Please install ShellCheck."
+    exit 1
+fi
+
+# Run ShellCheck on all shell scripts
+echo "🔍 Running ShellCheck..."
+find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Check formatting with shfmt if available
+if command -v shfmt &> /dev/null; then
+    echo "🎨 Checking formatting with shfmt..."
+    shfmt -d -i 2 -ci .
+fi
+
+# Validate syntax
+echo "🔍 Checking Bash syntax..."
+find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Run BATS tests if available
+if [ -d "test" ] && command -v bats &> /dev/null; then
+    echo "🧪 Running BATS tests..."
+    bats test/
+fi
+
+# Build check - verify main script runs
+echo "🔨 Checking main script..."
+bash -n main.sh
+
+echo "✅ Bash CLI pre-commit checks passed!"
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
+# Bash Pre-commit Hook
+set -e
+
+echo "🔍 Running Bash pre-commit checks..."
+
+# Check if ShellCheck is available
+if ! command -v shellcheck &> /dev/null; then
+    echo "❌ ShellCheck not found. Please install ShellCheck."
+    exit 1
+fi
+
+# Run ShellCheck on all shell scripts
+echo "🔍 Running ShellCheck..."
+find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Check formatting with shfmt if available
+if command -v shfmt &> /dev/null; then
+    echo "🎨 Checking formatting with shfmt..."
+    shfmt -d -i 2 -ci .
+fi
+
+# Validate syntax
+echo "🔍 Checking Bash syntax..."
+find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Run BATS tests if available
+if [ -d "test" ] && command -v bats &> /dev/null; then
+    echo "🧪 Running BATS tests..."
+    bats test/
+fi
+
+echo "✅ Bash pre-commit checks passed!"
+"#
+            .to_string(),
+        }
+    }
+
+    fn get_bash_pre_push_hook(&self, template: &str) -> String {
+        match template {
+            "devops" => r#"#!/bin/bash
+# Bash DevOps Pre-push Hook
+set -e
+
+echo "🚀 Running Bash DevOps pre-push checks..."
+
+# Run ShellCheck on all shell scripts
+echo "🔍 Running ShellCheck..."
+find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Validate syntax
+echo "🔍 Checking Bash syntax..."
+find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Run full BATS test suite if available
+if [ -d "test" ] && command -v bats &> /dev/null; then
+    echo "🧪 Running full BATS test suite..."
+    bats test/
+fi
+
+# Check for TODO/FIXME markers
+echo "📋 Checking for TODO/FIXME markers..."
+find . -name '*.sh' -not -path './vendor/*' -exec grep -Hn 'TODO\|FIXME' {} + || true
+
+echo "✅ Bash DevOps pre-push checks passed!"
+"#
+            .to_string(),
+            _ => r#"#!/bin/bash
+# Bash Pre-push Hook
+set -e
+
+echo "🚀 Running Bash pre-push checks..."
+
+# Run ShellCheck on all shell scripts
+echo "🔍 Running ShellCheck..."
+find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Validate syntax
+echo "🔍 Checking Bash syntax..."
+find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Run full BATS test suite if available
+if [ -d "test" ] && command -v bats &> /dev/null; then
+    echo "🧪 Running full BATS test suite..."
+    bats test/
+fi
+
+echo "✅ Bash pre-push checks passed!"
 "#
             .to_string(),
         }

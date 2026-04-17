@@ -267,7 +267,7 @@ impl CommandHandler {
             println!(
                 "{}",
                 format!(
-                    "🦀 [DRY RUN] Would generate Go project configuration (template: {})...",
+                    "🐹 [DRY RUN] Would generate Go project configuration (template: {})...",
                     template_name
                 )
                 .blue()
@@ -288,7 +288,7 @@ impl CommandHandler {
             println!(
                 "{}",
                 format!(
-                    "🦀 Generating Go project configuration (template: {})...",
+                    "🐹 Generating Go project configuration (template: {})...",
                     template_name
                 )
                 .green()
@@ -381,6 +381,67 @@ impl CommandHandler {
         Ok(())
     }
 
+    pub async fn handle_bash(&self, template: Option<String>) -> Result<(), ZackstrapError> {
+        let template_name = template.as_deref().unwrap_or("default");
+        let generator = ConfigGenerator::new(self.target_dir.clone());
+
+        if self.dry_run {
+            println!(
+                "{}",
+                format!(
+                    "🐚 [DRY RUN] Would generate Bash project configuration (template: {})...",
+                    template_name
+                )
+                .blue()
+            );
+            generator.dry_run_bash_with_template(template_name).await?;
+
+            if self.hooks {
+                println!(
+                    "{}",
+                    format!(
+                        "🪝 [DRY RUN] Would generate git hooks for Bash project (template: {})...",
+                        template_name
+                    )
+                    .blue()
+                );
+            }
+        } else {
+            println!(
+                "{}",
+                format!(
+                    "🐚 Generating Bash project configuration (template: {})...",
+                    template_name
+                )
+                .green()
+            );
+            generator
+                .generate_bash_with_template(self.force, template_name)
+                .await?;
+            println!(
+                "{}",
+                "✅ Bash configuration files generated successfully!".green()
+            );
+
+            if self.hooks {
+                println!(
+                    "{}",
+                    format!(
+                        "🪝 Generating git hooks for Bash project (template: {})...",
+                        template_name
+                    )
+                    .green()
+                );
+                let hooks_generator = GitHooksGenerator::new(self.target_dir.clone());
+                hooks_generator
+                    .generate_bash_hooks(template_name, self.force)
+                    .await?;
+                println!("{}", "✅ Git hooks generated successfully!".green());
+            }
+        }
+        Ok(())
+    }
+
     pub async fn handle_auto(&self) -> Result<(), ZackstrapError> {
         let generator = ConfigGenerator::new(self.target_dir.clone());
 
@@ -426,7 +487,7 @@ impl CommandHandler {
             ProjectType::Go => {
                 println!(
                     "{}",
-                    "🦀 [DRY RUN] Would generate Go project configuration...".blue()
+                    "🐹 [DRY RUN] Would generate Go project configuration...".blue()
                 );
                 generator.dry_run_go_with_template("default").await?;
             }
@@ -436,6 +497,13 @@ impl CommandHandler {
                     "🦀 [DRY RUN] Would generate Rust project configuration...".blue()
                 );
                 generator.dry_run_rust_with_template("default").await?;
+            }
+            ProjectType::Bash => {
+                println!(
+                    "{}",
+                    "🐚 [DRY RUN] Would generate Bash project configuration...".blue()
+                );
+                generator.dry_run_bash_with_template("default").await?;
             }
             ProjectType::Basic => {
                 println!(
@@ -459,7 +527,9 @@ impl CommandHandler {
                     "{}",
                     "💎 Detected Ruby project, generating configuration...".green()
                 );
-                generator.generate_ruby(self.force).await?;
+                generator
+                    .generate_ruby_with_template(self.force, "default")
+                    .await?;
                 println!(
                     "{}",
                     "✅ Ruby configuration files generated successfully!".green()
@@ -494,7 +564,7 @@ impl CommandHandler {
             ProjectType::Go => {
                 println!(
                     "{}",
-                    "🦀 Detected Go project, generating configuration...".green()
+                    "🐹 Detected Go project, generating configuration...".green()
                 );
                 generator
                     .generate_go_with_template(self.force, "default")
@@ -517,6 +587,19 @@ impl CommandHandler {
                     "✅ Rust configuration files generated successfully!".green()
                 );
             }
+            ProjectType::Bash => {
+                println!(
+                    "{}",
+                    "🐚 Detected Bash project, generating configuration...".green()
+                );
+                generator
+                    .generate_bash_with_template(self.force, "default")
+                    .await?;
+                println!(
+                    "{}",
+                    "✅ Bash configuration files generated successfully!".green()
+                );
+            }
             ProjectType::Basic => {
                 println!(
                     "{}",
@@ -535,18 +618,17 @@ impl CommandHandler {
     }
 
     pub async fn handle_interactive(&self) -> Result<(), ZackstrapError> {
-        let generator = ConfigGenerator::new(self.target_dir.clone());
-
         if self.dry_run {
             println!(
                 "{}",
                 "🎯 [DRY RUN] Interactive configuration setup...".blue()
             );
-            println!("  Note: Dry run mode is not fully supported in interactive mode");
-        } else {
-            println!("{}", "🎯 Interactive configuration setup...".blue());
+            println!("  Would launch interactive guided setup");
+            return Ok(());
         }
 
+        let generator = ConfigGenerator::new(self.target_dir.clone());
+        println!("{}", "🎯 Interactive configuration setup...".blue());
         generator.interactive_setup().await?;
         Ok(())
     }
@@ -564,12 +646,13 @@ impl CommandHandler {
         println!("  • .flake8 (Python projects)");
         println!("  • requirements-dev.txt (Python projects)");
         println!("  • .nvmrc (Node.js projects)");
-        println!("  • .eslintrc.js (Node.js projects)");
+        println!("  • .eslintrc.json (Node.js projects)");
         println!("  • go.mod (Go projects)");
         println!("  • .golangci.yml (Go projects)");
         println!("  • rustfmt.toml (Rust projects)");
         println!("  • .clippy.toml (Rust projects)");
         println!("  • .cargo/config.toml (Rust projects)");
+        println!("  • .shellcheckrc (Bash projects)");
         println!("  • justfile (all projects)");
         println!();
         println!("🪝 Available git hooks (with --hooks flag):");
@@ -584,6 +667,7 @@ impl CommandHandler {
         println!("  • Node.js: default, express, react");
         println!("  • Go: default, web, cli");
         println!("  • Rust: default, web, cli");
+        println!("  • Bash: default, devops, cli");
         println!();
         println!("🚀 Available commands:");
         println!("  • basic - Generate basic project configs");
@@ -592,6 +676,7 @@ impl CommandHandler {
         println!("  • node - Generate Node.js project configs");
         println!("  • go - Generate Go project configs");
         println!("  • rust - Generate Rust project configs");
+        println!("  • bash - Generate Bash project configs");
         println!("  • auto - Auto-detect project type");
         println!("  • interactive - Guided setup");
         println!("  • list - Show this help");

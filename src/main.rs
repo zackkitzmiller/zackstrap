@@ -79,6 +79,12 @@ enum Commands {
         #[arg(short, long)]
         template: Option<String>,
     },
+    /// Generate configuration files for a Bash project
+    Bash {
+        /// Template to use (e.g., 'default', 'devops', 'cli')
+        #[arg(short, long)]
+        template: Option<String>,
+    },
     /// Automatically detect project type and generate appropriate configs
     Auto,
     /// Interactive mode - guided configuration setup
@@ -118,6 +124,7 @@ async fn main() -> Result<(), ZackstrapError> {
         Commands::Node { template } => handler.handle_node(template).await?,
         Commands::Go { template } => handler.handle_go(template).await?,
         Commands::Rust { template } => handler.handle_rust(template).await?,
+        Commands::Bash { template } => handler.handle_bash(template).await?,
         Commands::Auto => handler.handle_auto().await?,
         Commands::Interactive => handler.handle_interactive().await?,
         Commands::List => handler.handle_list(),

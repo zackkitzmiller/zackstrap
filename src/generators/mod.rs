@@ -2,6 +2,7 @@ use crate::error::ZackstrapError;
 use std::path::PathBuf;
 
 // Module declarations
+pub mod bash;
 pub mod basic;
 pub mod common;
 pub mod go;
@@ -19,6 +20,7 @@ pub enum ProjectType {
     Node,
     Go,
     Rust,
+    Bash,
 }
 
 pub struct ConfigGenerator {
@@ -36,8 +38,7 @@ impl ConfigGenerator {
             || self.target_dir.join("Gemfile.lock").exists()
             || self.target_dir.join("Rakefile").exists()
             || self.target_dir.join("config.ru").exists()
-            || self.target_dir.join("app").exists()
-            || self.target_dir.join("lib").exists()
+            || self.target_dir.join(".ruby-version").exists()
             || self.target_dir.join("main.rb").exists()
         {
             return Ok(ProjectType::Ruby);
@@ -81,12 +82,17 @@ impl ConfigGenerator {
         // Check for Rust project
         if self.target_dir.join("Cargo.toml").exists()
             || self.target_dir.join("Cargo.lock").exists()
-            || self.target_dir.join("src").exists()
-            || self.target_dir.join("examples").exists()
-            || self.target_dir.join("tests").exists()
             || self.target_dir.join("main.rs").exists()
         {
             return Ok(ProjectType::Rust);
+        }
+
+        // Check for Bash project
+        if self.target_dir.join(".shellcheckrc").exists()
+            || self.target_dir.join(".bats").exists()
+            || self.target_dir.join("main.sh").exists()
+        {
+            return Ok(ProjectType::Bash);
         }
 
         // Default to basic project
@@ -835,6 +841,123 @@ check:
 install:
     @echo "Installing Rust dependencies..."
     @cargo build
+"#
+            }
+        }
+    }
+
+    #[allow(dead_code)]
+    pub fn get_bash_justfile_content(&self, template: &str) -> &'static str {
+        match template {
+            "devops" => {
+                r#"# Bash Project Justfile
+default:
+    @echo "Available Bash DevOps commands:"
+    @just --list
+
+# Run ShellCheck on all scripts
+lint:
+    @echo "Running ShellCheck..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Format scripts with shfmt
+fmt:
+    @echo "Formatting Bash scripts..."
+    @shfmt -w -i 2 -ci .
+
+# Check formatting
+fmt-check:
+    @echo "Checking Bash formatting..."
+    @shfmt -d -i 2 -ci .
+
+# Run BATS tests
+test:
+    @echo "Running BATS tests..."
+    @bats test/
+
+# Validate scripts for syntax errors
+check:
+    @echo "Checking Bash syntax..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Deploy scripts (customize as needed)
+deploy:
+    @echo "Deploying scripts..."
+    @echo "Configure deployment in justfile"
+"#
+            }
+            "cli" => {
+                r#"# Bash Project Justfile
+default:
+    @echo "Available Bash CLI commands:"
+    @just --list
+
+# Run the CLI tool
+run *ARGS:
+    @echo "Running CLI tool..."
+    @bash main.sh {{ARGS}}
+
+# Run ShellCheck on all scripts
+lint:
+    @echo "Running ShellCheck..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Format scripts with shfmt
+fmt:
+    @echo "Formatting Bash scripts..."
+    @shfmt -w -i 2 -ci .
+
+# Check formatting
+fmt-check:
+    @echo "Checking Bash formatting..."
+    @shfmt -d -i 2 -ci .
+
+# Run BATS tests
+test:
+    @echo "Running BATS tests..."
+    @bats test/
+
+# Validate scripts for syntax errors
+check:
+    @echo "Checking Bash syntax..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
+
+# Install the CLI tool
+install:
+    @echo "Installing CLI tool..."
+    @install -m 755 main.sh /usr/local/bin/
+"#
+            }
+            _ => {
+                r#"# Bash Project Justfile
+default:
+    @echo "Available Bash commands:"
+    @just --list
+
+# Run ShellCheck on all scripts
+lint:
+    @echo "Running ShellCheck..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec shellcheck {} +
+
+# Format scripts with shfmt
+fmt:
+    @echo "Formatting Bash scripts..."
+    @shfmt -w -i 2 -ci .
+
+# Check formatting
+fmt-check:
+    @echo "Checking Bash formatting..."
+    @shfmt -d -i 2 -ci .
+
+# Run BATS tests
+test:
+    @echo "Running BATS tests..."
+    @bats test/
+
+# Validate scripts for syntax errors
+check:
+    @echo "Checking Bash syntax..."
+    @find . -name '*.sh' -not -path './vendor/*' -exec bash -n {} +
 "#
             }
         }
