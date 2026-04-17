@@ -16,11 +16,11 @@ cargo-build-release:
 
 release-build:
   @echo "Building release version..."
-  @if ! cargo get version >/dev/null 2>&1; then \
+  @if ! cargo get package.version >/dev/null 2>&1; then \
     echo "cargo-get not found, installing tools..."; \
     just install-tools; \
   fi
-  @echo "Building version: $(cargo get version 2>/dev/null || echo 'unknown')"
+  @echo "Building version: $(cargo get package.version 2>/dev/null || echo 'unknown')"
   cargo build --release
 
   @echo "Creating release directory..."
@@ -30,10 +30,9 @@ release-build:
   cp target/release/zackstrap dist/
 
   @echo "Creating zipfile..."
-  cd dist && zip -r "zackstrap-$(cargo get version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip" zackstrap
+  cd dist && zip -r "zackstrap-$(cargo get package.version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip" zackstrap
   @echo "Release build complete!"
-  @echo "Binary: dist/zackstrap"
-  @echo "Zipfile: dist/zackstrap-$(cargo get version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip"
+  @echo "Zipfile: dist/zackstrap-$(cargo get package.version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip"
 
 test:
   cargo test
@@ -134,46 +133,52 @@ check-tools:
 
 # Release
 release-patch:
-  @echo "Creating patch release..."
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "Creating patch release..."
   cargo set-version --bump patch
   git add Cargo.toml Cargo.lock
   git commit -m "Bump version for patch release"
-  @if ! cargo get --version >/dev/null 2>&1; then \
-    echo "cargo-get not found, installing tools..."; \
-    just install-tools; \
+  if ! cargo get package.version >/dev/null 2>&1; then
+    echo "cargo-get not found, installing tools..."
+    just install-tools
   fi
-  @VERSION=$$(cargo get --version 2>/dev/null || echo "unknown"); \
-  git tag -a "v$$VERSION" -m "Release v$$VERSION"
+  VERSION="$(cargo get package.version)"
+  git tag -a "v${VERSION}" -m "Release v${VERSION}"
   git push origin main
-  git push origin "v$$VERSION"
+  git push origin "v${VERSION}"
 
 release-minor:
-  @echo "Creating minor release..."
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "Creating minor release..."
   cargo set-version --bump minor
   git add Cargo.toml Cargo.lock
   git commit -m "Bump version for minor release"
-  @if ! cargo get --version >/dev/null 2>&1; then \
-    echo "cargo-get not found, installing tools..."; \
-    just install-tools; \
+  if ! cargo get package.version >/dev/null 2>&1; then
+    echo "cargo-get not found, installing tools..."
+    just install-tools
   fi
-  @VERSION=$$(cargo get --version 2>/dev/null || echo "unknown"); \
-  git tag -a "v$$VERSION" -m "Release v$$VERSION"
+  VERSION="$(cargo get package.version)"
+  git tag -a "v${VERSION}" -m "Release v${VERSION}"
   git push origin main
-  git push origin "v$$VERSION"
+  git push origin "v${VERSION}"
 
 release-major:
-    @echo "Creating major release..."
-    cargo set-version --bump major
-    git add Cargo.toml Cargo.lock
-    git commit -m "Bump version for major release"
-    @if ! cargo get --version >/dev/null 2>&1; then \
-      echo "cargo-get not found, installing tools..."; \
-      just install-tools; \
-    fi
-    @VERSION=$$(cargo get --version 2>/dev/null || echo "unknown"); \
-    git tag -a "v$$VERSION" -m "Release v$$VERSION"
-    git push origin main
-    git push origin "v$$VERSION"
+  #!/usr/bin/env bash
+  set -euo pipefail
+  echo "Creating major release..."
+  cargo set-version --bump major
+  git add Cargo.toml Cargo.lock
+  git commit -m "Bump version for major release"
+  if ! cargo get package.version >/dev/null 2>&1; then
+    echo "cargo-get not found, installing tools..."
+    just install-tools
+  fi
+  VERSION="$(cargo get package.version)"
+  git tag -a "v${VERSION}" -m "Release v${VERSION}"
+  git push origin main
+  git push origin "v${VERSION}"
 
 # Cache management (project/cargo only - never touches ~/.cargo/bin or ~/.local/bin)
 clear-cache:
@@ -214,7 +219,7 @@ info:
     echo "cargo-get not found, installing tools..."; \
     just install-tools; \
   fi
-  @echo "Current version: $(cargo get --version 2>/dev/null || echo 'unknown')"
+  @echo "Current version: $(cargo get package.version 2>/dev/null || echo 'unknown')"
   @echo ""
   @echo "Development Tools Status:"
   @echo "========================"

@@ -5,7 +5,9 @@
 [![Crates.io](https://img.shields.io/crates/v/zackstrap.svg)](https://crates.io/crates/zackstrap)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-A powerful Rust CLI tool to bootstrap project configuration files. Quickly generate common project configuration files like `.editorconfig`, `.prettierrc`, and Ruby-specific configurations.
+A powerful Rust CLI tool to bootstrap project configuration files. Quickly
+generate `.editorconfig`, `.prettierrc`, and ecosystem-specific configs for
+Ruby, Python, Node.js, Go, Rust, and Bash.
 
 ## Features
 
@@ -14,7 +16,7 @@ A powerful Rust CLI tool to bootstrap project configuration files. Quickly gener
 - 🔒 **Safe**: Built-in safety checks and error handling
 - 🎨 **Beautiful**: Colored output and progress indicators
 - 🧪 **Tested**: Comprehensive test coverage
-- 🔍 **Auto-detection**: Automatically detects Ruby projects and generates appropriate configs
+- 🔍 **Auto-detection**: Detects Ruby, Python, Node, Go, Rust, Bash, or basic
 - 🎯 **Interactive**: Guided setup with user prompts
 - 🎨 **Templates**: Multiple configuration templates for different coding styles
 - 👀 **Dry Run**: Preview what would be created without actually creating files
@@ -143,6 +145,28 @@ This will create:
 - justfile with Rust development tasks
 ```
 
+### Bash Project Configuration
+
+Generate Bash / shell script project files (ShellCheck, `just` tasks):
+
+```bash
+zackstrap bash
+```
+
+This will create:
+
+```bash
+- .editorconfig
+- .prettierrc
+- .shellcheckrc (Bash dialect and common disables)
+- justfile with format, lint, and syntax-check recipes
+```
+
+**Templates:** `default`, `devops` (CI-style checks), `cli` (expects `main.sh`).
+
+**Auto-detect:** `zackstrap auto` picks Bash when `.shellcheckrc`, `.bats`, or
+`main.sh` is present in the target directory.
+
 ### Force Overwrite
 
 Use the `--force` flag to overwrite existing files:
@@ -214,6 +238,11 @@ zackstrap go --template cli
 # Rust projects with project type configs
 zackstrap rust --template web
 zackstrap rust --template cli
+
+# Bash projects
+zackstrap bash --template default
+zackstrap bash --template devops
+zackstrap bash --template cli
 ```
 
 ### Dry Run Mode
@@ -224,6 +253,7 @@ Preview what would be created without actually creating files:
 # Note: --dry-run must come BEFORE the subcommand
 zackstrap --dry-run basic
 zackstrap --dry-run ruby --template rails
+zackstrap --dry-run bash --template devops
 zackstrap --dry-run auto
 ```
 
@@ -272,6 +302,11 @@ zackstrap --dry-run auto
 - `.cargo/config.toml` - Cargo configuration
 - `justfile` - Rust-specific automation tasks
 
+### Bash Projects (includes basic +)
+
+- `.shellcheckrc` - ShellCheck dialect (`shell=bash`) and rule tuning
+- `justfile` - ShellCheck, optional `shfmt`, and `bash -n` on `*.sh`
+
 ## Git Hooks
 
 Generate git hooks for your project to ensure code quality and consistency:
@@ -291,6 +326,9 @@ zackstrap --hooks go --template web
 
 # Generate git hooks for Rust CLI project
 zackstrap --hooks rust --template cli
+
+# Generate git hooks for Bash (ShellCheck, shfmt if installed, BATS if present)
+zackstrap --hooks bash --template devops
 ```
 
 ### Available Git Hooks
@@ -338,12 +376,20 @@ Each language gets tailored git hooks:
 - cargo test
 - cargo check
 
+**Bash Projects:**
+
+- ShellCheck on `*.sh`
+- Optional `shfmt -d` when `shfmt` is installed
+- `bash -n` syntax checks (`main.sh` for `cli` template hooks)
+- Optional BATS under `test/` when `bats` is installed
+
 ### Requirements
 
 Git hooks require:
 
 - Git repository initialized (`git init`)
-- Language-specific tools installed (Ruby, Python, Node.js, Go, or Rust)
+- Language-specific tools installed (Ruby, Python, Node.js, Go, Rust, or
+  Bash/ShellCheck)
 - Project dependencies installed
 
 ## Configuration Files
@@ -492,6 +538,19 @@ Git hooks require:
 - Cargo build configuration
 - Native CPU optimization flags
 
+### Bash Configuration Files
+
+#### .shellcheckrc
+
+- Default dialect `bash`
+- Common `disable` entries (e.g. sourced files) documented in-file
+
+**Templates available:**
+
+- **default**: General shell scripts and shared checks
+- **devops**: Pipelines and deployment-style scripts (`shfmt`, broad checks)
+- **cli**: Single-entry scripts with `main.sh` run/check recipes in `justfile`
+
 ### justfile
 
 - Project automation and development tasks
@@ -518,6 +577,10 @@ Git hooks require:
 - **Rust**: Rust development with cargo
   - **Web**: Web application commands
   - **CLI**: Command-line application commands
+- **Bash**: ShellCheck, optional shfmt, `bash -n`
+  - **default**: Everyday scripts
+  - **devops**: CI-heavy checks and BATS when available
+  - **cli**: `main.sh` as the primary entry point
 
 ## CI/CD Pipeline
 
@@ -633,6 +696,7 @@ cargo test
 ```bash
 cargo run -- basic
 cargo run -- ruby
+cargo run -- bash
 ```
 
 ## Project Structure
