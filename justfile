@@ -147,6 +147,7 @@ release-patch:
   git tag -a "v${VERSION}" -m "Release v${VERSION}"
   git push origin main
   git push origin "v${VERSION}"
+  cargo publish
 
 release-minor:
   #!/usr/bin/env bash
@@ -163,6 +164,7 @@ release-minor:
   git tag -a "v${VERSION}" -m "Release v${VERSION}"
   git push origin main
   git push origin "v${VERSION}"
+  cargo publish
 
 release-major:
   #!/usr/bin/env bash
@@ -179,6 +181,7 @@ release-major:
   git tag -a "v${VERSION}" -m "Release v${VERSION}"
   git push origin main
   git push origin "v${VERSION}"
+  cargo publish
 
 # Cache management (project/cargo only - never touches ~/.cargo/bin or ~/.local/bin)
 clear-cache:
