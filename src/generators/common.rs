@@ -40,3 +40,44 @@ impl FileGenerator for super::ConfigGenerator {
         &self.target_dir
     }
 }
+
+impl super::ConfigGenerator {
+    pub async fn emit_file(
+        &self,
+        filename: &str,
+        content: &str,
+        fail_on_exists: bool,
+        force_override: bool,
+    ) -> Result<(), ZackstrapError> {
+        use colored::*;
+
+        if self.dry_run {
+            let file_path = self.target_dir.join(filename);
+            let effective_force = self.force || force_override;
+
+            if file_path.exists() {
+                if effective_force {
+                    println!("  {} {}", "[OVERWRITE]".yellow(), filename);
+                } else {
+                    println!("  {} {} (already exists)", "[SKIP]".dimmed(), filename);
+                    return Ok(());
+                }
+            } else {
+                println!("  {} {}", "[CREATE]".green(), filename);
+            }
+
+            println!("  {}", "───────────────────────".dimmed());
+            for line in content.lines() {
+                println!("  {}", line.dimmed());
+            }
+            println!("  {}", "───────────────────────".dimmed());
+            println!();
+
+            return Ok(());
+        }
+
+        let effective_force = self.force || force_override;
+        self.write_file_if_not_exists(filename, content, effective_force, fail_on_exists)
+            .await
+    }
+}
