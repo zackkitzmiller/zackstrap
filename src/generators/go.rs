@@ -1,44 +1,30 @@
-use super::common::FileGenerator;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_go(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_go_with_template(force, "default").await
+    pub async fn generate_go(&self) -> Result<(), ZackstrapError> {
+        self.generate_go_with_template("default").await
     }
 
     pub async fn generate_go_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Go-specific configs
-        self.generate_go_mod(force).await?;
-        self.generate_golangci_config(force).await?;
-        self.generate_go_gitignore(force).await?;
+        self.generate_go_mod().await?;
+        self.generate_golangci_config().await?;
+        self.generate_go_gitignore().await?;
 
         // Overwrite the basic justfile with Go-specific one
-        self.generate_go_justfile(true, template).await?;
+        self.generate_go_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_go_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  🐹 Would generate go.mod");
-        println!("  🔍 Would generate .golangci.yml");
-        println!("  🚫 Would generate .gitignore");
-        println!("  🔧 Would generate Go justfile (template: {})", template);
-        Ok(())
-    }
-
-    async fn generate_go_mod(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_go_mod(&self) -> Result<(), ZackstrapError> {
         let content = r#"module myproject
 
 go 1.21
@@ -47,11 +33,10 @@ require (
 	// Add your Go dependencies here
 )
 "#;
-        self.write_file_if_not_exists("go.mod", content, force, false)
-            .await
+        self.emit_file("go.mod", content, false, false).await
     }
 
-    async fn generate_golangci_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_golangci_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"run:
   timeout: 5m
   modules-download-mode: readonly
@@ -96,11 +81,10 @@ issues:
         - goconst
         - gosec
 "#;
-        self.write_file_if_not_exists(".golangci.yml", content, force, false)
-            .await
+        self.emit_file(".golangci.yml", content, false, false).await
     }
 
-    async fn generate_go_gitignore(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_go_gitignore(&self) -> Result<(), ZackstrapError> {
         let content = r#"# Binaries for programs and plugins
 *.exe
 *.exe~
@@ -145,15 +129,10 @@ go-mod-cache/
 ehthumbs.db
 Thumbs.db
 "#;
-        self.write_file_if_not_exists(".gitignore", content, force, false)
-            .await
+        self.emit_file(".gitignore", content, false, false).await
     }
 
-    async fn generate_go_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_go_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "web" => {
                 r#"# Go web project justfile
@@ -288,7 +267,6 @@ install:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }

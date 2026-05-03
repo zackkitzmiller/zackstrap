@@ -1,40 +1,28 @@
-use super::common::FileGenerator;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_bash(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_bash_with_template(force, "default").await
+    pub async fn generate_bash(&self) -> Result<(), ZackstrapError> {
+        self.generate_bash_with_template("default").await
     }
 
     pub async fn generate_bash_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Bash-specific configs
-        self.generate_shellcheck_config(force).await?;
+        self.generate_shellcheck_config().await?;
 
         // Overwrite the basic justfile with Bash-specific one
-        self.generate_bash_justfile(true, template).await?;
+        self.generate_bash_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_bash_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  🔍 Would generate .shellcheckrc");
-        println!("  🔧 Would generate Bash justfile (template: {})", template);
-        Ok(())
-    }
-
-    async fn generate_shellcheck_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_shellcheck_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"# ShellCheck configuration
 # See https://www.shellcheck.net/wiki/
 
@@ -51,15 +39,10 @@ enable=require-variable-braces
 enable=deprecate-which
 enable=avoid-nullary-conditions
 "#;
-        self.write_file_if_not_exists(".shellcheckrc", content, force, false)
-            .await
+        self.emit_file(".shellcheckrc", content, false, false).await
     }
 
-    async fn generate_bash_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_bash_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "devops" => {
                 r#"# Bash DevOps project justfile
@@ -173,7 +156,6 @@ check:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }

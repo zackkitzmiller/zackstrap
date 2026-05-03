@@ -1,44 +1,30 @@
-use super::common::FileGenerator;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_rust(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_rust_with_template(force, "default").await
+    pub async fn generate_rust(&self) -> Result<(), ZackstrapError> {
+        self.generate_rust_with_template("default").await
     }
 
     pub async fn generate_rust_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Rust-specific configs
-        self.generate_rustfmt_config(force).await?;
-        self.generate_clippy_config(force).await?;
-        self.generate_cargo_config(force).await?;
+        self.generate_rustfmt_config().await?;
+        self.generate_clippy_config().await?;
+        self.generate_cargo_config().await?;
 
         // Overwrite the basic justfile with Rust-specific one
-        self.generate_rust_justfile(true, template).await?;
+        self.generate_rust_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_rust_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  🦀 Would generate rustfmt.toml");
-        println!("  🔍 Would generate .clippy.toml");
-        println!("  📦 Would generate .cargo/config.toml");
-        println!("  🔧 Would generate Rust justfile (template: {})", template);
-        Ok(())
-    }
-
-    async fn generate_rustfmt_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_rustfmt_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"# Rustfmt configuration
 edition = "2021"
 max_width = 100
@@ -46,11 +32,10 @@ tab_spaces = 2
 newline_style = "Unix"
 use_small_heuristics = "Default"
 "#;
-        self.write_file_if_not_exists("rustfmt.toml", content, force, false)
-            .await
+        self.emit_file("rustfmt.toml", content, false, false).await
     }
 
-    async fn generate_clippy_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_clippy_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"# Clippy configuration
 # Threshold settings for common lints
 
@@ -62,11 +47,10 @@ enum-variant-name-threshold = 4
 max-struct-bools = 3
 max-fn-params-bools = 3
 "#;
-        self.write_file_if_not_exists(".clippy.toml", content, force, false)
-            .await
+        self.emit_file(".clippy.toml", content, false, false).await
     }
 
-    async fn generate_cargo_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_cargo_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"[build]
 # Set the target directory
 target = "target"
@@ -99,15 +83,11 @@ debug = false
 lto = true
 codegen-units = 1
 "#;
-        self.write_file_if_not_exists(".cargo/config.toml", content, force, false)
+        self.emit_file(".cargo/config.toml", content, false, false)
             .await
     }
 
-    async fn generate_rust_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_rust_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "web" => {
                 r#"# Rust web project justfile
@@ -259,7 +239,6 @@ install:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }

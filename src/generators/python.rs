@@ -1,62 +1,37 @@
-use super::common::FileGenerator;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_python(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_python_with_template(force, "default").await
+    pub async fn generate_python(&self) -> Result<(), ZackstrapError> {
+        self.generate_python_with_template("default").await
     }
 
     pub async fn generate_python_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Python-specific configs
-        self.generate_python_version(force).await?;
-        self.generate_pyproject_toml(force, template).await?;
-        self.generate_flake8_config(force).await?;
-        self.generate_requirements_dev(force).await?;
+        self.generate_python_version().await?;
+        self.generate_pyproject_toml(template).await?;
+        self.generate_flake8_config().await?;
+        self.generate_requirements_dev().await?;
 
         // Overwrite the basic justfile with Python-specific one
-        self.generate_python_justfile(true, template).await?;
+        self.generate_python_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_python_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  🐍 Would generate .python-version (3.12)");
-        println!(
-            "  📋 Would generate pyproject.toml (template: {})",
-            template
-        );
-        println!("  🔍 Would generate .flake8");
-        println!("  📦 Would generate requirements-dev.txt");
-        println!(
-            "  🔧 Would generate Python justfile (template: {})",
-            template
-        );
-        Ok(())
-    }
-
-    async fn generate_python_version(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_python_version(&self) -> Result<(), ZackstrapError> {
         let content = "3.12\n";
-        self.write_file_if_not_exists(".python-version", content, force, false)
+        self.emit_file(".python-version", content, false, false)
             .await
     }
 
-    async fn generate_pyproject_toml(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_pyproject_toml(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "django" => {
                 r#"[build-system]
@@ -184,21 +159,20 @@ strict = true
 "#
             }
         };
-        self.write_file_if_not_exists("pyproject.toml", content, force, false)
+        self.emit_file("pyproject.toml", content, false, false)
             .await
     }
 
-    async fn generate_flake8_config(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_flake8_config(&self) -> Result<(), ZackstrapError> {
         let content = r#"[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
 exclude = .git,__pycache__,build,dist,.venv,venv
 "#;
-        self.write_file_if_not_exists(".flake8", content, force, false)
-            .await
+        self.emit_file(".flake8", content, false, false).await
     }
 
-    async fn generate_requirements_dev(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_requirements_dev(&self) -> Result<(), ZackstrapError> {
         let content = r#"# Development dependencies
 pytest==7.4.4
 black==23.12.1
@@ -206,15 +180,11 @@ flake8==6.1.0
 mypy==1.8.0
 pytest-cov==4.1.0
 "#;
-        self.write_file_if_not_exists("requirements-dev.txt", content, force, false)
+        self.emit_file("requirements-dev.txt", content, false, false)
             .await
     }
 
-    async fn generate_python_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_python_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "django" => {
                 r#"# Django project justfile
@@ -311,7 +281,6 @@ install:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }
