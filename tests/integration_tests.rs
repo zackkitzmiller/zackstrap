@@ -263,10 +263,7 @@ async fn test_generate_go_config_with_templates() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test web template
-    generator
-        .generate_go_with_template("web")
-        .await
-        .unwrap();
+    generator.generate_go_with_template("web").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("go-web"));
 
@@ -330,10 +327,7 @@ async fn test_generate_rust_config_with_templates() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test web template
-    generator
-        .generate_rust_with_template("web")
-        .await
-        .unwrap();
+    generator.generate_rust_with_template("web").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("cargo-web"));
 
@@ -344,10 +338,7 @@ async fn test_generate_rust_config_with_templates() {
     std::fs::remove_file(temp_dir.child("rustfmt.toml").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".clippy.toml").path()).unwrap();
     std::fs::remove_dir_all(temp_dir.child(".cargo").path()).unwrap();
-    generator
-        .generate_rust_with_template("cli")
-        .await
-        .unwrap();
+    generator.generate_rust_with_template("cli").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("cargo-cli"));
 }
@@ -408,10 +399,7 @@ async fn test_generate_bash_config_with_templates() {
     std::fs::remove_file(temp_dir.child(".editorconfig").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".prettierrc").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".shellcheckrc").path()).unwrap();
-    generator
-        .generate_bash_with_template("cli")
-        .await
-        .unwrap();
+    generator.generate_bash_with_template("cli").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("CLI"));
     assert!(justfile.contains("main.sh"));
@@ -486,7 +474,10 @@ async fn test_dry_run_modes() {
         .unwrap();
 
     // Test Go dry run
-    generator.generate_go_with_template("default").await.unwrap();
+    generator
+        .generate_go_with_template("default")
+        .await
+        .unwrap();
 
     // Test Rust dry run
     generator
@@ -519,9 +510,7 @@ async fn test_force_overwrite_for_new_languages() {
         .await
         .unwrap();
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_python_with_template("default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
     // Force overwrite should also succeed
     let force_gen = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);
@@ -542,9 +531,7 @@ async fn test_force_overwrite_for_new_languages() {
         .await
         .unwrap();
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_node_with_template("default")
-        .await;
+    let result = generator.generate_node_with_template("default").await;
     assert!(result.is_ok());
     // Force overwrite should also succeed
     let force_gen2 = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);

@@ -7,10 +7,7 @@ impl super::ConfigGenerator {
         self.generate_node_with_template("default").await
     }
 
-    pub async fn generate_node_with_template(
-        &self,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    pub async fn generate_node_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(false, template).await?;
 
@@ -85,7 +82,8 @@ impl super::ConfigGenerator {
 "#
             }
         };
-        self.emit_file(".eslintrc.json", content, false, false).await
+        self.emit_file(".eslintrc.json", content, false, false)
+            .await
     }
 
     async fn generate_node_package_json(&self, template: &str) -> Result<(), ZackstrapError> {

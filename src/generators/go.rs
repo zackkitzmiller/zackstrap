@@ -6,10 +6,7 @@ impl super::ConfigGenerator {
         self.generate_go_with_template("default").await
     }
 
-    pub async fn generate_go_with_template(
-        &self,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    pub async fn generate_go_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
         // Generate basic configs first
         self.generate_basic_with_template(false, template).await?;
 

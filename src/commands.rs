@@ -107,9 +107,7 @@ impl CommandHandler {
             );
         }
 
-        generator
-            .generate_ruby_with_template(template_name)
-            .await?;
+        generator.generate_ruby_with_template(template_name).await?;
 
         if self.dry_run {
             if self.hooks {
@@ -234,9 +232,7 @@ impl CommandHandler {
             );
         }
 
-        generator
-            .generate_node_with_template(template_name)
-            .await?;
+        generator.generate_node_with_template(template_name).await?;
 
         if self.dry_run {
             if self.hooks {
@@ -297,9 +293,7 @@ impl CommandHandler {
             );
         }
 
-        generator
-            .generate_go_with_template(template_name)
-            .await?;
+        generator.generate_go_with_template(template_name).await?;
 
         if self.dry_run {
             if self.hooks {
@@ -361,9 +355,7 @@ impl CommandHandler {
             );
         }
 
-        generator
-            .generate_rust_with_template(template_name)
-            .await?;
+        generator.generate_rust_with_template(template_name).await?;
 
         if self.dry_run {
             if self.hooks {
@@ -425,9 +417,7 @@ impl CommandHandler {
             );
         }
 
-        generator
-            .generate_bash_with_template(template_name)
-            .await?;
+        generator.generate_bash_with_template(template_name).await?;
 
         if self.dry_run {
             if self.hooks {
@@ -497,9 +487,7 @@ impl CommandHandler {
                         "💎 Detected Ruby project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_ruby_with_template("default")
-                    .await?;
+                generator.generate_ruby_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -519,9 +507,7 @@ impl CommandHandler {
                         "🐍 Detected Python project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_python_with_template("default")
-                    .await?;
+                generator.generate_python_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -541,9 +527,7 @@ impl CommandHandler {
                         "🟢 Detected Node.js project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_node_with_template("default")
-                    .await?;
+                generator.generate_node_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -563,9 +547,7 @@ impl CommandHandler {
                         "🐹 Detected Go project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_go_with_template("default")
-                    .await?;
+                generator.generate_go_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -585,9 +567,7 @@ impl CommandHandler {
                         "🦀 Detected Rust project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_rust_with_template("default")
-                    .await?;
+                generator.generate_rust_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -607,9 +587,7 @@ impl CommandHandler {
                         "🐚 Detected Bash project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_bash_with_template("default")
-                    .await?;
+                generator.generate_bash_with_template("default").await?;
                 if !self.dry_run {
                     println!(
                         "{}",
@@ -629,9 +607,7 @@ impl CommandHandler {
                         "📁 Detected basic project, generating configuration...".green()
                     );
                 }
-                generator
-                    .generate_basic(self.fail_on_exists)
-                    .await?;
+                generator.generate_basic(self.fail_on_exists).await?;
                 if !self.dry_run {
                     println!(
                         "{}",

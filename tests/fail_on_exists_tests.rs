@@ -44,15 +44,11 @@ async fn test_fail_on_exists_ruby_project() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // First generation should succeed
-    let result = generator
-        .generate_ruby_with_template("default")
-        .await;
+    let result = generator.generate_ruby_with_template("default").await;
     assert!(result.is_ok());
 
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_ruby_with_template("default")
-        .await;
+    let result = generator.generate_ruby_with_template("default").await;
     assert!(result.is_ok());
 }
 
@@ -62,15 +58,11 @@ async fn test_fail_on_exists_python_project() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // First generation should succeed
-    let result = generator
-        .generate_python_with_template("default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
 
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_python_with_template("default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
 }
 
@@ -80,15 +72,11 @@ async fn test_fail_on_exists_node_project() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // First generation should succeed
-    let result = generator
-        .generate_node_with_template("default")
-        .await;
+    let result = generator.generate_node_with_template("default").await;
     assert!(result.is_ok());
 
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_node_with_template("default")
-        .await;
+    let result = generator.generate_node_with_template("default").await;
     assert!(result.is_ok());
 }
 
@@ -112,15 +100,11 @@ async fn test_fail_on_exists_rust_project() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // First generation should succeed
-    let result = generator
-        .generate_rust_with_template("default")
-        .await;
+    let result = generator.generate_rust_with_template("default").await;
     assert!(result.is_ok());
 
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_rust_with_template("default")
-        .await;
+    let result = generator.generate_rust_with_template("default").await;
     assert!(result.is_ok());
 }
 
@@ -156,9 +140,7 @@ async fn test_fail_on_exists_with_templates() {
 
     for template in templates {
         // First generation should succeed
-        let result = generator
-            .generate_basic_with_template(true, template)
-            .await;
+        let result = generator.generate_basic_with_template(true, template).await;
         assert!(result.is_ok(), "Failed for template: {}", template);
 
         // Clean up for next iteration
@@ -225,9 +207,7 @@ async fn test_fail_on_exists_language_specific_overrides() {
     assert!(result.is_ok());
 
     // Now generate Ruby project - should succeed because it sets fail_on_exists=false
-    let result = generator
-        .generate_ruby_with_template("default")
-        .await;
+    let result = generator.generate_ruby_with_template("default").await;
     assert!(result.is_ok());
 
     // Verify that Ruby-specific files were created
@@ -250,15 +230,11 @@ async fn test_fail_on_exists_mixed_scenarios() {
     assert!(result.is_err());
 
     // Scenario 3: Generate Python project (should succeed, sets fail_on_exists=false)
-    let result = generator
-        .generate_python_with_template("default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
 
     // Scenario 4: Generate Python again (should succeed)
-    let result = generator
-        .generate_python_with_template("default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
 
     // Scenario 5: Try basic again with force=true (should succeed)

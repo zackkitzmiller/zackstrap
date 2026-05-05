@@ -7,18 +7,14 @@ impl super::ConfigGenerator {
         self.generate_ruby_with_template("default").await
     }
 
-    pub async fn generate_ruby_with_template(
-        &self,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    pub async fn generate_ruby_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
         // Generate basic configs first (includes justfile)
         self.generate_basic_with_template(false, template).await?;
 
         // Generate Ruby-specific configs
         self.generate_ruby_version().await?;
         self.generate_node_version().await?;
-        self.generate_rubocop_config_with_template(template)
-            .await?;
+        self.generate_rubocop_config_with_template(template).await?;
         self.generate_package_json_with_template(template).await?;
 
         // Overwrite the basic justfile with Ruby-specific one
