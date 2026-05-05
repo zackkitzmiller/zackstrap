@@ -1,234 +1,261 @@
-# Zackstrap Project Justfile
-# Just is a command runner - https://github.com/casey/just
+# Zackstrap — project command runner
+# https://github.com/casey/just
+
+set dotenv-load := false
+
+version := `cargo get package.version 2>/dev/null || echo 'unknown'`
+os := `uname -s | tr '[:upper:]' '[:lower:]'`
+arch := `uname -m`
+
+# ─── Default ──────────────────────────────────────────────────────────
 
 default:
-  just info
+    @just --list --unsorted
 
-# Development
-rust-version:
-  just info
+# ─── Development ──────────────────────────────────────────────────────
 
-cargo-build:
-  cargo build
+# Build debug binary
+build:
+    cargo build
 
-cargo-build-release:
-  cargo build --release
+# Build optimized release binary
+build-release:
+    cargo build --release
 
-release-build:
-  @echo "Building release version..."
-  @if ! cargo get package.version >/dev/null 2>&1; then \
-    echo "cargo-get not found, installing tools..."; \
-    just install-tools; \
-  fi
-  @echo "Building version: $(cargo get package.version 2>/dev/null || echo 'unknown')"
-  cargo build --release
+# Install zackstrap to ~/.cargo/bin
+install:
+    cargo install --path .
 
-  @echo "Creating release directory..."
-  mkdir -p dist
+# Run the CLI with arguments (e.g. `just run -- ruby --template rails`)
+run *ARGS:
+    cargo run -- {{ARGS}}
 
-  @echo "Copying binary to dist/..."
-  cp target/release/zackstrap dist/
+# Watch for changes and rebuild on save
+watch:
+    cargo watch -x check -x 'test -- --nocapture'
 
-  @echo "Creating zipfile..."
-  cd dist && zip -r "zackstrap-$(cargo get package.version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip" zackstrap
-  @echo "Release build complete!"
-  @echo "Zipfile: dist/zackstrap-$(cargo get package.version 2>/dev/null || echo 'unknown')-$(uname -s | tr '[:upper:]' '[:lower:]')-$(uname -m).zip"
-
-test:
-  cargo test
-
-test-e2e:
-  cargo test -p zackstrap --test e2e_tests
-
-test-coverage:
-  cargo install cargo-tarpaulin --version 0.32.8
-  cargo tarpaulin --out Html --output-directory coverage
-
+# Check compilation without producing binaries
 check:
-  cargo check
+    cargo check --all-targets --all-features
 
+# ─── Testing ──────────────────────────────────────────────────────────
+
+# Run all tests
+test:
+    cargo test
+
+# Run a single test by name
+test-one NAME:
+    cargo test {{NAME}} -- --nocapture
+
+# Run only unit tests
+test-unit:
+    cargo test -p zackstrap --test unit_tests
+
+# Run only integration tests
+test-integration:
+    cargo test -p zackstrap --test integration_tests
+
+# Run only CLI argument parsing tests
+test-cli:
+    cargo test -p zackstrap --test cli_tests
+
+# Run only end-to-end tests
+test-e2e:
+    cargo test -p zackstrap --test e2e_tests
+
+# Run only fail-on-exists tests
+test-fail-on-exists:
+    cargo test -p zackstrap --test fail_on_exists_tests
+
+# Run only generator tests
+test-generators:
+    cargo test -p zackstrap --test generators_tests
+
+# Run tests with stdout visible
+test-verbose:
+    cargo test -- --nocapture
+
+# Generate HTML coverage report via tarpaulin
+test-coverage:
+    cargo tarpaulin --out Html --output-directory coverage
+    @echo "Report: coverage/tarpaulin-report.html"
+
+# Generate coverage and fail if below threshold
+test-coverage-check THRESHOLD="80":
+    cargo tarpaulin --fail-under {{THRESHOLD}}
+
+# ─── Linting & Formatting ────────────────────────────────────────────
+
+# Format all source files
 fmt:
-  cargo fmt --all
+    cargo fmt --all
 
+# Check formatting without modifying files
 fmt-check:
-  cargo fmt --all -- --check
+    cargo fmt --all -- --check
 
+# Run clippy with warnings-as-errors
 clippy:
-  cargo clippy --all-targets --all-features -- -D warnings
+    cargo clippy --all-targets --all-features -- -D warnings
 
-clean:
-  cargo clean
+# Run clippy and auto-fix what it can
+clippy-fix:
+    cargo clippy --all-targets --all-features --fix --allow-dirty -- -D warnings
 
-# CI/CD Stages
-# Note: These commands require 'just' to be installed in CI
-# The CI workflows automatically install 'just' using taiki-e/install-action@just
-ci-lint-format:
-  @echo "Running lint and format checks..."
-  cargo fmt --all -- --check
-  cargo clippy --all-targets --all-features -- -D warnings
+# Lint everything (format check + clippy)
+lint: fmt-check clippy
 
+# Fix everything (format + clippy auto-fix)
+fix: fmt clippy-fix
+
+# ─── Security & Dependencies ─────────────────────────────────────────
+
+# Audit dependencies for known vulnerabilities
+audit:
+    cargo audit
+
+# Show outdated dependencies
+outdated:
+    cargo outdated
+
+# Show the full dependency tree
+deps:
+    cargo tree
+
+# Show duplicate dependencies
+deps-dupes:
+    cargo tree -d
+
+# Update all dependencies to latest compatible versions
+deps-update:
+    cargo update
+
+# ─── Pre-commit & CI ─────────────────────────────────────────────────
+
+# Quick pre-commit checks (format + clippy + check)
+pre-commit: fmt clippy check
+
+# Full local CI pipeline (lint + all tests)
+ci-local: lint test
+
+# CI lint stage (matches GitHub Actions)
+ci-lint:
+    @echo "CI: lint + format check"
+    cargo fmt --all -- --check
+    cargo clippy --all-targets --all-features -- -D warnings
+
+# CI test stage (matches GitHub Actions)
 ci-test:
-  @echo "Running tests and coverage..."
-  cargo test --all-features
-  cargo tarpaulin --out Xml --output-dir coverage
+    @echo "CI: tests + coverage"
+    cargo test --all-features
+    cargo tarpaulin --out Xml --output-dir coverage
 
-ci-local:
-  @echo "Running full local CI pipeline..."
-  just ci-lint-format
-  just ci-test
+# ─── Release ──────────────────────────────────────────────────────────
 
-# Quick checks
-quick-check:
-  @echo "Quick code check..."
-  cargo check --all-targets --all-features
+# Bump version, tag, push, and publish to crates.io
+release LEVEL:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [[ "{{LEVEL}}" != "patch" && "{{LEVEL}}" != "minor" && "{{LEVEL}}" != "major" ]]; then
+        echo "Usage: just release [patch|minor|major]"
+        exit 1
+    fi
+    echo "Creating {{LEVEL}} release..."
+    cargo set-version --bump {{LEVEL}}
+    cargo check
+    git add Cargo.toml Cargo.lock
+    git commit -m "Bump version for {{LEVEL}} release"
+    VERSION="$(cargo get package.version)"
+    git tag -a "v${VERSION}" -m "Release v${VERSION}"
+    echo "Pushing to origin..."
+    git push origin main
+    git push origin "v${VERSION}"
+    echo "Publishing to crates.io..."
+    cargo publish
+    echo "Released v${VERSION}"
 
-quick-fmt:
-  @echo "Formatting code..."
-  cargo fmt --all
+# Build a distributable zipfile for the current platform
+dist:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    echo "Building release binary..."
+    cargo build --release
+    mkdir -p dist
+    cp target/release/zackstrap dist/
+    ZIPNAME="zackstrap-{{version}}-{{os}}-{{arch}}.zip"
+    cd dist && zip -r "$ZIPNAME" zackstrap
+    echo "dist/$ZIPNAME"
 
-quick-lint:
-  @echo "Running clippy..."
-  cargo clippy --all-targets --all-features -- -D warnings
+# Dry-run a crates.io publish (validates packaging without uploading)
+publish-dry-run:
+    cargo publish --dry-run
 
-# Pre-commit checks
-pre-commit:
-  @echo "Running pre-commit checks..."
-  just quick-fmt
-  just quick-lint
-  just quick-check
+# ─── Cleanup ──────────────────────────────────────────────────────────
 
-# Development tools
-install-tools:
-  @echo "Installing development tools..."
-  cargo install cargo-get || echo "cargo-get already installed"
-  cargo install cargo-set-version || echo "cargo-set-version already installed"
-  cargo install cargo-audit || echo "cargo-audit already installed"
-  cargo install cargo-outdated || echo "cargo-outdated already installed"
-  cargo install cargo-watch || echo "cargo-watch already installed"
-  cargo install cargo-tarpaulin --version 0.32.8 || echo "cargo-tarpaulin already installed"
+# Remove build artifacts
+clean:
+    cargo clean
 
+# Remove build artifacts and coverage reports
+clean-all: clean
+    rm -rf coverage dist
 
-check-deps:
-  @echo "Checking dependencies..."
-  cargo outdated || echo "Dependencies check completed (some may be outdated)"
+# ─── Project Info ─────────────────────────────────────────────────────
 
-check-deps-json:
-  @echo "Checking dependencies and saving to JSON..."
-  cargo outdated --format json > outdated-deps.json || echo "Dependencies check completed (some may be outdated)"
-  @echo "Results saved to outdated-deps.json"
-
-check-deps-table:
-  @echo "Checking dependencies in table format..."
-  cargo outdated --format list || echo "Dependencies check completed (some may be outdated)"
-
-check-tools:
-  @echo "Development Tools Status:"
-  @echo "========================"
-  @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
-
-# Release
-release-patch:
-  #!/usr/bin/env bash
-  set -euo pipefail
-  echo "Creating patch release..."
-  cargo set-version --bump patch
-  git add Cargo.toml Cargo.lock
-  git commit -m "Bump version for patch release"
-  if ! cargo get package.version >/dev/null 2>&1; then
-    echo "cargo-get not found, installing tools..."
-    just install-tools
-  fi
-  VERSION="$(cargo get package.version)"
-  git tag -a "v${VERSION}" -m "Release v${VERSION}"
-  git push origin main
-  git push origin "v${VERSION}"
-  cargo publish
-
-release-minor:
-  #!/usr/bin/env bash
-  set -euo pipefail
-  echo "Creating minor release..."
-  cargo set-version --bump minor
-  git add Cargo.toml Cargo.lock
-  git commit -m "Bump version for minor release"
-  if ! cargo get package.version >/dev/null 2>&1; then
-    echo "cargo-get not found, installing tools..."
-    just install-tools
-  fi
-  VERSION="$(cargo get package.version)"
-  git tag -a "v${VERSION}" -m "Release v${VERSION}"
-  git push origin main
-  git push origin "v${VERSION}"
-  cargo publish
-
-release-major:
-  #!/usr/bin/env bash
-  set -euo pipefail
-  echo "Creating major release..."
-  cargo set-version --bump major
-  git add Cargo.toml Cargo.lock
-  git commit -m "Bump version for major release"
-  if ! cargo get package.version >/dev/null 2>&1; then
-    echo "cargo-get not found, installing tools..."
-    just install-tools
-  fi
-  VERSION="$(cargo get package.version)"
-  git tag -a "v${VERSION}" -m "Release v${VERSION}"
-  git push origin main
-  git push origin "v${VERSION}"
-  cargo publish
-
-# Cache management (project/cargo only - never touches ~/.cargo/bin or ~/.local/bin)
-clear-cache:
-    @echo "Clearing project and cargo caches..."
-    @rm -rf target
-    @echo "✅ Project build cache (target/) cleared!"
-
-clear-cache-cargo:
-    @echo "Clearing cargo registry and project cache..."
-    @rm -rf ~/.cargo/registry ~/.cargo/git target
-    @echo "✅ Cargo cache cleared!"
-
-cache-status:
-    @echo "Cache Status"
-    @echo "============"
-    @echo "Cargo registry: $(du -sh ~/.cargo/registry 2>/dev/null || echo 'not found')"
-    @echo "Cargo git: $(du -sh ~/.cargo/git 2>/dev/null || echo 'not found')"
-    @echo "Target directory: $(du -sh target 2>/dev/null || echo 'not found')"
-    @echo "Cargo bin: $(du -sh ~/.cargo/bin 2>/dev/null || echo 'not found')"
-    @echo "Just bin: $(du -sh ~/.local/bin 2>/dev/null || echo 'not found')"
-    @echo ""
-    @echo "Development Tools:"
-    @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
-    @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
-    @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
-    @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
-    @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
-    @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
-
-# Project info
+# Show project and toolchain versions
 info:
-  @echo "Zackstrap Project Information"
-  @echo "============================"
-  @echo "Rust version: $(rustc --version)"
-  @echo "Cargo version: $(cargo --version)"
-  @echo "Just version: $(just --version)"
-  @if ! cargo get --version >/dev/null 2>&1; then \
-    echo "cargo-get not found, installing tools..."; \
-    just install-tools; \
-  fi
-  @echo "Current version: $(cargo get package.version 2>/dev/null || echo 'unknown')"
-  @echo ""
-  @echo "Development Tools Status:"
-  @echo "========================"
-  @echo "cargo-get: $(cargo get --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-audit: $(cargo audit --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-outdated: $(cargo outdated --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-watch: $(cargo watch --version 2>/dev/null || echo 'not installed')"
-  @echo "cargo-tarpaulin: $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
+    @echo "Zackstrap v{{version}}"
+    @echo ""
+    @echo "Toolchain"
+    @echo "  rustc:  $(rustc --version)"
+    @echo "  cargo:  $(cargo --version)"
+    @echo "  just:   $(just --version)"
+    @echo ""
+    @echo "Dev Tools"
+    @echo "  cargo-get:         $(cargo get --version 2>/dev/null || echo 'not installed')"
+    @echo "  cargo-set-version: $(cargo set-version --version 2>/dev/null || echo 'not installed')"
+    @echo "  cargo-audit:       $(cargo audit --version 2>/dev/null || echo 'not installed')"
+    @echo "  cargo-outdated:    $(cargo outdated --version 2>/dev/null || echo 'not installed')"
+    @echo "  cargo-watch:       $(cargo watch --version 2>/dev/null || echo 'not installed')"
+    @echo "  cargo-tarpaulin:   $(cargo tarpaulin --version 2>/dev/null || echo 'not installed')"
+
+# Show lines of code
+loc:
+    @echo "Source:"
+    @find src -name '*.rs' | xargs wc -l | tail -1
+    @echo "Tests:"
+    @find tests -name '*.rs' | xargs wc -l | tail -1
+
+# Install all development tools
+install-tools:
+    cargo install cargo-get cargo-set-version cargo-audit cargo-outdated cargo-watch
+    cargo install cargo-tarpaulin --version 0.32.8
+
+# Show disk usage of build artifacts and caches
+cache-status:
+    @echo "Disk Usage"
+    @echo "  target/:         $(du -sh target 2>/dev/null | cut -f1 || echo 'n/a')"
+    @echo "  coverage/:       $(du -sh coverage 2>/dev/null | cut -f1 || echo 'n/a')"
+    @echo "  dist/:           $(du -sh dist 2>/dev/null | cut -f1 || echo 'n/a')"
+    @echo "  ~/.cargo/registry: $(du -sh ~/.cargo/registry 2>/dev/null | cut -f1 || echo 'n/a')"
+
+# ─── Dogfooding ───────────────────────────────────────────────────────
+
+# Generate configs into a temp directory (test the CLI output)
+try PROFILE="ruby" *ARGS="":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    DIR=$(mktemp -d)
+    echo "Target: $DIR"
+    cargo run -- --target "$DIR" {{PROFILE}} {{ARGS}}
+    echo ""
+    echo "Generated files:"
+    ls -la "$DIR"
+    echo ""
+    echo "Cleaning up..."
+    rm -rf "$DIR"
+
+# Dry-run a profile to preview output
+preview PROFILE="ruby" *ARGS="":
+    cargo run -- --dry-run {{PROFILE}} {{ARGS}}

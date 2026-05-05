@@ -1,58 +1,33 @@
-use super::common::FileGenerator;
 use crate::config::PackageJson;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_node(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_node_with_template(force, "default").await
+    pub async fn generate_node(&self) -> Result<(), ZackstrapError> {
+        self.generate_node_with_template("default").await
     }
 
-    pub async fn generate_node_with_template(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    pub async fn generate_node_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
         // Generate basic configs first
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Node.js-specific configs
-        self.generate_nvmrc(force).await?;
-        self.generate_eslint_config(force, template).await?;
-        self.generate_node_package_json(force, template).await?;
+        self.generate_nvmrc().await?;
+        self.generate_eslint_config(template).await?;
+        self.generate_node_package_json(template).await?;
 
         // Overwrite the basic justfile with Node.js-specific one
-        self.generate_node_justfile(true, template).await?;
+        self.generate_node_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_node_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  🟢 Would generate .nvmrc (20)");
-        println!("  🔍 Would generate .eslintrc.js (template: {})", template);
-        println!("  📦 Would generate package.json (template: {})", template);
-        println!(
-            "  🔧 Would generate Node.js justfile (template: {})",
-            template
-        );
-        Ok(())
-    }
-
-    async fn generate_nvmrc(&self, force: bool) -> Result<(), ZackstrapError> {
+    async fn generate_nvmrc(&self) -> Result<(), ZackstrapError> {
         let content = "20\n";
-        self.write_file_if_not_exists(".nvmrc", content, force, false)
-            .await
+        self.emit_file(".nvmrc", content, false, false).await
     }
 
-    async fn generate_eslint_config(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_eslint_config(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "express" => {
                 r#"{
@@ -107,26 +82,17 @@ impl super::ConfigGenerator {
 "#
             }
         };
-        self.write_file_if_not_exists(".eslintrc.json", content, force, false)
+        self.emit_file(".eslintrc.json", content, false, false)
             .await
     }
 
-    async fn generate_node_package_json(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_node_package_json(&self, template: &str) -> Result<(), ZackstrapError> {
         let package_json = PackageJson::from_template(template);
         let content = package_json.to_string();
-        self.write_file_if_not_exists("package.json", &content, force, false)
-            .await
+        self.emit_file("package.json", &content, false, false).await
     }
 
-    async fn generate_node_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_node_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "express" => {
                 r#"# Express.js project justfile
@@ -240,7 +206,6 @@ build:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }

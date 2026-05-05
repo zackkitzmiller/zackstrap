@@ -25,11 +25,26 @@ pub enum ProjectType {
 
 pub struct ConfigGenerator {
     target_dir: PathBuf,
+    dry_run: bool,
+    force: bool,
 }
 
 impl ConfigGenerator {
+    #[allow(dead_code)]
     pub fn new(target_dir: PathBuf) -> Self {
-        Self { target_dir }
+        Self {
+            target_dir,
+            dry_run: false,
+            force: false,
+        }
+    }
+
+    pub fn with_options(target_dir: PathBuf, dry_run: bool, force: bool) -> Self {
+        Self {
+            target_dir,
+            dry_run,
+            force,
+        }
     }
 
     pub async fn detect_project_type(&self) -> Result<ProjectType, ZackstrapError> {
@@ -103,7 +118,7 @@ impl ConfigGenerator {
         // TODO: Implement interactive setup
         println!("🎯 Interactive setup not yet implemented, generating basic configuration...");
 
-        self.generate_basic(false, false).await?;
+        self.generate_basic(false).await?;
 
         Ok(())
     }

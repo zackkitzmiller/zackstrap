@@ -1,63 +1,40 @@
-use super::common::FileGenerator;
 use crate::config::PackageJson;
 use crate::error::ZackstrapError;
 
 impl super::ConfigGenerator {
     #[allow(dead_code)]
-    pub async fn generate_ruby(&self, force: bool) -> Result<(), ZackstrapError> {
-        self.generate_ruby_with_template(force, "default").await
+    pub async fn generate_ruby(&self) -> Result<(), ZackstrapError> {
+        self.generate_ruby_with_template("default").await
     }
 
-    pub async fn generate_ruby_with_template(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    pub async fn generate_ruby_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
         // Generate basic configs first (includes justfile)
-        self.generate_basic_with_template(force, false, template)
-            .await?;
+        self.generate_basic_with_template(false, template).await?;
 
         // Generate Ruby-specific configs
-        self.generate_ruby_version(force).await?;
-        self.generate_node_version(force).await?;
-        self.generate_rubocop_config_with_template(force, template)
-            .await?;
-        self.generate_package_json_with_template(force, template)
-            .await?;
+        self.generate_ruby_version().await?;
+        self.generate_node_version().await?;
+        self.generate_rubocop_config_with_template(template).await?;
+        self.generate_package_json_with_template(template).await?;
 
         // Overwrite the basic justfile with Ruby-specific one
-        self.generate_ruby_justfile(true, template).await?;
+        self.generate_ruby_justfile(template).await?;
 
         Ok(())
     }
 
-    pub async fn dry_run_ruby_with_template(&self, template: &str) -> Result<(), ZackstrapError> {
-        println!("  📝 Would generate .editorconfig");
-        println!("  🎨 Would generate .prettierrc (template: {})", template);
-        println!("  🔧 Would generate justfile");
-        println!("  💎 Would generate .ruby-version (3.3.0)");
-        println!("  🟢 Would generate .node-version (24)");
-        println!("  🔍 Would generate .rubocop.yml (template: {})", template);
-        println!("  📦 Would generate package.json (template: {})", template);
-        println!("  🔧 Would generate Ruby justfile (template: {})", template);
-        Ok(())
+    async fn generate_ruby_version(&self) -> Result<(), ZackstrapError> {
+        let content = "3.4.9\n";
+        self.emit_file(".ruby-version", content, false, false).await
     }
 
-    async fn generate_ruby_version(&self, force: bool) -> Result<(), ZackstrapError> {
-        let content = "3.3.0\n";
-        self.write_file_if_not_exists(".ruby-version", content, force, false)
-            .await
-    }
-
-    async fn generate_node_version(&self, force: bool) -> Result<(), ZackstrapError> {
-        let content = "24\n";
-        self.write_file_if_not_exists(".node-version", content, force, false)
-            .await
+    async fn generate_node_version(&self) -> Result<(), ZackstrapError> {
+        let content = "25.9.0\n";
+        self.emit_file(".node-version", content, false, false).await
     }
 
     async fn generate_rubocop_config_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let content = match template {
@@ -148,13 +125,11 @@ Layout/LineLength:
 "#
             }
         };
-        self.write_file_if_not_exists(".rubocop.yml", content, force, false)
-            .await
+        self.emit_file(".rubocop.yml", content, false, false).await
     }
 
     async fn generate_package_json_with_template(
         &self,
-        force: bool,
         template: &str,
     ) -> Result<(), ZackstrapError> {
         let package_json = match template {
@@ -162,15 +137,10 @@ Layout/LineLength:
             _ => PackageJson::default(),
         };
         let content = package_json.to_string();
-        self.write_file_if_not_exists("package.json", &content, force, false)
-            .await
+        self.emit_file("package.json", &content, false, false).await
     }
 
-    async fn generate_ruby_justfile(
-        &self,
-        force: bool,
-        template: &str,
-    ) -> Result<(), ZackstrapError> {
+    async fn generate_ruby_justfile(&self, template: &str) -> Result<(), ZackstrapError> {
         let content = match template {
             "rails" => {
                 r#"# Rails project justfile
@@ -290,7 +260,6 @@ install:
 "#
             }
         };
-        self.write_file_if_not_exists("justfile", content, force, false)
-            .await
+        self.emit_file("justfile", content, false, true).await
     }
 }

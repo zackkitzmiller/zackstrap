@@ -8,7 +8,7 @@ async fn test_generate_basic_config() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test basic generation
-    generator.generate_basic(false, true).await.unwrap();
+    generator.generate_basic(true).await.unwrap();
 
     // Verify files were created
     temp_dir
@@ -34,7 +34,7 @@ async fn test_generate_ruby_config() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test Ruby generation
-    generator.generate_ruby(false).await.unwrap();
+    generator.generate_ruby().await.unwrap();
 
     // Verify all files were created
     temp_dir
@@ -57,10 +57,10 @@ async fn test_generate_ruby_config() {
         .assert(predicates::path::exists());
     // Verify Ruby-specific content
     let ruby_version = std::fs::read_to_string(temp_dir.child(".ruby-version").path()).unwrap();
-    assert_eq!(ruby_version.trim(), "3.3.0");
+    assert_eq!(ruby_version.trim(), "3.4.9");
 
     let node_version = std::fs::read_to_string(temp_dir.child(".node-version").path()).unwrap();
-    assert_eq!(node_version.trim(), "24");
+    assert_eq!(node_version.trim(), "25.9.0");
 
     let package_json = std::fs::read_to_string(temp_dir.child("package.json").path()).unwrap();
     assert!(package_json.contains("prettier-plugin-ruby"));
@@ -78,7 +78,7 @@ async fn test_generate_python_config() {
 
     // Test Python generation
     generator
-        .generate_python_with_template(false, "default")
+        .generate_python_with_template("default")
         .await
         .unwrap();
 
@@ -128,7 +128,7 @@ async fn test_generate_python_config_with_templates() {
 
     // Test Django template
     generator
-        .generate_python_with_template(false, "django")
+        .generate_python_with_template("django")
         .await
         .unwrap();
     let pyproject_toml = std::fs::read_to_string(temp_dir.child("pyproject.toml").path()).unwrap();
@@ -143,7 +143,7 @@ async fn test_generate_python_config_with_templates() {
     std::fs::remove_file(temp_dir.child(".flake8").path()).unwrap();
     std::fs::remove_file(temp_dir.child("requirements-dev.txt").path()).unwrap();
     generator
-        .generate_python_with_template(false, "flask")
+        .generate_python_with_template("flask")
         .await
         .unwrap();
     let pyproject_toml = std::fs::read_to_string(temp_dir.child("pyproject.toml").path()).unwrap();
@@ -157,7 +157,7 @@ async fn test_generate_node_config() {
 
     // Test Node.js generation
     generator
-        .generate_node_with_template(false, "default")
+        .generate_node_with_template("default")
         .await
         .unwrap();
 
@@ -197,7 +197,7 @@ async fn test_generate_node_config_with_templates() {
 
     // Test Express template — server-side, so no "browser" env
     generator
-        .generate_node_with_template(false, "express")
+        .generate_node_with_template("express")
         .await
         .unwrap();
     let eslint_config = std::fs::read_to_string(temp_dir.child(".eslintrc.json").path()).unwrap();
@@ -213,7 +213,7 @@ async fn test_generate_node_config_with_templates() {
     std::fs::remove_file(temp_dir.child(".prettierrc").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".nvmrc").path()).unwrap();
     generator
-        .generate_node_with_template(false, "react")
+        .generate_node_with_template("react")
         .await
         .unwrap();
     let eslint_config = std::fs::read_to_string(temp_dir.child(".eslintrc.json").path()).unwrap();
@@ -229,7 +229,7 @@ async fn test_generate_go_config() {
 
     // Test Go generation
     generator
-        .generate_go_with_template(false, "default")
+        .generate_go_with_template("default")
         .await
         .unwrap();
 
@@ -263,10 +263,7 @@ async fn test_generate_go_config_with_templates() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test web template
-    generator
-        .generate_go_with_template(false, "web")
-        .await
-        .unwrap();
+    generator.generate_go_with_template("web").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("go-web"));
 
@@ -277,8 +274,9 @@ async fn test_generate_go_config_with_templates() {
     std::fs::remove_file(temp_dir.child("go.mod").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".golangci.yml").path()).unwrap();
     // Note: .gitignore is updated, not created, so we don't remove it
-    generator
-        .generate_go_with_template(true, "cli")
+    let force_generator = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);
+    force_generator
+        .generate_go_with_template("cli")
         .await
         .unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
@@ -292,7 +290,7 @@ async fn test_generate_rust_config() {
 
     // Test Rust generation
     generator
-        .generate_rust_with_template(false, "default")
+        .generate_rust_with_template("default")
         .await
         .unwrap();
 
@@ -329,10 +327,7 @@ async fn test_generate_rust_config_with_templates() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Test web template
-    generator
-        .generate_rust_with_template(false, "web")
-        .await
-        .unwrap();
+    generator.generate_rust_with_template("web").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("cargo-web"));
 
@@ -343,10 +338,7 @@ async fn test_generate_rust_config_with_templates() {
     std::fs::remove_file(temp_dir.child("rustfmt.toml").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".clippy.toml").path()).unwrap();
     std::fs::remove_dir_all(temp_dir.child(".cargo").path()).unwrap();
-    generator
-        .generate_rust_with_template(false, "cli")
-        .await
-        .unwrap();
+    generator.generate_rust_with_template("cli").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("cargo-cli"));
 }
@@ -358,7 +350,7 @@ async fn test_generate_bash_config() {
 
     // Test Bash generation
     generator
-        .generate_bash_with_template(false, "default")
+        .generate_bash_with_template("default")
         .await
         .unwrap();
 
@@ -395,7 +387,7 @@ async fn test_generate_bash_config_with_templates() {
 
     // Test devops template
     generator
-        .generate_bash_with_template(false, "devops")
+        .generate_bash_with_template("devops")
         .await
         .unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
@@ -407,10 +399,7 @@ async fn test_generate_bash_config_with_templates() {
     std::fs::remove_file(temp_dir.child(".editorconfig").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".prettierrc").path()).unwrap();
     std::fs::remove_file(temp_dir.child(".shellcheckrc").path()).unwrap();
-    generator
-        .generate_bash_with_template(false, "cli")
-        .await
-        .unwrap();
+    generator.generate_bash_with_template("cli").await.unwrap();
     let justfile = std::fs::read_to_string(temp_dir.child("justfile").path()).unwrap();
     assert!(justfile.contains("CLI"));
     assert!(justfile.contains("main.sh"));
@@ -470,32 +459,35 @@ async fn test_project_type_detection() {
 #[tokio::test]
 async fn test_dry_run_modes() {
     let temp_dir = TempDir::new().unwrap();
-    let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
+    let generator = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), true, false);
 
     // Test Python dry run
     generator
-        .dry_run_python_with_template("default")
+        .generate_python_with_template("default")
         .await
         .unwrap();
 
     // Test Node.js dry run
     generator
-        .dry_run_node_with_template("default")
+        .generate_node_with_template("default")
         .await
         .unwrap();
 
     // Test Go dry run
-    generator.dry_run_go_with_template("default").await.unwrap();
+    generator
+        .generate_go_with_template("default")
+        .await
+        .unwrap();
 
     // Test Rust dry run
     generator
-        .dry_run_rust_with_template("default")
+        .generate_rust_with_template("default")
         .await
         .unwrap();
 
     // Test Bash dry run
     generator
-        .dry_run_bash_with_template("default")
+        .generate_bash_with_template("default")
         .await
         .unwrap();
 
@@ -514,17 +506,16 @@ async fn test_force_overwrite_for_new_languages() {
 
     // Test Python force overwrite - language projects use fail_on_exists=false, so they succeed on second generation
     generator
-        .generate_python_with_template(false, "default")
+        .generate_python_with_template("default")
         .await
         .unwrap();
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_python_with_template(false, "default")
-        .await;
+    let result = generator.generate_python_with_template("default").await;
     assert!(result.is_ok());
     // Force overwrite should also succeed
-    generator
-        .generate_python_with_template(true, "default")
+    let force_gen = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);
+    force_gen
+        .generate_python_with_template("default")
         .await
         .unwrap();
 
@@ -536,17 +527,16 @@ async fn test_force_overwrite_for_new_languages() {
     let _ = std::fs::remove_file(temp_dir.child(".editorconfig").path());
     let _ = std::fs::remove_file(temp_dir.child(".prettierrc").path());
     generator
-        .generate_node_with_template(false, "default")
+        .generate_node_with_template("default")
         .await
         .unwrap();
     // Second generation should succeed (fail_on_exists=false for language projects)
-    let result = generator
-        .generate_node_with_template(false, "default")
-        .await;
+    let result = generator.generate_node_with_template("default").await;
     assert!(result.is_ok());
     // Force overwrite should also succeed
-    generator
-        .generate_node_with_template(true, "default")
+    let force_gen2 = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);
+    force_gen2
+        .generate_node_with_template("default")
         .await
         .unwrap();
 }
@@ -557,14 +547,15 @@ async fn test_force_overwrite() {
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
     // Create initial config
-    generator.generate_basic(false, true).await.unwrap();
+    generator.generate_basic(true).await.unwrap();
 
     // Try to generate again without force - should fail
-    let result = generator.generate_basic(false, true).await;
+    let result = generator.generate_basic(true).await;
     assert!(result.is_err());
 
     // Generate with force - should succeed
-    generator.generate_basic(true, true).await.unwrap();
+    let force_generator = ConfigGenerator::with_options(temp_dir.path().to_path_buf(), false, true);
+    force_generator.generate_basic(true).await.unwrap();
 }
 
 #[tokio::test]
@@ -572,7 +563,7 @@ async fn test_editor_config_sections() {
     let temp_dir = TempDir::new().unwrap();
     let generator = ConfigGenerator::new(temp_dir.path().to_path_buf());
 
-    generator.generate_basic(false, true).await.unwrap();
+    generator.generate_basic(true).await.unwrap();
 
     let editor_config = std::fs::read_to_string(temp_dir.child(".editorconfig").path()).unwrap();
 
