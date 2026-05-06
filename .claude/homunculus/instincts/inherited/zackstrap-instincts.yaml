@@ -1,0 +1,338 @@
+# Instincts generated from https://github.com/zackkitzmiller/zackstrap
+# Generated: 2026-05-05T17:29:41.035Z
+# Version: 2.0
+# NOTE: This file supplements (does not replace) any existing curated instincts.
+# High-confidence manually curated instincts should be preserved alongside these.
+
+---
+id: zackstrap-commit-length
+trigger: "when writing a commit message"
+confidence: 0.6
+domain: git
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Commit Length
+
+## Action
+
+Keep commit messages concise (~49 characters)
+
+## Evidence
+
+- Average commit message length: 49 chars
+- Based on 6 commits
+
+---
+id: zackstrap-naming-files
+trigger: "when creating a new file"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Naming Files
+
+## Action
+
+Use camelCase naming convention
+
+## Evidence
+
+- Analyzed file naming patterns in repository
+- Dominant pattern: camelCase
+
+---
+id: zackstrap-import-relative
+trigger: "when importing modules"
+confidence: 0.75
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Import Relative
+
+## Action
+
+Use relative imports for project files
+
+## Evidence
+
+- Import analysis shows relative import pattern
+- Example: import { x } from '../lib/x'
+
+---
+id: zackstrap-export-style
+trigger: "when exporting from a module"
+confidence: 0.7
+domain: code-style
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Export Style
+
+## Action
+
+Prefer named exports
+
+## Evidence
+
+- Export pattern analysis
+- Dominant style: named
+
+---
+id: zackstrap-test-separate
+trigger: "when writing tests"
+confidence: 0.8
+domain: testing
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Test Separate
+
+## Action
+
+Place tests in the tests/ or __tests__/ directory, mirroring src structure
+
+## Evidence
+
+- Separate test directory pattern detected
+- Tests live in dedicated test folders
+
+---
+id: zackstrap-workflow-refactor-generator-file-writing
+trigger: "when doing refactor generator file writing"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Workflow Refactor Generator File Writing
+
+## Action
+
+Follow the refactor-generator-file-writing workflow:
+1. Update core generator logic to add or refactor dry_run/force handling (e.g., add struct fields, new emit_file method)
+2. Remove old dry_run_* methods from all generators
+3. Update all generator modules to use the new unified method
+4. Update command handling to use new generator options
+5. Update or add relevant tests to cover new logic
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: src/generators/common.rs, src/generators/mod.rs, src/commands.rs
+
+---
+id: zackstrap-workflow-release-version-bump
+trigger: "when doing release version bump"
+confidence: 0.6
+domain: workflow
+source: repo-analysis
+source_repo: https://github.com/zackkitzmiller/zackstrap
+---
+
+# Zackstrap Workflow Release Version Bump
+
+## Action
+
+Follow the release-version-bump workflow:
+1. Update version numbers in Cargo.toml and Cargo.lock
+2. Update CHANGELOG.md with recent changes
+3. Merge main into feature branch if necessary
+
+## Evidence
+
+- Workflow detected from commit patterns
+- Frequency: ~2x per month
+- Files: Cargo.toml, Cargo.lock, CHANGELOG.md
+
+---
+id: zackstrap-instinct-naming-conventions
+trigger: "When creating new files, functions, classes, or constants in Rust code"
+confidence: 0.85
+domain: code-style
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Naming Conventions
+
+## Action
+
+Use camelCase for files and functions, PascalCase for classes, and SCREAMING_SNAKE_CASE for constants
+
+## Evidence
+
+- Pattern in codeStyle.namingConventions
+- Consistent usage in src/generators/common.rs and other generator files
+
+---
+id: zackstrap-instinct-import-style
+trigger: "When importing modules within the project"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Import Style
+
+## Action
+
+Use relative imports
+
+## Evidence
+
+- Pattern in codeStyle.importStyle
+- Observed in src/generators/*.rs
+
+---
+id: zackstrap-instinct-export-style
+trigger: "When exporting functions or types from a module"
+confidence: 0.8
+domain: code-style
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Export Style
+
+## Action
+
+Use named exports
+
+## Evidence
+
+- Pattern in codeStyle.exportStyle
+- Observed in src/generators/mod.rs
+
+---
+id: zackstrap-instinct-test-location
+trigger: "When adding or updating tests"
+confidence: 0.85
+domain: testing
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Test Location
+
+## Action
+
+Place tests in the 'tests' folder, separate from source code
+
+## Evidence
+
+- Pattern in architecture.testLocation
+- Files: tests/fail_on_exists_tests.rs, tests/integration_tests.rs
+
+---
+id: zackstrap-instinct-test-coverage-for-refactors
+trigger: "When refactoring generator logic (e.g., file writing, dry_run/force)"
+confidence: 0.9
+domain: testing
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Test Coverage For Refactors
+
+## Action
+
+Update or add tests to cover new or changed logic
+
+## Evidence
+
+- Workflow: refactor-generator-file-writing includes updating/adding tests
+- Commits updating tests/fail_on_exists_tests.rs and tests/integration_tests.rs
+
+---
+id: zackstrap-instinct-commit-prefix
+trigger: "When writing a commit message"
+confidence: 0.85
+domain: git
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Commit Prefix
+
+## Action
+
+Prefix the message with the type of change, such as 'refactor:' or 'fix:'
+
+## Evidence
+
+- Pattern in commits.prefixes
+- Examples: 'refactor: add dry_run/force fields...', 'fix: rustfmt formatting...'
+
+---
+id: zackstrap-instinct-commit-length
+trigger: "When composing a commit message"
+confidence: 0.8
+domain: git
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Commit Length
+
+## Action
+
+Keep the commit message concise, around 50 characters
+
+## Evidence
+
+- Pattern in commits.averageLength
+- Examples in commit list
+
+---
+id: zackstrap-instinct-refactor-generator-file-writing
+trigger: "When someone wants to improve or unify the way code generators handle file output, especially for dry-run and force behaviors"
+confidence: 0.9
+domain: workflow
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Refactor Generator File Writing
+
+## Action
+
+Centralize dry_run/force logic by updating core generator logic, removing old methods, updating all generators to use the new method, updating command handling, and updating/adding relevant tests
+
+## Evidence
+
+- Workflow: refactor-generator-file-writing
+- Commits: 'refactor: add dry_run/force fields...', 'refactor: remove dry_run_* methods...'
+- Files: src/generators/common.rs, src/generators/mod.rs, tests/fail_on_exists_tests.rs
+
+---
+id: zackstrap-instinct-release-version-bump
+trigger: "When someone wants to publish a new release or synchronize release metadata"
+confidence: 0.85
+domain: workflow
+source: repo-analysis
+source_repo: zackkitzmiller/zackstrap
+---
+
+# Zackstrap Instinct Release Version Bump
+
+## Action
+
+Update version numbers in Cargo.toml and Cargo.lock, update CHANGELOG.md, and merge main into feature branch if necessary
+
+## Evidence
+
+- Workflow: release-version-bump
+- Commits: 'Bump version for patch release', 'Update version numbers in Cargo.toml and Cargo.lock'
+- Files: Cargo.toml, Cargo.lock, CHANGELOG.md
+
