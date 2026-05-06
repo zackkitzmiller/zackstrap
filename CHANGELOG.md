@@ -1,4 +1,4 @@
-# Changelog for 1.6.0
+# Changelog for 1.6.2
 
 ## [Unreleased]
 
